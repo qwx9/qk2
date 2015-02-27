@@ -263,7 +263,8 @@ float Q_fabs (float f)
 
 #if defined _M_IX86 && !defined C_ONLY
 #pragma warning (disable:4035)
-__declspec( naked ) long Q_ftol( float f )
+//__declspec( naked ) long Q_ftol( float f )
+long Q_ftol( float f )
 {
 	static int tmp;
 	__asm fld dword ptr [esp+4]
@@ -345,7 +346,7 @@ BoxOnPlaneSide
 Returns 1, 2, or 1 + 2
 ==================
 */
-#if !id386
+//#if !id386
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
 	float	dist1, dist2;
@@ -412,10 +413,12 @@ dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
 
 	return sides;
 }
-#else
+//#else
 #pragma warning( disable: 4035 )
 
-__declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+/*
+//__declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
 	static int bops_initialized;
 	static int Ljmptab[8];
@@ -645,7 +648,8 @@ Lerror:
 	}
 }
 #pragma warning( default: 4035 )
-#endif
+//#endif
+*/
 
 void ClearBounds (vec3_t mins, vec3_t maxs)
 {
