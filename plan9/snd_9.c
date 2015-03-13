@@ -69,7 +69,7 @@ qboolean SNDDMA_Init(void)
 	dma.channels = (int)sndchannels->value;
 	if(dma.channels < 1 || dma.channels > 2)
 		dma.channels = 2;
-	dma.samples = 1024;
+	dma.samples = 8192;
 	dma.submission_chunk = 1;
 	if((dma.buffer = mallocz(dma.samplebits/8 * dma.samples, 1)) == nil)
 		sysfatal("SNDDMA_Init:mallocz: %r\n");
