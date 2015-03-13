@@ -17,14 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-jorg
-
-==============================================================================
-*/
-
+// jorg
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_boss31.h"
 
@@ -54,7 +53,7 @@ void jorg_search (edict_t *self)
 {
 	float r;
 
-	r = random();
+	r = qrandom();
 
 	if (r <= 0.3)
 		gi.sound (self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
@@ -394,7 +393,7 @@ mmove_t jorg_move_end_attack1 = {FRAME_attak115, FRAME_attak118, jorg_frames_end
 void jorg_reattack1(edict_t *self)
 {
 	if (visible(self, self->enemy))
-		if (random() < 0.9)
+		if (qrandom() < 0.9)
 			self->monsterinfo.currentmove = &jorg_move_attack1;
 		else
 		{
@@ -413,7 +412,7 @@ void jorg_attack1(edict_t *self)
 	self->monsterinfo.currentmove = &jorg_move_attack1;
 }
 
-void jorg_pain (edict_t *self, edict_t *other, float kick, int damage)
+void jorg_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 
 	if (self->health < (self->max_health / 2))
@@ -426,7 +425,7 @@ void jorg_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	// Lessen the chance of him going into his pain frames if he takes little damage
 	if (damage <= 40)
-		if (random()<=0.6)
+		if (qrandom()<=0.6)
 			return;
 
 	/* 
@@ -435,16 +434,16 @@ void jorg_pain (edict_t *self, edict_t *other, float kick, int damage)
 	*/
 	
 	if ( (self->s.frame >= FRAME_attak101) && (self->s.frame <= FRAME_attak108) )
-		if (random() <= 0.005)
+		if (qrandom() <= 0.005)
 			return;
 
 	if ( (self->s.frame >= FRAME_attak109) && (self->s.frame <= FRAME_attak114) )
-		if (random() <= 0.00005)
+		if (qrandom() <= 0.00005)
 			return;
 
 
 	if ( (self->s.frame >= FRAME_attak201) && (self->s.frame <= FRAME_attak208) )
-		if (random() <= 0.005)
+		if (qrandom() <= 0.005)
 			return;
 
 
@@ -464,7 +463,7 @@ void jorg_pain (edict_t *self, edict_t *other, float kick, int damage)
 	}
 	else
 	{
-		if (random() <= 0.3)
+		if (qrandom() <= 0.3)
 		{
 			gi.sound (self, CHAN_VOICE, sound_pain3, 1, ATTN_NORM,0);
 			self->monsterinfo.currentmove = &jorg_move_pain3;
@@ -539,12 +538,14 @@ void jorg_firebullet (edict_t *self)
 void jorg_attack(edict_t *self)
 {
 	vec3_t	vec;
-	float	range;
 	
 	VectorSubtract (self->enemy->s.origin, self->s.origin, vec);
+	/*
+	float range;
 	range = VectorLength (vec);
+	*/
 
-	if (random() <= 0.75)
+	if (qrandom() <= 0.75)
 	{
 		gi.sound (self, CHAN_VOICE, sound_attack1, 1, ATTN_NORM,0);
 		self->s.sound = gi.soundindex ("boss3/w_loop.wav");
@@ -557,14 +558,12 @@ void jorg_attack(edict_t *self)
 	}
 }
 
-void jorg_dead (edict_t *self)
+void jorg_dead (edict_t */*self*/)
 {
-#if 0
+/*
 	edict_t	*tempent;
-	/*
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, -8);
-	*/
+	//VectorSet (self->mins, -16, -16, -24);
+	//VectorSet (self->maxs, 16, 16, -8);
 	
 	// Jorg is on modelindex2. Do not clear him.
 	VectorSet (self->mins, -60, -60, 0);
@@ -582,11 +581,11 @@ void jorg_dead (edict_t *self)
 	self->killtarget = 0;
 	self->target = 0;
 	SP_monster_makron (tempent);
-#endif
+*/
 }
 
 
-void jorg_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void jorg_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int /*damage*/, vec3_t /*point*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
@@ -602,7 +601,6 @@ qboolean Jorg_CheckAttack (edict_t *self)
 	vec3_t	temp;
 	float	chance;
 	trace_t	tr;
-	qboolean	enemy_infront;
 	int			enemy_range;
 	float		enemy_yaw;
 
@@ -621,7 +619,7 @@ qboolean Jorg_CheckAttack (edict_t *self)
 			return false;
 	}
 	
-	enemy_infront = infront(self, self->enemy);
+	infront(self, self->enemy);	/* qboolean enemy_infront = */
 	enemy_range = range(self, self->enemy);
 	VectorSubtract (self->enemy->s.origin, self->s.origin, temp);
 	enemy_yaw = vectoyaw(temp);
@@ -670,16 +668,16 @@ qboolean Jorg_CheckAttack (edict_t *self)
 		return false;
 	}
 
-	if (random () < chance)
+	if (qrandom() < chance)
 	{
 		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + 2*random();
+		self->monsterinfo.attack_finished = level.time + 2*qrandom();
 		return true;
 	}
 
 	if (self->flags & FL_FLY)
 	{
-		if (random() < 0.3)
+		if (qrandom() < 0.3)
 			self->monsterinfo.attack_state = AS_SLIDING;
 		else
 			self->monsterinfo.attack_state = AS_STRAIGHT;

@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl_newfx.c -- MORE entity effects parsing and management
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 extern cparticle_t	*active_particles, *free_particles;
 extern cparticle_t	particles[MAX_PARTICLES];
@@ -214,7 +218,7 @@ void CL_SmokeTrail (vec3_t start, vec3_t end, int colorStart, int colorRun, int 
 		p->time = cl.time;
 
 		p->alpha = 1.0;
-		p->alphavel = -1.0 / (1+frand()*0.5);
+		p->alphavel = -1.0 / (1+qfrand()*0.5);
 		p->color = colorStart + (rand() % colorRun);
 		for (j=0 ; j<3 ; j++)
 		{
@@ -249,7 +253,7 @@ void CL_ForceWall (vec3_t start, vec3_t end, int color)
 		if (!free_particles)
 			return;
 		
-		if (frand() > 0.3)
+		if (qfrand() > 0.3)
 		{
 			p = free_particles;
 			free_particles = p->next;
@@ -260,7 +264,7 @@ void CL_ForceWall (vec3_t start, vec3_t end, int color)
 			p->time = cl.time;
 
 			p->alpha = 1.0;
-			p->alphavel =  -1.0 / (3.0+frand()*0.5);
+			p->alphavel =  -1.0 / (3.0+qfrand()*0.5);
 			p->color = color;
 			for (j=0 ; j<3 ; j++)
 			{
@@ -276,7 +280,7 @@ void CL_ForceWall (vec3_t start, vec3_t end, int color)
 	}
 }
 
-void CL_FlameEffects (centity_t *ent, vec3_t origin)
+void CL_FlameEffects (centity_t */*ent*/, vec3_t origin)
 {
 	int			n, count;
 	int			j;
@@ -298,7 +302,7 @@ void CL_FlameEffects (centity_t *ent, vec3_t origin)
 		p->time = cl.time;
 
 		p->alpha = 1.0;
-		p->alphavel = -1.0 / (1+frand()*0.2);
+		p->alphavel = -1.0 / (1+qfrand()*0.2);
 		p->color = 226 + (rand() % 4);
 		for (j=0 ; j<3 ; j++)
 		{
@@ -324,7 +328,7 @@ void CL_FlameEffects (centity_t *ent, vec3_t origin)
 		p->time = cl.time;
 
 		p->alpha = 1.0;
-		p->alphavel = -1.0 / (1+frand()*0.5);
+		p->alphavel = -1.0 / (1+qfrand()*0.5);
 		p->color = 0 + (rand() % 4);
 		for (j=0 ; j<3 ; j++)
 		{
@@ -374,7 +378,7 @@ void CL_GenericParticleEffect (vec3_t org, vec3_t dir, int color, int count, int
 //		VectorCopy (accel, p->accel);
 		p->alpha = 1.0;
 
-		p->alphavel = -1.0 / (0.5 + frand()*alphavel);
+		p->alphavel = -1.0 / (0.5 + qfrand()*alphavel);
 //		p->alphavel = alphavel;
 	}
 }
@@ -415,7 +419,7 @@ void CL_BubbleTrail2 (vec3_t start, vec3_t end, int dist)
 		p->time = cl.time;
 
 		p->alpha = 1.0;
-		p->alphavel = -1.0 / (1+frand()*0.1);
+		p->alphavel = -1.0 / (1+qfrand()*0.1);
 		p->color = 4 + (rand()&7);
 		for (j=0 ; j<3 ; j++)
 		{
@@ -487,7 +491,7 @@ void CL_Heatbeam (vec3_t start, vec3_t end)
 			VectorClear (p->accel);
 
 			p->alpha = 0.5;
-	//		p->alphavel = -1.0 / (1+frand()*0.2);
+	//		p->alphavel = -1.0 / (1+qfrand()*0.2);
 			// only last one frame!
 			p->alphavel = INSTANT_PARTICLE;
 	//		p->color = 0x74 + (rand()&7);
@@ -604,7 +608,7 @@ void CL_Heatbeam (vec3_t start, vec3_t forward)
 			}
 		
 			p->alpha = 0.5;
-	//		p->alphavel = -1.0 / (1+frand()*0.2);
+	//		p->alphavel = -1.0 / (1+qfrand()*0.2);
 			p->alphavel = -1000.0;
 	//		p->color = 0x74 + (rand()&7);
 			p->color = 223 - (rand()&7);
@@ -665,7 +669,7 @@ void CL_Heatbeam (vec3_t start, vec3_t end)
 		s = sin(d)*30;
 
 		p->alpha = 1.0;
-		p->alphavel = -5.0 / (1+frand());
+		p->alphavel = -5.0 / (1+qfrand());
 		p->color = 223 - (rand()&7);
 
 		for (j=0 ; j<3 ; j++)
@@ -722,7 +726,7 @@ void CL_Heatbeam (vec3_t start, vec3_t end)
 			}
 		
 			p->alpha = 0.5;
-	//		p->alphavel = -1.0 / (1+frand()*0.2);
+	//		p->alphavel = -1.0 / (1+qfrand()*0.2);
 			p->alphavel = -1000.0;
 	//		p->color = 0x74 + (rand()&7);
 			p->color = 223 - (rand()&7);
@@ -785,7 +789,7 @@ void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, int color, int count, int m
 		p->accel[2] = -PARTICLE_GRAVITY/2;
 		p->alpha = 1.0;
 
-		p->alphavel = -1.0 / (0.5 + frand()*0.3);
+		p->alphavel = -1.0 / (0.5 + qfrand()*0.3);
 	}
 }
 
@@ -831,7 +835,7 @@ void CL_ParticleSteamEffect2 (cl_sustain_t *self)
 		p->accel[2] = -PARTICLE_GRAVITY/2;
 		p->alpha = 1.0;
 
-		p->alphavel = -1.0 / (0.5 + frand()*0.3);
+		p->alphavel = -1.0 / (0.5 + qfrand()*0.3);
 	}
 	self->nextthink += self->thinkinterval;
 }
@@ -1059,7 +1063,7 @@ void CL_WidowSplash (vec3_t org)
 		p->accel[0] = p->accel[1] = 0;
 		p->alpha = 1.0;
 
-		p->alphavel = -0.8 / (0.5 + frand()*0.3);
+		p->alphavel = -0.8 / (0.5 + qfrand()*0.3);
 	}
 
 }
@@ -1135,7 +1139,7 @@ void CL_TagTrail (vec3_t start, vec3_t end, float color)
 		p->time = cl.time;
 
 		p->alpha = 1.0;
-		p->alphavel = -1.0 / (0.8+frand()*0.2);
+		p->alphavel = -1.0 / (0.8+qfrand()*0.2);
 		p->color = color;
 		for (j=0 ; j<3 ; j++)
 		{
@@ -1180,7 +1184,7 @@ void CL_ColorExplosionParticles (vec3_t org, int color, int run)
 		p->accel[2] = -PARTICLE_GRAVITY;
 		p->alpha = 1.0;
 
-		p->alphavel = -0.4 / (0.6 + frand()*0.2);
+		p->alphavel = -0.4 / (0.6 + qfrand()*0.2);
 	}
 }
 
@@ -1224,7 +1228,7 @@ void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, int color, int count, int m
 		p->accel[0] = p->accel[1] = p->accel[2] = 0;
 		p->alpha = 1.0;
 
-		p->alphavel = -1.0 / (0.5 + frand()*0.3);
+		p->alphavel = -1.0 / (0.5 + qfrand()*0.3);
 	}
 }
 
@@ -1266,7 +1270,7 @@ void CL_BlasterParticles2 (vec3_t org, vec3_t dir, unsigned int color)
 		p->accel[2] = -PARTICLE_GRAVITY;
 		p->alpha = 1.0;
 
-		p->alphavel = -1.0 / (0.5 + frand()*0.3);
+		p->alphavel = -1.0 / (0.5 + qfrand()*0.3);
 	}
 }
 
@@ -1309,7 +1313,7 @@ void CL_BlasterTrail2 (vec3_t start, vec3_t end)
 		p->time = cl.time;
 
 		p->alpha = 1.0;
-		p->alphavel = -1.0 / (0.3+frand()*0.2);
+		p->alphavel = -1.0 / (0.3+qfrand()*0.2);
 		p->color = 0xd0;
 		for (j=0 ; j<3 ; j++)
 		{

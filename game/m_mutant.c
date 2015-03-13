@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-mutant
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_mutant.h"
 
@@ -59,7 +57,7 @@ void mutant_step (edict_t *self)
 		gi.sound (self, CHAN_VOICE, sound_step3, 1, ATTN_NORM, 0);
 }
 
-void mutant_sight (edict_t *self, edict_t *other)
+void mutant_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -152,7 +150,7 @@ void mutant_stand (edict_t *self)
 
 void mutant_idle_loop (edict_t *self)
 {
-	if (random() < 0.75)
+	if (qrandom() < 0.75)
 		self->monsterinfo.nextframe = FRAME_stand155;
 }
 
@@ -279,7 +277,7 @@ void mutant_check_refire (edict_t *self)
 	if (!self->enemy || !self->enemy->inuse || self->enemy->health <= 0)
 		return;
 
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
+	if ( ((skill->value == 3) && (qrandom() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
 		self->monsterinfo.nextframe = FRAME_attack09;
 }
 
@@ -305,7 +303,7 @@ void mutant_melee (edict_t *self)
 // ATTACK
 //
 
-void mutant_jump_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void mutant_jump_touch (edict_t *self, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	if (self->health <= 0)
 	{
@@ -324,7 +322,7 @@ void mutant_jump_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface
 			VectorCopy (self->velocity, normal);
 			VectorNormalize(normal);
 			VectorMA (self->s.origin, self->maxs[0], normal, point);
-			damage = 40 + 10 * random();
+			damage = 40 + 10 * qrandom();
 			T_Damage (other, self, self, self->velocity, point, normal, damage, damage, 0, MOD_UNKNOWN);
 		}
 	}
@@ -423,7 +421,7 @@ qboolean mutant_check_jump (edict_t *self)
 		return false;
 	if (distance > 100)
 	{
-		if (random() < 0.9)
+		if (qrandom() < 0.9)
 			return false;
 	}
 
@@ -493,7 +491,7 @@ mframe_t mutant_frames_pain3 [] =
 };
 mmove_t mutant_move_pain3 = {FRAME_pain301, FRAME_pain311, mutant_frames_pain3, mutant_run};
 
-void mutant_pain (edict_t *self, edict_t *other, float kick, int damage)
+void mutant_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	float	r;
 
@@ -508,7 +506,7 @@ void mutant_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare
 
-	r = random();
+	r = qrandom();
 	if (r < 0.33)
 	{
 		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
@@ -571,7 +569,7 @@ mframe_t mutant_frames_death2 [] =
 };
 mmove_t mutant_move_death2 = {FRAME_death201, FRAME_death210, mutant_frames_death2, mutant_dead};
 
-void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void mutant_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -595,7 +593,7 @@ void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	self->takedamage = DAMAGE_YES;
 	self->s.skinnum = 1;
 
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		self->monsterinfo.currentmove = &mutant_move_death1;
 	else
 		self->monsterinfo.currentmove = &mutant_move_death2;

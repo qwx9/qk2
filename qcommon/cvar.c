@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cvar.c -- dynamic variable tracking
 
-#include "qcommon.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 cvar_t	*cvar_vars;
 

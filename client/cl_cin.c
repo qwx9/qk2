@@ -17,7 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 typedef struct
 {
@@ -407,7 +411,6 @@ cblock_t Huff1Decompress (cblock_t in)
 			nodenum = cin.numhnodes1[nodenum];
 		}
 		nodenum = hnodes[nodenum*2 + (inbyte&1)];
-		inbyte >>=1;
 	}
 
 	if (input - in.data != in.count && input - in.data != in.count+1)
@@ -554,15 +557,14 @@ qboolean SCR_DrawCinematic (void)
 
 	if (!cl.cinematicpalette_active)
 	{
-		re.CinematicSetPalette(cl.cinematicpalette);
+		re.CinematicSetPalette((uchar *)cl.cinematicpalette);
 		cl.cinematicpalette_active = true;
 	}
 
 	if (!cin.pic)
 		return true;
 
-	re.DrawStretchRaw (0, 0, viddef.width, viddef.height,
-		cin.width, cin.height, cin.pic);
+	re.DrawStretchRaw (0, 0, vid.width, vid.height, cin.width, cin.height, cin.pic);
 
 	return true;
 }

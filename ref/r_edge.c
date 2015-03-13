@@ -17,11 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_edge.c
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
-#include "r_local.h"
-
-#ifndef id386
 void R_SurfacePatch (void)
 {
 }
@@ -33,16 +34,15 @@ void R_EdgeCodeStart (void)
 void R_EdgeCodeEnd (void)
 {
 }
-#endif
 
 
-#if 0
+/*
 the complex cases add new polys on most lines, so dont optimize for keeping them the same
 have multiple free span lists to try to get better coherence?
 low depth complexity -- 1 to 3 or so
 
 have a sentinal at both ends?
-#endif
+*/
 
 
 edge_t	*auxedges;
@@ -139,9 +139,6 @@ void R_BeginEdgeFrame (void)
 	}
 }
 
-
-#if	!id386
-
 /*
 ==============
 R_InsertNewEdges
@@ -183,10 +180,6 @@ addedge:
 	} while ((edgestoadd = next_edge) != NULL);
 }
 
-#endif	// !id386
-	
-
-#if	!id386
 
 /*
 ==============
@@ -203,10 +196,6 @@ void R_RemoveEdges (edge_t *pedge)
 	} while ((pedge = pedge->nextremove) != NULL);
 }
 
-#endif	// !id386
-
-
-#if	!id386
 
 /*
 ==============
@@ -272,8 +261,6 @@ pushback:
 			return;
 	}
 }
-
-#endif	// !id386
 
 
 /*
@@ -428,8 +415,6 @@ void R_TrailingEdge (surf_t *surf, edge_t *edge)
 	}
 }
 
-
-#if	!id386
 
 /*
 ==============
@@ -590,8 +575,6 @@ void R_GenerateSpans (void)
 	R_CleanupSpan ();
 }
 
-#endif	// !id386
-
 
 /*
 ==============
@@ -640,7 +623,7 @@ void R_ScanEdges (void)
 	surf_t	*s;
 
 	basespan_p = (espan_t *)
-			((long)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+			((uintptr)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
 	max_span_p = &basespan_p[MAXSPANS - r_refdef.vrect.width];
 
 	span_p = basespan_p;
@@ -800,13 +783,10 @@ D_CalcGradients
 */
 void D_CalcGradients (msurface_t *pface)
 {
-	mplane_t	*pplane;
 	float		mipscale;
 	vec3_t		p_temp1;
 	vec3_t		p_saxis, p_taxis;
 	float		t;
-
-	pplane = pface->plane;
 
 	mipscale = 1.0 / (float)(1 << miplevel);
 
@@ -994,9 +974,7 @@ void D_SolidSurf (surf_t *s)
 		currententity = &r_worldentity;
 
 	pface = s->msurf;
-#if 1
-	miplevel = D_MipLevelForScale(s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
-#else
+/* commented out in release
 	{
 		float dot;
 		float normal[3];
@@ -1021,7 +999,8 @@ void D_SolidSurf (surf_t *s)
 
 		miplevel = D_MipLevelForScale(s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
 	}
-#endif
+*/
+	miplevel = D_MipLevelForScale(s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
 
 // FIXME: make this passed in to D_CacheSurface
 	pcurrentcache = D_CacheSurface (pface, miplevel);
@@ -1074,7 +1053,7 @@ void D_DrawflatSurfaces (void)
 
 		// make a stable color for each surface by taking the low
 		// bits of the msurface pointer
-		D_FlatFillSurface (s, (int)s->msurf & 0xFF);
+		D_FlatFillSurface (s, (uintptr)s->msurf & 0xFF);
 		D_DrawZSpans (s->spans);
 	}
 }

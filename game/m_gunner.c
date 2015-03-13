@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-GUNNER
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_gunner.h"
 
@@ -43,7 +41,7 @@ void gunner_idlesound (edict_t *self)
 	gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-void gunner_sight (edict_t *self, edict_t *other)
+void gunner_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -125,7 +123,7 @@ void gunner_fidget (edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 		return;
-	if (random() <= 0.05)
+	if (qrandom() <= 0.05)
 		self->monsterinfo.currentmove = &gunner_move_fidget;
 }
 
@@ -280,7 +278,7 @@ mframe_t gunner_frames_pain1 [] =
 };
 mmove_t gunner_move_pain1 = {FRAME_pain101, FRAME_pain118, gunner_frames_pain1, gunner_run};
 
-void gunner_pain (edict_t *self, edict_t *other, float kick, int damage)
+void gunner_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 	if (self->health < (self->max_health / 2))
 		self->s.skinnum = 1;
@@ -332,7 +330,7 @@ mframe_t gunner_frames_death [] =
 };
 mmove_t gunner_move_death = {FRAME_death01, FRAME_death11, gunner_frames_death, gunner_dead};
 
-void gunner_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void gunner_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -367,7 +365,7 @@ void gunner_duck_down (edict_t *self)
 	self->monsterinfo.aiflags |= AI_DUCKED;
 	if (skill->value >= 2)
 	{
-		if (random() > 0.5)
+		if (qrandom() > 0.5)
 			GunnerGrenade (self);
 	}
 
@@ -406,9 +404,9 @@ mframe_t gunner_frames_duck [] =
 };
 mmove_t	gunner_move_duck = {FRAME_duck01, FRAME_duck08, gunner_frames_duck, gunner_run};
 
-void gunner_dodge (edict_t *self, edict_t *attacker, float eta)
+void gunner_dodge (edict_t *self, edict_t *attacker, float /*eta*/)
 {
-	if (random() > 0.25)
+	if (qrandom() > 0.25)
 		return;
 
 	if (!self->enemy)
@@ -552,7 +550,7 @@ void gunner_attack(edict_t *self)
 	}
 	else
 	{
-		if (random() <= 0.5)
+		if (qrandom() <= 0.5)
 			self->monsterinfo.currentmove = &gunner_move_attack_grenade;
 		else
 			self->monsterinfo.currentmove = &gunner_move_attack_chain;
@@ -568,7 +566,7 @@ void gunner_refire_chain(edict_t *self)
 {
 	if (self->enemy->health > 0)
 		if ( visible (self, self->enemy) )
-			if (random() <= 0.5)
+			if (qrandom() <= 0.5)
 			{
 				self->monsterinfo.currentmove = &gunner_move_fire_chain;
 				return;

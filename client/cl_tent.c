@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl_tent.c -- client side temporary entities
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 typedef enum
 {
@@ -594,13 +598,13 @@ void CL_ParseSteam (void)
 		else
 		{
 //				Com_Printf ("No free sustains!\n");
-			// FIXME - read the stuff anyway
-			cnt = MSG_ReadByte (&net_message);
+			// FIXME - read the stuff anyway	/* and toss the results */
+			MSG_ReadByte (&net_message);
 			MSG_ReadPos (&net_message, pos);
 			MSG_ReadDir (&net_message, dir);
-			r = MSG_ReadByte (&net_message);
-			magnitude = MSG_ReadShort (&net_message);
-			magnitude = MSG_ReadLong (&net_message); // really interval
+			MSG_ReadByte (&net_message);
+			MSG_ReadShort (&net_message);
+			MSG_ReadLong (&net_message); // really interval
 		}
 	}
 	else // instant
@@ -870,7 +874,7 @@ void CL_ParseTEnt (void)
 		ex->lightcolor[2] = 0.5;
 		ex->ent.angles[1] = rand() % 360;
 		ex->ent.model = cl_mod_explo4;
-		if (frand() < 0.5)
+		if (qfrand() < 0.5)
 			ex->baseframe = 15;
 		ex->frames = 15;
 		CL_ExplosionParticles (pos);
@@ -898,7 +902,7 @@ void CL_ParseTEnt (void)
 			ex->ent.model = cl_mod_explo4;			// PMM
 		else
 			ex->ent.model = cl_mod_explo4_big;
-		if (frand() < 0.5)
+		if (qfrand() < 0.5)
 			ex->baseframe = 15;
 		ex->frames = 15;
 		if ((type != TE_EXPLOSION1_BIG) && (type != TE_EXPLOSION1_NP))		// PMM
@@ -943,7 +947,7 @@ void CL_ParseTEnt (void)
 
 	case TE_PARASITE_ATTACK:
 	case TE_MEDIC_CABLE_ATTACK:
-		ent = CL_ParseBeam (cl_mod_parasite_segment);
+		CL_ParseBeam (cl_mod_parasite_segment);		/* toss result */
 		break;
 
 	case TE_BOSSTPORT:			// boss teleporting to station
@@ -953,7 +957,7 @@ void CL_ParseTEnt (void)
 		break;
 
 	case TE_GRAPPLE_CABLE:
-		ent = CL_ParseBeam2 (cl_mod_grapple_cable);
+		CL_ParseBeam2 (cl_mod_grapple_cable);		/* toss result */
 		break;
 
 	// RAFAEL
@@ -1072,7 +1076,7 @@ void CL_ParseTEnt (void)
 		ex->lightcolor[2] = 0.5;
 		ex->ent.angles[1] = rand() % 360;
 		ex->ent.model = cl_mod_explo4;
-		if (frand() < 0.5)
+		if (qfrand() < 0.5)
 			ex->baseframe = 15;
 		ex->frames = 15;
 		if (type == TE_ROCKET_EXPLOSION_WATER)
@@ -1095,11 +1099,11 @@ void CL_ParseTEnt (void)
 		break;
 
 	case TE_HEATBEAM:
-		ent = CL_ParsePlayerBeam (cl_mod_heatbeam);
+		CL_ParsePlayerBeam (cl_mod_heatbeam);		/* toss result */
 		break;
 
 	case TE_MONSTER_HEATBEAM:
-		ent = CL_ParsePlayerBeam (cl_mod_monster_heatbeam);
+		CL_ParsePlayerBeam (cl_mod_monster_heatbeam);	/* toss result */
 		break;
 
 	case TE_HEATBEAM_SPARKS:
@@ -1353,7 +1357,7 @@ void CL_AddPlayerBeams (void)
 	float		yaw, pitch;
 	float		forward;
 	float		len, steps;
-	int			framenum;
+	int			framenum = 0;
 	float		model_length;
 	
 	float		hand_multiplier;
@@ -1710,7 +1714,7 @@ void CL_AddLasers (void)
 }
 
 /* PMM - CL_Sustains */
-void CL_ProcessSustain ()
+void CL_ProcessSustain (void)
 {
 	cl_sustain_t	*s;
 	int				i;

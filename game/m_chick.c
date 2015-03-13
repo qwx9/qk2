@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-chick
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_chick.h"
 
@@ -55,7 +53,7 @@ static int	sound_search;
 
 void ChickMoan (edict_t *self)
 {
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		gi.sound (self, CHAN_VOICE, sound_idle1, 1, ATTN_IDLE, 0);
 	else
 		gi.sound (self, CHAN_VOICE, sound_idle2, 1, ATTN_IDLE, 0);
@@ -100,7 +98,7 @@ void chick_fidget (edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 		return;
-	if (random() <= 0.3)
+	if (qrandom() <= 0.3)
 		self->monsterinfo.currentmove = &chick_move_fidget;
 }
 
@@ -263,7 +261,7 @@ mframe_t chick_frames_pain3 [] =
 };
 mmove_t chick_move_pain3 = {FRAME_pain301, FRAME_pain321, chick_frames_pain3, chick_run};
 
-void chick_pain (edict_t *self, edict_t *other, float kick, int damage)
+void chick_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 	float	r;
 
@@ -275,7 +273,7 @@ void chick_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	self->pain_debounce_time = level.time + 3;
 
-	r = random();
+	r = qrandom();
 	if (r < 0.33)
 		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 	else if (r < 0.66)
@@ -350,7 +348,7 @@ mframe_t chick_frames_death1 [] =
 };
 mmove_t chick_move_death1 = {FRAME_death101, FRAME_death112, chick_frames_death1, chick_dead};
 
-void chick_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void chick_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -427,9 +425,9 @@ mframe_t chick_frames_duck [] =
 };
 mmove_t chick_move_duck = {FRAME_duck01, FRAME_duck07, chick_frames_duck, chick_run};
 
-void chick_dodge (edict_t *self, edict_t *attacker, float eta)
+void chick_dodge (edict_t *self, edict_t *attacker, float /*eta*/)
 {
-	if (random() > 0.25)
+	if (qrandom() > 0.25)
 		return;
 
 	if (!self->enemy)
@@ -532,7 +530,7 @@ void chick_rerocket(edict_t *self)
 	{
 		if (range (self, self->enemy) > RANGE_MELEE)
 			if ( visible (self, self->enemy) )
-				if (random() <= 0.6)
+				if (qrandom() <= 0.6)
 				{
 					self->monsterinfo.currentmove = &chick_move_attack1;
 					return;
@@ -575,7 +573,7 @@ void chick_reslash(edict_t *self)
 	if (self->enemy->health > 0)
 	{
 		if (range (self, self->enemy) == RANGE_MELEE)
-			if (random() <= 0.9)
+			if (qrandom() <= 0.9)
 			{				
 				self->monsterinfo.currentmove = &chick_move_slash;
 				return;
@@ -616,7 +614,7 @@ void chick_attack(edict_t *self)
 	self->monsterinfo.currentmove = &chick_move_start_attack1;
 }
 
-void chick_sight(edict_t *self, edict_t *other)
+void chick_sight(edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }

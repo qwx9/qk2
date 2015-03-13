@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 
 #define	MAX_RIMAGES	1024
@@ -208,16 +211,16 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 	int		row, column;
 	byte	*buf_p;
 	byte	*buffer;
-	int		length;
 	TargaHeader		targa_header;
 	byte			*targa_rgba;
+	uchar	red = 0, green = 0, blue = 0, alphabyte = 0, packetHeader, packetSize, j;
 
 	*pic = NULL;
 
 	//
 	// load the file
 	//
-	length = ri.FS_LoadFile (name, (void **)&buffer);
+	ri.FS_LoadFile (name, (void **)&buffer);	/* int length = */
 	if (!buffer)
 	{
 		ri.Con_Printf (PRINT_DEVELOPER, "Bad tga file %s\n", name);
@@ -273,7 +276,6 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 		for(row=rows-1; row>=0; row--) {
 			pixbuf = targa_rgba + row*columns*4;
 			for(column=0; column<columns; column++) {
-				unsigned char red,green,blue,alphabyte;
 				switch (targa_header.pixel_size) {
 					case 24:
 							
@@ -300,7 +302,6 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 		}
 	}
 	else if (targa_header.image_type==10) {   // Runlength encoded RGB images
-		unsigned char red,green,blue,alphabyte,packetHeader,packetSize,j;
 		for(row=rows-1; row>=0; row--) {
 			pixbuf = targa_rgba + row*columns*4;
 			for(column=0; column<columns; ) {

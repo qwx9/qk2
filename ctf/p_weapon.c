@@ -17,8 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// g_weapon.c
-
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_player.h"
 
@@ -559,7 +559,7 @@ void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		return;
 
 	if ((CTFApplyHaste(ent) ||
-		(Q_stricmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0 &&
+		(Q_strcasecmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0 &&
 		ent->client->weaponstate != WEAPON_FIRING))
 		&& oldstate == ent->client->weaponstate) {
 		Weapon_Generic2 (ent, FRAME_ACTIVATE_LAST, FRAME_FIRE_LAST, 

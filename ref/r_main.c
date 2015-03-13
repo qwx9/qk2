@@ -17,9 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_main.c
-
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 viddef_t	vid;
 refimport_t	ri;
@@ -143,8 +145,6 @@ cvar_t	*sw_lockpvs;
 #define	STRINGER(x) "x"
 
 
-#if	!id386
-
 // r_vars.c
 
 // all global and static refresh variables are collected in a contiguous block
@@ -184,8 +184,6 @@ unsigned int	d_zrowbytes;
 unsigned int	d_zwidth;
 
 
-#endif	// !id386
-
 byte	r_notexture_buffer[1024];
 
 /*
@@ -199,7 +197,7 @@ void	R_InitTextures (void)
 	byte	*dest;
 	
 // create a simple checkerboard texture for the default
-	r_notexture_mip = (image_t *)&r_notexture_buffer;
+	r_notexture_mip = (image_t *)r_notexture_buffer;
 	
 	r_notexture_mip->width = r_notexture_mip->height = 16;
 	r_notexture_mip->pixels[0] = &r_notexture_buffer[sizeof(image_t)];
@@ -315,13 +313,6 @@ qboolean R_Init( void *hInstance, void *wndProc )
 
 	r_refdef.xOrigin = XCENTERING;
 	r_refdef.yOrigin = YCENTERING;
-
-// TODO: collect 386-specific code in one place
-#if	id386
-	Sys_MakeCodeWriteable ((long)R_EdgeCodeStart,
-					     (long)R_EdgeCodeEnd - (long)R_EdgeCodeStart);
-	Sys_SetFPCW ();		// get bit masks for FPCW	(FIXME: is this id386?)
-#endif	// id386
 
 	r_aliasuvscale = 1.0;
 
@@ -477,7 +468,7 @@ void R_MarkLeaves (void)
 		}
 	}
 
-#if 0
+/*
 	for (i=0 ; i<r_worldmodel->vis->numclusters ; i++)
 	{
 		if (vis[i>>3] & (1<<(i&7)))
@@ -492,7 +483,7 @@ void R_MarkLeaves (void)
 			} while (node);
 		}
 	}
-#endif
+*/
 }
 
 /*
@@ -866,13 +857,13 @@ void R_EdgeDrawing (void)
 	else
 	{
 		r_edges =  (edge_t *)
-				(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+				(((uintptr)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
 	}
 
 	if (r_surfsonstack)
 	{
 		surfaces =  (surf_t *)
-				(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+				(((uintptr)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
 		surf_max = &surfaces[r_cnumsurfs];
 	// surface 0 doesn't really exist; it's just a dummy because index 0
 	// is used to indicate no edge attached to surface
@@ -1092,7 +1083,7 @@ void R_InitGraphics( int width, int height )
 /*
 ** R_BeginFrame
 */
-void R_BeginFrame( float camera_separation )
+void R_BeginFrame( float /*camera_separation*/ )
 {
 	extern void Draw_BuildGammaTable( void );
 
@@ -1176,7 +1167,7 @@ void R_CinematicSetPalette( const unsigned char *palette )
 
 	// clear screen to black to avoid any palette flash
 	w = abs(vid.rowbytes)>>2;	// stupid negative pitch win32 stuff...
-	for (i=0 ; i<vid.height ; i++, d+=w)
+	for (i=0 ; i<vid.height ; i++)
 	{
 		d = (int *)(vid.buffer + i*vid.rowbytes);
 		for (j=0 ; j<w ; j++)
@@ -1392,31 +1383,3 @@ refexport_t GetRefAPI (refimport_t rimp)
 
 	return re;
 }
-
-#ifndef REF_HARD_LINKED
-// this is only here so the functions in q_shared.c and q_shwin.c can link
-void Sys_Error (char *error, ...)
-{
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, error);
-	vsprintf (text, error, argptr);
-	va_end (argptr);
-
-	ri.Sys_Error (ERR_FATAL, "%s", text);
-}
-
-void Com_Printf (char *fmt, ...)
-{
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, fmt);
-	vsprintf (text, fmt, argptr);
-	va_end (argptr);
-
-	ri.Con_Printf (PRINT_ALL, "%s", text);
-}
-
-#endif

@@ -17,11 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// d_scan.c
-//
 // Portable C scan-level rasterization code, all pixel depths.
-
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 unsigned char	*r_turb_pbase, *r_turb_pdest;
 fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
@@ -92,8 +93,6 @@ void D_WarpScreen (void)
 }
 
 
-#if	!id386
-
 /*
 =============
 D_DrawTurbulent8Span
@@ -112,8 +111,6 @@ void D_DrawTurbulent8Span (void)
 		r_turb_t += r_turb_tstep;
 	} while (--r_turb_spancount > 0);
 }
-
-#endif	// !id386
 
 
 /*
@@ -387,8 +384,6 @@ void NonTurbulent8 (espan_t *pspan)
 //====================
 
 
-#if	!id386
-
 /*
 =============
 D_DrawSpans16
@@ -524,10 +519,6 @@ void D_DrawSpans16 (espan_t *pspan)
 	} while ((pspan = pspan->pnext) != NULL);
 }
 
-#endif
-
-
-#if	!id386
 
 /*
 =============
@@ -561,7 +552,7 @@ void D_DrawZSpans (espan_t *pspan)
 	// we count on FP exceptions being turned off to avoid range problems
 		izi = (int)(zi * 0x8000 * 0x10000);
 
-		if ((long)pdest & 0x02)
+		if ((uintptr)pdest & 0x02)
 		{
 			*pdest++ = (short)(izi >> 16);
 			izi += izistep;
@@ -586,6 +577,3 @@ void D_DrawZSpans (espan_t *pspan)
 
 	} while ((pspan = pspan->pnext) != NULL);
 }
-
-#endif
-

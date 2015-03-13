@@ -17,12 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
 #include <ctype.h>
-#ifdef _WIN32
-#include <io.h>
-#endif
-#include "client.h"
-#include "../client/qmenu.h"
+#include "../dat.h"
+#include "../fns.h"
 
 static int	m_main_cursor;
 
@@ -77,7 +77,7 @@ static void M_Banner( char *name )
 	int w, h;
 
 	re.DrawGetPicSize (&w, &h, name );
-	re.DrawPic( viddef.width / 2 - w / 2, viddef.height / 2 - 110, name );
+	re.DrawPic( vid.width / 2 - w / 2, vid.height / 2 - 110, name );
 }
 
 void M_PushMenu ( void (*draw) (void), const char *(*key) (int k) )
@@ -268,7 +268,7 @@ higher res screens.
 */
 void M_DrawCharacter (int cx, int cy, int num)
 {
-	re.DrawChar ( cx + ((viddef.width - 320)>>1), cy + ((viddef.height - 240)>>1), num);
+	re.DrawChar ( cx + ((vid.width - 320)>>1), cy + ((vid.height - 240)>>1), num);
 }
 
 void M_Print (int cx, int cy, char *str)
@@ -293,7 +293,7 @@ void M_PrintWhite (int cx, int cy, char *str)
 
 void M_DrawPic (int x, int y, char *pic)
 {
-	re.DrawPic (x + ((viddef.width - 320)>>1), y + ((viddef.height - 240)>>1), pic);
+	re.DrawPic (x + ((vid.width - 320)>>1), y + ((vid.height - 240)>>1), pic);
 }
 
 
@@ -410,8 +410,8 @@ void M_Main_Draw (void)
 		totalheight += ( h + 12 );
 	}
 
-	ystart = ( viddef.height / 2 - 110 );
-	xoffset = ( viddef.width - widest + 70 ) / 2;
+	ystart = ( vid.height / 2 - 110 );
+	xoffset = ( vid.width - widest + 70 ) / 2;
 
 	for ( i = 0; names[i] != 0; i++ )
 	{
@@ -510,24 +510,24 @@ static void Multiplayer_MenuDraw (void)
 	Menu_Draw( &s_multiplayer_menu );
 }
 
-static void PlayerSetupFunc( void *unused )
+static void PlayerSetupFunc( void * )
 {
 	M_Menu_PlayerConfig_f();
 }
 
-static void JoinNetworkServerFunc( void *unused )
+static void JoinNetworkServerFunc( void * )
 {
 	M_Menu_JoinServer_f();
 }
 
-static void StartNetworkServerFunc( void *unused )
+static void StartNetworkServerFunc( void * )
 {
 	M_Menu_StartServer_f ();
 }
 
 void Multiplayer_MenuInit( void )
 {
-	s_multiplayer_menu.x = viddef.width * 0.50 - 64;
+	s_multiplayer_menu.x = vid.width * 0.50 - 64;
 	s_multiplayer_menu.nitems = 0;
 
 	s_join_network_server_action.generic.type	= MTYPE_ACTION;
@@ -739,7 +739,7 @@ static void Keys_MenuInit( void )
 	int y = 0;
 	int i = 0;
 
-	s_keys_menu.x = viddef.width * 0.50;
+	s_keys_menu.x = vid.width * 0.50;
 	s_keys_menu.nitems = 0;
 	s_keys_menu.cursordraw = KeyCursorDrawFunc;
 
@@ -1033,37 +1033,37 @@ static menulist_s		s_options_quality_list;
 static menulist_s		s_options_compatibility_list;
 static menulist_s		s_options_console_action;
 
-static void CrosshairFunc( void *unused )
+static void CrosshairFunc( void * )
 {
 	Cvar_SetValue( "crosshair", s_options_crosshair_box.curvalue );
 }
 
-static void JoystickFunc( void *unused )
+static void JoystickFunc( void * )
 {
 	Cvar_SetValue( "in_joystick", s_options_joystick_box.curvalue );
 }
 
-static void CustomizeControlsFunc( void *unused )
+static void CustomizeControlsFunc( void * )
 {
 	M_Menu_Keys_f();
 }
 
-static void AlwaysRunFunc( void *unused )
+static void AlwaysRunFunc( void * )
 {
 	Cvar_SetValue( "cl_run", s_options_alwaysrun_box.curvalue );
 }
 
-static void FreeLookFunc( void *unused )
+static void FreeLookFunc( void * )
 {
 	Cvar_SetValue( "freelook", s_options_freelook_box.curvalue );
 }
 
-static void MouseSpeedFunc( void *unused )
+static void MouseSpeedFunc( void * )
 {
 	Cvar_SetValue( "sensitivity", s_options_sensitivity_slider.curvalue / 2.0F );
 }
 
-static void NoAltTabFunc( void *unused )
+static void NoAltTabFunc( void * )
 {
 	Cvar_SetValue( "win_noalttab", s_options_noalttab_box.curvalue );
 }
@@ -1105,7 +1105,7 @@ static void ControlsSetMenuItemValues( void )
 	s_options_noalttab_box.curvalue			= win_noalttab->value;
 }
 
-static void ControlsResetDefaultsFunc( void *unused )
+static void ControlsResetDefaultsFunc( void * )
 {
 	Cbuf_AddText ("exec default.cfg\n");
 	Cbuf_Execute();
@@ -1113,7 +1113,7 @@ static void ControlsResetDefaultsFunc( void *unused )
 	ControlsSetMenuItemValues();
 }
 
-static void InvertMouseFunc( void *unused )
+static void InvertMouseFunc( void * )
 {
 	if ( s_options_invertmouse_box.curvalue == 0 )
 	{
@@ -1125,27 +1125,27 @@ static void InvertMouseFunc( void *unused )
 	}
 }
 
-static void LookspringFunc( void *unused )
+static void LookspringFunc( void * )
 {
 	Cvar_SetValue( "lookspring", s_options_lookspring_box.curvalue );
 }
 
-static void LookstrafeFunc( void *unused )
+static void LookstrafeFunc( void * )
 {
 	Cvar_SetValue( "lookstrafe", s_options_lookstrafe_box.curvalue );
 }
 
-static void UpdateVolumeFunc( void *unused )
+static void UpdateVolumeFunc( void * )
 {
 	Cvar_SetValue( "s_volume", s_options_sfxvolume_slider.curvalue / 10 );
 }
 
-static void UpdateCDVolumeFunc( void *unused )
+static void UpdateCDVolumeFunc( void * )
 {
 	Cvar_SetValue( "cd_nocd", !s_options_cdvolume_box.curvalue );
 }
 
-static void ConsoleFunc( void *unused )
+static void ConsoleFunc( void * )
 {
 	/*
 	** the proper way to do this is probably to have ToggleConsole_f accept a parameter
@@ -1165,7 +1165,7 @@ static void ConsoleFunc( void *unused )
 	cls.key_dest = key_console;
 }
 
-static void UpdateSoundQualityFunc( void *unused )
+static void UpdateSoundQualityFunc( void * )
 {
 	if ( s_options_quality_list.curvalue )
 	{
@@ -1230,8 +1230,8 @@ void Options_MenuInit( void )
 	/*
 	** configure controls menu and menu items
 	*/
-	s_options_menu.x = viddef.width / 2;
-	s_options_menu.y = viddef.height / 2 - 58;
+	s_options_menu.x = vid.width / 2;
+	s_options_menu.y = vid.height / 2 - 58;
 	s_options_menu.nitems = 0;
 
 	s_options_sfxvolume_slider.generic.type	= MTYPE_SLIDER;
@@ -1765,10 +1765,10 @@ void M_Credits_MenuDraw( void )
 	/*
 	** draw the credits
 	*/
-	for ( i = 0, y = viddef.height - ( ( cls.realtime - credits_start_time ) / 40.0F ); credits[i] && y < viddef.height; y += 10, i++ )
+	for ( i = 0, y = vid.height - ( ( cls.realtime - credits_start_time ) / 40.0F ); credits[i] && y < vid.height; y += 10, i++ )
 	{
-		int j, stringoffset = 0;
-		int bold = false;
+		int j, stringoffset;
+		int bold;
 
 		if ( y <= -8 )
 			continue;
@@ -1788,7 +1788,7 @@ void M_Credits_MenuDraw( void )
 		{
 			int x;
 
-			x = ( viddef.width - strlen( credits[i] ) * 8 - stringoffset * 8 ) / 2 + ( j + stringoffset ) * 8;
+			x = ( vid.width - strlen( credits[i] ) * 8 - stringoffset * 8 ) / 2 + ( j + stringoffset ) * 8;
 
 			if ( bold )
 				re.DrawChar( x, y, credits[i][j+stringoffset] + 128 );
@@ -1823,7 +1823,7 @@ void M_Menu_Credits_f( void )
 	int		n;
 	int		count;
 	char	*p;
-	int		isdeveloper = 0;
+	int		isdeveloper;
 
 	creditsBuffer = NULL;
 	count = FS_LoadFile ("credits", &creditsBuffer);
@@ -1904,35 +1904,35 @@ static void StartGame( void )
 	cls.key_dest = key_game;
 }
 
-static void EasyGameFunc( void *data )
+static void EasyGameFunc( void * )
 {
 	Cvar_ForceSet( "skill", "0" );
 	StartGame();
 }
 
-static void MediumGameFunc( void *data )
+static void MediumGameFunc( void * )
 {
 	Cvar_ForceSet( "skill", "1" );
 	StartGame();
 }
 
-static void HardGameFunc( void *data )
+static void HardGameFunc( void * )
 {
 	Cvar_ForceSet( "skill", "2" );
 	StartGame();
 }
 
-static void LoadGameFunc( void *unused )
+static void LoadGameFunc( void * )
 {
 	M_Menu_LoadGame_f ();
 }
 
-static void SaveGameFunc( void *unused )
+static void SaveGameFunc( void * )
 {
 	M_Menu_SaveGame_f();
 }
 
-static void CreditsFunc( void *unused )
+static void CreditsFunc( void * )
 {
 	M_Menu_Credits_f();
 }
@@ -1947,7 +1947,7 @@ void Game_MenuInit( void )
 		0
 	};
 
-	s_game_menu.x = viddef.width * 0.50;
+	s_game_menu.x = vid.width * 0.50;
 	s_game_menu.nitems = 0;
 
 	s_easy_game_action.generic.type	= MTYPE_ACTION;
@@ -2080,8 +2080,8 @@ void LoadGame_MenuInit( void )
 {
 	int i;
 
-	s_loadgame_menu.x = viddef.width / 2 - 120;
-	s_loadgame_menu.y = viddef.height / 2 - 58;
+	s_loadgame_menu.x = vid.width / 2 - 120;
+	s_loadgame_menu.y = vid.height / 2 - 58;
 	s_loadgame_menu.nitems = 0;
 
 	Create_Savestrings();
@@ -2158,8 +2158,8 @@ void SaveGame_MenuInit( void )
 {
 	int i;
 
-	s_savegame_menu.x = viddef.width / 2 - 120;
-	s_savegame_menu.y = viddef.height / 2 - 58;
+	s_savegame_menu.x = vid.width / 2 - 120;
+	s_savegame_menu.y = vid.height / 2 - 58;
 	s_savegame_menu.nitems = 0;
 
 	Create_Savestrings();
@@ -2254,7 +2254,7 @@ void JoinServerFunc( void *self )
 
 	index = ( menuaction_s * ) self - s_joinserver_server_actions;
 
-	if ( Q_stricmp( local_server_names[index], NO_SERVER_STRING ) == 0 )
+	if ( Q_strcasecmp( local_server_names[index], NO_SERVER_STRING ) == 0 )
 		return;
 
 	if (index >= m_num_servers)
@@ -2265,12 +2265,12 @@ void JoinServerFunc( void *self )
 	M_ForceMenuOff ();
 }
 
-void AddressBookFunc( void *self )
+void AddressBookFunc( void * )
 {
 	M_Menu_AddressBook_f();
 }
 
-void NullCursorDraw( void *self )
+void NullCursorDraw( void * )
 {
 }
 
@@ -2294,7 +2294,7 @@ void SearchLocalGames( void )
 	CL_PingServers_f();
 }
 
-void SearchLocalGamesFunc( void *self )
+void SearchLocalGamesFunc( void * )
 {
 	SearchLocalGames();
 }
@@ -2303,7 +2303,7 @@ void JoinServer_MenuInit( void )
 {
 	int i;
 
-	s_joinserver_menu.x = viddef.width * 0.50 - 120;
+	s_joinserver_menu.x = vid.width * 0.50 - 120;
 	s_joinserver_menu.nitems = 0;
 
 	s_joinserver_address_book_action.generic.type	= MTYPE_ACTION;
@@ -2389,14 +2389,14 @@ static menufield_s	s_hostname_field;
 static menulist_s	s_startmap_list;
 static menulist_s	s_rules_box;
 
-void DMOptionsFunc( void *self )
+void DMOptionsFunc( void * )
 {
 	if (s_rules_box.curvalue == 1)
 		return;
 	M_Menu_DMOptions_f();
 }
 
-void RulesChangeFunc ( void *self )
+void RulesChangeFunc ( void * )
 {
 	// DM
 	if (s_rules_box.curvalue == 0)
@@ -2433,7 +2433,7 @@ void RulesChangeFunc ( void *self )
 //=====
 }
 
-void StartServerActionFunc( void *self )
+void StartServerActionFunc( void * )
 {
 	char	startmap[1024];
 	int		timelimit;
@@ -2472,21 +2472,21 @@ void StartServerActionFunc( void *self )
 	spot = NULL;
 	if (s_rules_box.curvalue == 1)		// PGM
 	{
- 		if(Q_stricmp(startmap, "bunk1") == 0)
+ 		if(Q_strcasecmp(startmap, "bunk1") == 0)
   			spot = "start";
- 		else if(Q_stricmp(startmap, "mintro") == 0)
+ 		else if(Q_strcasecmp(startmap, "mintro") == 0)
   			spot = "start";
- 		else if(Q_stricmp(startmap, "fact1") == 0)
+ 		else if(Q_strcasecmp(startmap, "fact1") == 0)
   			spot = "start";
- 		else if(Q_stricmp(startmap, "power1") == 0)
+ 		else if(Q_strcasecmp(startmap, "power1") == 0)
   			spot = "pstart";
- 		else if(Q_stricmp(startmap, "biggun") == 0)
+ 		else if(Q_strcasecmp(startmap, "biggun") == 0)
   			spot = "bstart";
- 		else if(Q_stricmp(startmap, "hangar1") == 0)
+ 		else if(Q_strcasecmp(startmap, "hangar1") == 0)
   			spot = "unitstart";
- 		else if(Q_stricmp(startmap, "city1") == 0)
+ 		else if(Q_strcasecmp(startmap, "city1") == 0)
   			spot = "unitstart";
- 		else if(Q_stricmp(startmap, "boss1") == 0)
+ 		else if(Q_strcasecmp(startmap, "boss1") == 0)
 			spot = "bosstart";
 	}
 
@@ -2592,7 +2592,6 @@ void StartServer_MenuInit( void )
 
 	if ( fp != 0 )
 	{
-		fp = 0;
 		free( buffer );
 	}
 	else
@@ -2603,7 +2602,7 @@ void StartServer_MenuInit( void )
 	/*
 	** initialize the menu stuff
 	*/
-	s_startserver_menu.x = viddef.width * 0.50;
+	s_startserver_menu.x = vid.width * 0.50;
 	s_startserver_menu.nitems = 0;
 
 	s_startmap_list.generic.type = MTYPE_SPINCONTROL;
@@ -2929,7 +2928,7 @@ void DMOptions_MenuInit( void )
 	int dmflags = Cvar_VariableValue( "dmflags" );
 	int y = 0;
 
-	s_dmoptions_menu.x = viddef.width * 0.50;
+	s_dmoptions_menu.x = vid.width * 0.50;
 	s_dmoptions_menu.nitems = 0;
 
 	s_falls_box.generic.type = MTYPE_SPINCONTROL;
@@ -3196,7 +3195,7 @@ void DownloadOptions_MenuInit( void )
 	};
 	int y = 0;
 
-	s_downloadoptions_menu.x = viddef.width * 0.50;
+	s_downloadoptions_menu.x = vid.width * 0.50;
 	s_downloadoptions_menu.nitems = 0;
 
 	s_download_title.generic.type = MTYPE_SEPARATOR;
@@ -3289,8 +3288,8 @@ void AddressBook_MenuInit( void )
 {
 	int i;
 
-	s_addressbook_menu.x = viddef.width / 2 - 142;
-	s_addressbook_menu.y = viddef.height / 2 - 58;
+	s_addressbook_menu.x = vid.width / 2 - 142;
+	s_addressbook_menu.y = vid.height / 2 - 58;
 	s_addressbook_menu.nitems = 0;
 
 	for ( i = 0; i < NUM_ADDRESSBOOK_ENTRIES; i++ )
@@ -3384,23 +3383,23 @@ static int rate_tbl[] = { 2500, 3200, 5000, 10000, 25000, 0 };
 static const char *rate_names[] = { "28.8 Modem", "33.6 Modem", "Single ISDN",
 	"Dual ISDN/Cable", "T1/LAN", "User defined", 0 };
 
-void DownloadOptionsFunc( void *self )
+void DownloadOptionsFunc( void * )
 {
 	M_Menu_DownloadOptions_f();
 }
 
-static void HandednessCallback( void *unused )
+static void HandednessCallback( void * )
 {
 	Cvar_SetValue( "hand", s_player_handedness_box.curvalue );
 }
 
-static void RateCallback( void *unused )
+static void RateCallback( void * )
 {
 	if (s_player_rate_box.curvalue != sizeof(rate_tbl) / sizeof(*rate_tbl) - 1)
 		Cvar_SetValue( "rate", rate_tbl[s_player_rate_box.curvalue] );
 }
 
-static void ModelCallback( void *unused )
+static void ModelCallback( void * )
 {
 	s_player_skin_box.itemnames = s_pmi[s_player_model_box.curvalue].skindisplaynames;
 	s_player_skin_box.curvalue = 0;
@@ -3443,8 +3442,8 @@ static qboolean PlayerConfig_ScanDirectories( void )
 {
 	char findname[1024];
 	char scratch[1024];
-	int ndirs = 0, npms = 0;
-	char **dirnames;
+	int ndirs = 0, npms;
+	char **dirnames = NULL;
 	char *path = NULL;
 	int i;
 
@@ -3578,6 +3577,7 @@ static qboolean PlayerConfig_ScanDirectories( void )
 	}
 	if ( dirnames )
 		FreeFileList( dirnames, ndirs );
+	return true;
 }
 
 static int pmicmpfnc( const void *_a, const void *_b )
@@ -3609,7 +3609,7 @@ qboolean PlayerConfig_MenuInit( void )
 	extern cvar_t *skin;
 	char currentdirectory[1024];
 	char currentskin[1024];
-	int i = 0;
+	int i;
 
 	int currentdirectoryindex = 0;
 	int currentskinindex = 0;
@@ -3650,7 +3650,7 @@ qboolean PlayerConfig_MenuInit( void )
 	for ( i = 0; i < s_numplayermodels; i++ )
 	{
 		s_pmnames[i] = s_pmi[i].displayname;
-		if ( Q_stricmp( s_pmi[i].directory, currentdirectory ) == 0 )
+		if ( Q_strcasecmp( s_pmi[i].directory, currentdirectory ) == 0 )
 		{
 			int j;
 
@@ -3658,7 +3658,7 @@ qboolean PlayerConfig_MenuInit( void )
 
 			for ( j = 0; j < s_pmi[i].nskins; j++ )
 			{
-				if ( Q_stricmp( s_pmi[i].skindisplaynames[j], currentskin ) == 0 )
+				if ( Q_strcasecmp( s_pmi[i].skindisplaynames[j], currentskin ) == 0 )
 				{
 					currentskinindex = j;
 					break;
@@ -3667,8 +3667,8 @@ qboolean PlayerConfig_MenuInit( void )
 		}
 	}
 
-	s_player_config_menu.x = viddef.width / 2 - 95; 
-	s_player_config_menu.y = viddef.height / 2 - 97;
+	s_player_config_menu.x = vid.width / 2 - 95; 
+	s_player_config_menu.y = vid.height / 2 - 97;
 	s_player_config_menu.nitems = 0;
 
 	s_player_name_field.generic.type = MTYPE_FIELD;
@@ -3773,8 +3773,8 @@ void PlayerConfig_MenuDraw( void )
 
 	memset( &refdef, 0, sizeof( refdef ) );
 
-	refdef.x = viddef.width / 2;
-	refdef.y = viddef.height / 2 - 72;
+	refdef.x = vid.width / 2;
+	refdef.y = vid.height / 2 - 72;
 	refdef.width = 144;
 	refdef.height = 168;
 	refdef.fov_x = 40;
@@ -3784,7 +3784,6 @@ void PlayerConfig_MenuDraw( void )
 	if ( s_pmi[s_player_model_box.curvalue].skindisplaynames )
 	{
 		static int yaw;
-		int maxframe = 29;
 		entity_t entity;
 
 		memset( &entity, 0, sizeof( entity ) );
@@ -3813,7 +3812,7 @@ void PlayerConfig_MenuDraw( void )
 
 		Menu_Draw( &s_player_config_menu );
 
-		M_DrawTextBox( ( refdef.x ) * ( 320.0F / viddef.width ) - 8, ( viddef.height / 2 ) * ( 240.0F / viddef.height) - 77, refdef.width / 8, refdef.height / 8 );
+		M_DrawTextBox( ( refdef.x ) * ( 320.0F / vid.width ) - 8, ( vid.height / 2 ) * ( 240.0F / vid.height) - 77, refdef.width / 8, refdef.height / 8 );
 		refdef.height += 4;
 
 		re.RenderFrame( &refdef );
@@ -3879,7 +3878,7 @@ GALLERY MENU
 
 =======================================================================
 */
-#if 0
+/* commented out in release
 void M_Menu_Gallery_f( void )
 {
 	extern void Gallery_MenuDraw( void );
@@ -3887,7 +3886,7 @@ void M_Menu_Gallery_f( void )
 
 	M_PushMenu( Gallery_MenuDraw, Gallery_MenuKey );
 }
-#endif
+*/
 
 /*
 =======================================================================
@@ -3927,7 +3926,7 @@ void M_Quit_Draw (void)
 	int		w, h;
 
 	re.DrawGetPicSize (&w, &h, "quit");
-	re.DrawPic ( (viddef.width-w)/2, (viddef.height-h)/2, "quit");
+	re.DrawPic ( (vid.width-w)/2, (vid.height-h)/2, "quit");
 }
 
 
@@ -3983,7 +3982,7 @@ void M_Draw (void)
 
 	// dim everything behind it down
 	if (cl.cinematictime > 0)
-		re.DrawFill (0,0,viddef.width, viddef.height, 0);
+		re.DrawFill (0,0,vid.width, vid.height, 0);
 	else
 		re.DrawFadeScreen ();
 

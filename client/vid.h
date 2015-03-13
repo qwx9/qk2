@@ -19,18 +19,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // vid.h -- video driver defs
 
-typedef struct vrect_s
-{
-	int				x,y,width,height;
-} vrect_t;
+typedef uchar pixel_t;
 
-typedef struct
-{
-	int		width;		
-	int		height;
-} viddef_t;
+typedef struct vrect_t vrect_t;
+typedef struct viddef_t viddef_t;
 
-extern	viddef_t	viddef;				// global video state
+struct vrect_t
+{
+	int	x, y, width, height;
+	vrect_t	*pnext;
+};
+
+struct viddef_t
+{
+	int	width;          
+	int	height;
+	pixel_t	*buffer;                // invisible buffer
+	pixel_t	*colormap;              // 256 * VID_GRADES size
+	pixel_t	*alphamap;              // 256 * 256 translucency map
+	int	rowbytes;               // may be > width if displayed in a window
+					// can be negative for stupid dibs
+};
+extern viddef_t vid;
 
 // Video module initialisation etc
 void	VID_Init (void);

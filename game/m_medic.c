@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-MEDIC
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_medic.h"
 
@@ -113,7 +111,7 @@ void medic_search (edict_t *self)
 	}
 }
 
-void medic_sight (edict_t *self, edict_t *other)
+void medic_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -314,7 +312,7 @@ mframe_t medic_frames_pain2 [] =
 };
 mmove_t medic_move_pain2 = {FRAME_painb1, FRAME_painb15, medic_frames_pain2, medic_run};
 
-void medic_pain (edict_t *self, edict_t *other, float kick, int damage)
+void medic_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	if (self->health < (self->max_health / 2))
 		self->s.skinnum = 1;
@@ -327,7 +325,7 @@ void medic_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare
 
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 	{
 		self->monsterinfo.currentmove = &medic_move_pain1;
 		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
@@ -410,7 +408,7 @@ mframe_t medic_frames_death [] =
 };
 mmove_t medic_move_death = {FRAME_death1, FRAME_death30, medic_frames_death, medic_dead};
 
-void medic_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void medic_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -491,9 +489,9 @@ mframe_t medic_frames_duck [] =
 };
 mmove_t medic_move_duck = {FRAME_duck1, FRAME_duck16, medic_frames_duck, medic_run};
 
-void medic_dodge (edict_t *self, edict_t *attacker, float eta)
+void medic_dodge (edict_t *self, edict_t *attacker, float /*eta*/)
 {
-	if (random() > 0.25)
+	if (qrandom() > 0.25)
 		return;
 
 	if (!self->enemy)
@@ -527,7 +525,7 @@ mmove_t medic_move_attackHyperBlaster = {FRAME_attack15, FRAME_attack30, medic_f
 void medic_continue (edict_t *self)
 {
 	if (visible (self, self->enemy) )
-		if (random() <= 0.95)
+		if (qrandom() <= 0.95)
 			self->monsterinfo.currentmove = &medic_move_attackHyperBlaster;
 }
 

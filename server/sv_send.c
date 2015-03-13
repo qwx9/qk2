@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // sv_main.c -- server main program
 
-#include "server.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 /*
 =============================================================================
@@ -175,10 +179,7 @@ void SV_Multicast (vec3_t origin, multicast_t to)
 		area1 = CM_LeafArea (leafnum);
 	}
 	else
-	{
-		leafnum = 0;	// just to avoid compiler warnings
-		area1 = 0;
-	}
+		area1 = 0;	// just to avoid compiler warnings
 
 	// if doing a serverrecord, store everything
 	if (svs.demofile)
@@ -189,7 +190,6 @@ void SV_Multicast (vec3_t origin, multicast_t to)
 	case MULTICAST_ALL_R:
 		reliable = true;	// intentional fallthrough
 	case MULTICAST_ALL:
-		leafnum = 0;
 		mask = NULL;
 		break;
 

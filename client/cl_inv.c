@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl_inv.c -- client inventory screen
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 /*
 ================
@@ -97,8 +101,8 @@ void CL_DrawInventory (void)
 	if (top < 0)
 		top = 0;
 
-	x = (viddef.width-256)/2;
-	y = (viddef.height-240)/2;
+	x = (vid.width-256)/2;
+	y = (vid.height-240)/2;
 
 	// repaint everything next frame
 	SCR_DirtyScreen ();
@@ -117,7 +121,7 @@ void CL_DrawInventory (void)
 		Com_sprintf (binding, sizeof(binding), "use %s", cl.configstrings[CS_ITEMS+item]);
 		bind = "";
 		for (j=0 ; j<256 ; j++)
-			if (keybindings[j] && !Q_stricmp (keybindings[j], binding))
+			if (keybindings[j] && !Q_strcasecmp (keybindings[j], binding))
 			{
 				bind = Key_KeynumToString(j);
 				break;

@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-TANK
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_tank.h"
 
@@ -46,7 +44,7 @@ static int	sound_strike;
 // misc
 //
 
-void tank_sight (edict_t *self, edict_t *other)
+void tank_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -285,7 +283,7 @@ mframe_t tank_frames_pain3 [] =
 mmove_t	tank_move_pain3 = {FRAME_pain301, FRAME_pain316, tank_frames_pain3, tank_run};
 
 
-void tank_pain (edict_t *self, edict_t *other, float kick, int damage)
+void tank_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 	if (self->health < (self->max_health / 2))
 			self->s.skinnum |= 1;
@@ -297,7 +295,7 @@ void tank_pain (edict_t *self, edict_t *other, float kick, int damage)
 			return;
 
 	if (damage <= 30)
-		if (random() > 0.2)
+		if (qrandom() > 0.2)
 			return;
 	
 	// If hard or nightmare, don't go into pain while attacking
@@ -469,7 +467,7 @@ void tank_reattack_blaster (edict_t *self)
 	if (skill->value >= 2)
 		if (visible (self, self->enemy))
 			if (self->enemy->health > 0)
-				if (random() <= 0.6)
+				if (qrandom() <= 0.6)
 				{
 					self->monsterinfo.currentmove = &tank_move_reattack_blast;
 					return;
@@ -639,7 +637,7 @@ void tank_refire_rocket (edict_t *self)
 	if ( skill->value >= 2 )
 		if (self->enemy->health > 0)
 			if (visible(self, self->enemy) )
-				if (random() <= 0.4)
+				if (qrandom() <= 0.4)
 				{
 					self->monsterinfo.currentmove = &tank_move_attack_fire_rocket;
 					return;
@@ -668,7 +666,7 @@ void tank_attack(edict_t *self)
 	VectorSubtract (self->enemy->s.origin, self->s.origin, vec);
 	range = VectorLength (vec);
 
-	r = random();
+	r = qrandom();
 
 	if (range <= 125)
 	{
@@ -750,7 +748,7 @@ mframe_t tank_frames_death1 [] =
 };
 mmove_t	tank_move_death = {FRAME_death101, FRAME_death132, tank_frames_death1, tank_dead};
 
-void tank_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void tank_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 

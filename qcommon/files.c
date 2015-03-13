@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "qcommon.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 // define this to dissalow any data but the demo pak file
 //#define	NO_ADDONS
@@ -156,18 +159,12 @@ void FS_FCloseFile (FILE *f)
 /*
 	Developer_searchpath
 */
-int	Developer_searchpath (int who)
+int	Developer_searchpath (int /*who*/)
 {
 	
-	int		ch;
 	// PMM - warning removal
 //	char	*start;
 	searchpath_t	*search;
-	
-	if (who == 1) // xatrix
-		ch = 'x';
-	else if (who == 2)
-		ch = 'r';
 
 	for (search = fs_searchpaths ; search ; search = search->next)
 	{
@@ -397,8 +394,6 @@ int FS_LoadFile (char *path, void **buffer)
 	byte	*buf;
 	int		len;
 
-	buf = NULL;	// quiet compiler warning
-
 // look for it in the filesystem or pack files
 	len = FS_FOpenFile (path, &h);
 	if (!h)
@@ -482,6 +477,8 @@ pack_t *FS_LoadPackFile (char *packfile)
 #ifdef NO_ADDONS
 	if (checksum != PAK0_CHECKSUM)
 		return NULL;
+#else
+	USED(checksum);
 #endif
 // parse the directory
 	for (i=0 ; i<numpackfiles ; i++)
@@ -688,7 +685,7 @@ char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned 
 {
 	char *s;
 	int nfiles = 0;
-	char **list = 0;
+	char **list;
 
 	s = Sys_FindFirst( findname, musthave, canthave );
 	while ( s )
@@ -715,9 +712,6 @@ char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned 
 		if ( s[strlen(s)-1] != '.' )
 		{
 			list[nfiles] = strdup( s );
-#ifdef _WIN32
-			strlwr( list[nfiles] );
-#endif
 			nfiles++;
 		}
 		s = Sys_FindNext( musthave, canthave );

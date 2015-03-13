@@ -17,15 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// server.h
-
-
-//define	PARANOID			// speed sapping error checking
-
-#include "../qcommon/qcommon.h"
-#include "../game/game.h"
-
-//=============================================================================
+//#define PARANOID			// speed sapping error checking
 
 #define	MAX_MASTERS	8				// max recipients for heartbeat packets
 
@@ -77,7 +69,7 @@ typedef enum
 					// connection for a couple seconds
 	cs_connected,	// has been assigned to a client_t, but not in game yet
 	cs_spawned		// client is fully in game
-} client_state_t;
+} clstate_t;
 
 typedef struct
 {
@@ -94,7 +86,7 @@ typedef struct
 
 typedef struct client_s
 {
-	client_state_t	state;
+	clstate_t	state;
 
 	char			userinfo[MAX_INFO_STRING];		// name, etc
 

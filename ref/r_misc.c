@@ -17,9 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_misc.c
-
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 #define NUM_MIPS	4
 
@@ -49,24 +51,6 @@ D_Patch
 */
 void D_Patch (void)
 {
-#if id386
-	extern void D_Aff8Patch( void );
-	static qboolean protectset8 = false;
-	extern void D_PolysetAff8Start( void );
-
-	if (!protectset8)
-	{
-		Sys_MakeCodeWriteable ((int)D_PolysetAff8Start,
-						     (int)D_Aff8Patch - (int)D_PolysetAff8Start);
-		Sys_MakeCodeWriteable ((long)R_Surf8Start,
-						 (long)R_Surf8End - (long)R_Surf8Start);
-		protectset8 = true;
-	}
-	colormap = vid.colormap;
-
-	R_Surf8Patch ();
-	D_Aff8Patch();
-#endif
 }
 /*
 ================
@@ -206,9 +190,6 @@ void R_TransformFrustum (void)
 }
 
 
-#if !(defined __linux__ && defined __i386__)
-#if !id386
-
 /*
 ================
 TransformVector
@@ -220,56 +201,6 @@ void TransformVector (vec3_t in, vec3_t out)
 	out[1] = DotProduct(in,vup);
 	out[2] = DotProduct(in,vpn);		
 }
-
-#else
-
-__declspec( naked ) void TransformVector( vec3_t vin, vec3_t vout )
-{
-	__asm mov eax, dword ptr [esp+4]
-	__asm mov edx, dword ptr [esp+8]
-
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [vright+0]
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [vup+0]
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [vpn+0]
-
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [vright+4]
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [vup+4]
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [vpn+4]
-
-	__asm fxch st(2)
-
-	__asm faddp st(5), st(0)
-	__asm faddp st(3), st(0)
-	__asm faddp st(1), st(0)
-
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [vright+8]
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [vup+8]
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [vpn+8]
-
-	__asm fxch st(2)
-
-	__asm faddp st(5), st(0)
-	__asm faddp st(3), st(0)
-	__asm faddp st(1), st(0)
-
-	__asm fstp dword ptr [edx+8]
-	__asm fstp dword ptr [edx+4]
-	__asm fstp dword ptr [edx+0]
-
-	__asm ret
-}
-
-#endif
-#endif
 
 
 /*
@@ -513,21 +444,6 @@ void R_SetupFrame (void)
 
 	d_aflatcolor = 0;
 }
-
-
-#if	!id386
-
-/*
-================
-R_SurfacePatch
-================
-*/
-void R_SurfacePatch (void)
-{
-	// we only patch code on Intel
-}
-
-#endif	// !id386
 
 
 /* 

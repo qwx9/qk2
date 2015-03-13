@@ -17,7 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 
 #define DEG2RAD( a ) ( a * M_PI ) / 180.0F
 
@@ -1180,17 +1181,6 @@ void Com_PageInMemory (byte *buffer, int size)
 
 ============================================================================
 */
-
-// FIXME: replace all Q_stricmp with Q_strcasecmp
-int Q_stricmp (char *s1, char *s2)
-{
-#if defined(WIN32)
-	return _stricmp (s1, s2);
-#else
-	return strcasecmp (s1, s2);
-#endif
-}
-
 
 int Q_strncasecmp (char *s1, char *s2, int n)
 {

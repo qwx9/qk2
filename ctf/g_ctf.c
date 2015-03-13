@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_player.h"
 
@@ -1533,9 +1535,9 @@ void CTFTeam_f (edict_t *ent)
 		return;
 	}
 
-	if (Q_stricmp(t, "red") == 0)
+	if (Q_strcasecmp(t, "red") == 0)
 		desired_team = CTF_TEAM1;
-	else if (Q_stricmp(t, "blue") == 0)
+	else if (Q_strcasecmp(t, "blue") == 0)
 		desired_team = CTF_TEAM2;
 	else {
 		gi.cprintf(ent, PRINT_HIGH, "Unknown team %s.\n", t);
@@ -3946,7 +3948,7 @@ void CTFWarp(edict_t *ent)
 
 	token = strtok(mlist, seps);
 	while (token != NULL) {
-		if (Q_stricmp(token, gi.argv(1)) == 0)
+		if (Q_strcasecmp(token, gi.argv(1)) == 0)
 			break;
 		token = strtok(NULL, seps);
 	}

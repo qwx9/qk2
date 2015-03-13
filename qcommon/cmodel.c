@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cmodel.c -- model loading
 
-#include "qcommon.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 typedef struct
 {
@@ -152,7 +156,7 @@ void CMod_LoadSubmodels (lump_t *l)
 
 	numcmodels = count;
 
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for ( i=0 ; i<count ; i++, in++)
 	{
 		out = &map_cmodels[i];
 
@@ -596,7 +600,7 @@ cmodel_t *CM_LoadMap (char *name, qboolean clientload, unsigned *checksum)
 	*checksum = last_checksum;
 
 	header = *(dheader_t *)buf;
-	for (i=0 ; i<sizeof(dheader_t)/4 ; i++)
+	for (i=0 ; i<sizeof(dheader_t)/sizeof(int) ; i++)
 		((int *)&header)[i] = LittleLong ( ((int *)&header)[i]);
 
 	if (header.version != BSPVERSION)
@@ -1272,11 +1276,11 @@ void CM_RecursiveHullCheck (int num, float p1f, float p2f, vec3_t p1, vec3_t p2)
 	}
 
 
-#if 0
-CM_RecursiveHullCheck (node->children[0], p1f, p2f, p1, p2);
-CM_RecursiveHullCheck (node->children[1], p1f, p2f, p1, p2);
-return;
-#endif
+	/*
+	CM_RecursiveHullCheck (node->children[0], p1f, p2f, p1, p2);
+	CM_RecursiveHullCheck (node->children[1], p1f, p2f, p1, p2);
+	return;
+	*/
 
 	// see which sides we need to consider
 	if (t1 >= offset && t2 >= offset)

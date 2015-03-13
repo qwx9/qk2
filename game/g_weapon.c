@@ -17,6 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 
@@ -39,7 +45,7 @@ static void check_dodge (edict_t *self, vec3_t start, vec3_t dir, int speed)
 	// easy mode only ducks one quarter the time
 	if (skill->value == 0)
 	{
-		if (random() > 0.25)
+		if (qrandom() > 0.25)
 			return;
 	}
 	VectorMA (start, 8192, dir, end);
@@ -452,7 +458,7 @@ static void Grenade_Explode (edict_t *ent)
 	G_FreeEdict (ent);
 }
 
-static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t */*plane*/, csurface_t *surf)
 {
 	if (other == ent->owner)
 		return;
@@ -467,7 +473,7 @@ static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurfa
 	{
 		if (ent->spawnflags & 1)
 		{
-			if (random() > 0.5)
+			if (qrandom() > 0.5)
 				gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/hgrenb1a.wav"), 1, ATTN_NORM, 0);
 			else
 				gi.sound (ent, CHAN_VOICE, gi.soundindex ("weapons/hgrenb2a.wav"), 1, ATTN_NORM, 0);

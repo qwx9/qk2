@@ -1,72 +1,64 @@
-// Quake is a trademark of Id Software, Inc., (c) 1996 Id Software, Inc. All
-// rights reserved.
-
+#include <u.h>
+#include <libc.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <sys/file.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <string.h>
-#include <time.h>
-#include <errno.h>
+#include "../dat.h"
+#include "../fns.h"
 
-#include <linux/cdrom.h>
-
-#include "../client/client.h"
-
-static qboolean cdValid = false;
-static qboolean	playing = false;
-static qboolean	wasPlaying = false;
-static qboolean	initialized = false;
-static qboolean	enabled = true;
-static qboolean playLooping = false;
-static float	cdvolume;
-static byte 	remap[100];
-static byte		playTrack;
-static byte		maxTrack;
-
-static int cdfile = -1;
-
-//static char cd_dev[64] = "/dev/cdrom";
+qboolean cdValid = false;
+qboolean playing = false;
+qboolean wasPlaying = false;
+qboolean initialized = false;
+qboolean enabled = true;
+qboolean playLooping = false;
+float cdvolume;
+byte remap[100];
+byte playTrack;
+byte maxTrack;
+int cdfile = -1;
 
 cvar_t	*cd_volume;
 cvar_t *cd_nocd;
 cvar_t *cd_dev;
 
-void CDAudio_Pause(void);
 
-static void CDAudio_Eject(void)
+void CDAudio_Eject(void)
 {
 	if (cdfile == -1 || !enabled)
-		return; // no cd init'd
+		return;
 
+	Com_DPrintf("CDAudio_Eject: PORTME\n");
+	/*
 	if ( ioctl(cdfile, CDROMEJECT) == -1 ) 
 		Com_DPrintf("ioctl cdromeject failed\n");
+	*/
 }
 
-
-static void CDAudio_CloseDoor(void)
+void CDAudio_CloseDoor(void)
 {
 	if (cdfile == -1 || !enabled)
-		return; // no cd init'd
+		return;
 
+	Com_DPrintf("CDAudio_CloseDoor: PORTME\n");
+	/*
 	if ( ioctl(cdfile, CDROMCLOSETRAY) == -1 ) 
 		Com_DPrintf("ioctl cdromclosetray failed\n");
+	*/
 }
 
-static int CDAudio_GetAudioDiskInfo(void)
+int CDAudio_GetAudioDiskInfo(void)
 {
+	cdValid = false;
+	Com_DPrintf("CDAudio_GetAudioDiskInfo: PORTME\n");
+	return -1;
+
+	/*
 	struct cdrom_tochdr tochdr;
 
-	cdValid = false;
-
 	if ( ioctl(cdfile, CDROMREADTOCHDR, &tochdr) == -1 ) 
-    {
-      Com_DPrintf("ioctl cdromreadtochdr failed\n");
-	  return -1;
-    }
+	{
+		Com_DPrintf("ioctl cdromreadtochdr failed\n");
+		return -1;
+	}
 
 	if (tochdr.cdth_trk0 < 1)
 	{
@@ -76,19 +68,32 @@ static int CDAudio_GetAudioDiskInfo(void)
 
 	cdValid = true;
 	maxTrack = tochdr.cdth_trk1;
-
 	return 0;
+	*/
 }
 
+void CDAudio_Pause(void)
+{
+	if (cdfile == -1 || !enabled)
+		return;
+	if (!playing)
+		return;
+
+	Com_DPrintf("CDAudio_GetAudioDiskInfo: PORTME\n");
+
+	/*
+	if ( ioctl(cdfile, CDROMPAUSE) == -1 ) 
+		Com_DPrintf("ioctl cdrompause failed\n");
+
+	wasPlaying = playing;
+	playing = false;
+	*/
+}
 
 void CDAudio_Play(int track, qboolean looping)
 {
-	struct cdrom_tocentry entry;
-	struct cdrom_ti ti;
-
 	if (cdfile == -1 || !enabled)
 		return;
-	
 	if (!cdValid)
 	{
 		CDAudio_GetAudioDiskInfo();
@@ -97,17 +102,23 @@ void CDAudio_Play(int track, qboolean looping)
 	}
 
 	track = remap[track];
-
 	if (track < 1 || track > maxTrack)
 	{
 		Com_DPrintf("CDAudio: Bad track number %u.\n", track);
 		return;
 	}
 
+	USED(looping);
+	Com_DPrintf("CDAudio_Play: PORTME\n");
+
+	/*
+	struct cdrom_tocentry entry;
+	struct cdrom_ti ti;
+
 	// don't try to play a non-audio track
 	entry.cdte_track = track;
 	entry.cdte_format = CDROM_MSF;
-    if ( ioctl(cdfile, CDROMREADTOCENTRY, &entry) == -1 )
+	if ( ioctl(cdfile, CDROMREADTOCENTRY, &entry) == -1 )
 	{
 		Com_DPrintf("ioctl cdromreadtocentry failed\n");
 		return;
@@ -129,13 +140,11 @@ void CDAudio_Play(int track, qboolean looping)
 	ti.cdti_trk1 = track;
 	ti.cdti_ind0 = 1;
 	ti.cdti_ind1 = 99;
-
 	if ( ioctl(cdfile, CDROMPLAYTRKIND, &ti) == -1 ) 
-    {
+	{
 		Com_DPrintf("ioctl cdromplaytrkind failed\n");
 		return;
-    }
-
+	}
 	if ( ioctl(cdfile, CDROMRESUME) == -1 ) 
 		Com_DPrintf("ioctl cdromresume failed\n");
 
@@ -145,6 +154,7 @@ void CDAudio_Play(int track, qboolean looping)
 
 	if (cd_volume->value == 0.0)
 		CDAudio_Pause ();
+	*/
 }
 
 
@@ -152,54 +162,42 @@ void CDAudio_Stop(void)
 {
 	if (cdfile == -1 || !enabled)
 		return;
-	
 	if (!playing)
 		return;
 
+	Com_DPrintf("CDAudio_Stop: PORTME\n");
+
+	/*
 	if ( ioctl(cdfile, CDROMSTOP) == -1 )
 		Com_DPrintf("ioctl cdromstop failed (%d)\n", errno);
 
 	wasPlaying = false;
 	playing = false;
+	*/
 }
-
-void CDAudio_Pause(void)
-{
-	if (cdfile == -1 || !enabled)
-		return;
-
-	if (!playing)
-		return;
-
-	if ( ioctl(cdfile, CDROMPAUSE) == -1 ) 
-		Com_DPrintf("ioctl cdrompause failed\n");
-
-	wasPlaying = playing;
-	playing = false;
-}
-
 
 void CDAudio_Resume(void)
 {
 	if (cdfile == -1 || !enabled)
 		return;
-	
 	if (!cdValid)
 		return;
-
 	if (!wasPlaying)
 		return;
-	
+
+	Com_DPrintf("CDAudio_Stop: PORTME\n");
+
+	/*
 	if ( ioctl(cdfile, CDROMRESUME) == -1 ) 
 		Com_DPrintf("ioctl cdromresume failed\n");
 	playing = true;
+	*/
 }
 
 static void CD_f (void)
 {
 	char	*command;
-	int		ret;
-	int		n;
+	int n, ret;
 
 	if (Cmd_Argc() < 2)
 		return;
@@ -315,12 +313,8 @@ static void CD_f (void)
 
 void CDAudio_Update(void)
 {
-	struct cdrom_subchnl subchnl;
-	static time_t lastchk;
-
 	if (cdfile == -1 || !enabled)
 		return;
-
 	if (cd_volume && cd_volume->value != cdvolume)
 	{
 		if (cdvolume)
@@ -337,6 +331,12 @@ void CDAudio_Update(void)
 		}
 	}
 
+	Com_DPrintf("CDAudio_Stop: PORTME\n");
+
+	/*
+	struct cdrom_subchnl subchnl;
+	static time_t lastchk;
+
 	if (playing && lastchk < time(NULL)) {
 		lastchk = time(NULL) + 2; //two seconds between chks
 		subchnl.cdsc_format = CDROM_MSF;
@@ -352,13 +352,13 @@ void CDAudio_Update(void)
 				CDAudio_Play(playTrack, true);
 		}
 	}
+	*/
 }
 
 int CDAudio_Init(void)
 {
 	int i;
-	cvar_t			*cv;
-	extern uid_t saved_euid;
+	cvar_t	*cv;
 
 	cv = Cvar_Get ("nocdaudio", "0", CVAR_NOSET);
 	if (cv->value)
@@ -372,14 +372,9 @@ int CDAudio_Init(void)
 
 	cd_dev = Cvar_Get("cd_dev", "/dev/cdrom", CVAR_ARCHIVE);
 
-	seteuid(saved_euid);
-
-	cdfile = open(cd_dev->string, O_RDONLY);
-
-	seteuid(getuid());
-
-	if (cdfile == -1) {
-		Com_Printf("CDAudio_Init: open of \"%s\" failed (%i)\n", cd_dev->string, errno);
+	if((cdfile = open(cd_dev->string, OREAD)) < 0){
+		fprint(2, "CDAudio_Init: %r\n");
+		Com_Printf("CDAudio_Init: failed to open \"%s\"\n", cd_dev);
 		cdfile = -1;
 		return -1;
 	}

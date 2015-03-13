@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // sv_game.c -- interface to the game dll
 
-#include "server.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 game_export_t	*ge;
 
@@ -85,7 +89,7 @@ void PF_cprintf (edict_t *ent, int level, char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
-	int			n;
+	int		n = 0;
 
 	if (ent)
 	{
@@ -383,7 +387,7 @@ void SV_InitGameProgs (void)
 	import.SetAreaPortalState = CM_SetAreaPortalState;
 	import.AreasConnected = CM_AreasConnected;
 
-	ge = (game_export_t *)Sys_GetGameAPI (&import);
+	ge = GetGameAPI(&import);
 
 	if (!ge)
 		Com_Error (ERR_DROP, "failed to load game DLL");
@@ -393,4 +397,3 @@ void SV_InitGameProgs (void)
 
 	ge->Init ();
 }
-

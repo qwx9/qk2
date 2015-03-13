@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-parasite
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_parasite.h"
 
@@ -62,7 +60,7 @@ void parasite_reel_in (edict_t *self)
 	gi.sound (self, CHAN_WEAPON, sound_reelin, 1, ATTN_NORM, 0);
 }
 
-void parasite_sight (edict_t *self, edict_t *other)
+void parasite_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_WEAPON, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -128,7 +126,7 @@ void parasite_do_fidget (edict_t *self)
 
 void parasite_refidget (edict_t *self)
 { 
-	if (random() <= 0.8)
+	if (qrandom() <= 0.8)
 		self->monsterinfo.currentmove = &parasite_move_fidget;
 	else
 		self->monsterinfo.currentmove = &parasite_move_end_fidget;
@@ -272,7 +270,7 @@ mframe_t parasite_frames_pain1 [] =
 };
 mmove_t parasite_move_pain1 = {FRAME_pain101, FRAME_pain111, parasite_frames_pain1, parasite_start_run};
 
-void parasite_pain (edict_t *self, edict_t *other, float kick, int damage)
+void parasite_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	if (self->health < (self->max_health / 2))
 		self->s.skinnum = 1;
@@ -285,7 +283,7 @@ void parasite_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare
 
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 	else
 		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
@@ -432,7 +430,7 @@ Break Stuff Ends
 
 void parasite_attack (edict_t *self)
 {
-//	if (random() <= 0.2)
+//	if (qrandom() <= 0.2)
 //		self->monsterinfo.currentmove = &parasite_move_break;
 //	else
 		self->monsterinfo.currentmove = &parasite_move_drain;
@@ -468,7 +466,7 @@ mframe_t parasite_frames_death [] =
 };
 mmove_t parasite_move_death = {FRAME_death101, FRAME_death107, parasite_frames_death, parasite_dead};
 
-void parasite_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void parasite_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 

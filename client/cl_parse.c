@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl_parse.c  -- parse a message received from the server
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 char *svc_strings[256] =
 {
@@ -189,6 +193,20 @@ void CL_RegisterSounds (void)
 	S_EndRegistration ();
 }
 
+void rename (char *old, char *new)	/* FIXME: unsafe impl. */
+{
+	char *p;
+	Dir d;
+
+	if((p = strrchr(new, '/')) == nil)
+		p = new;
+	else
+		p++;
+	nulldir(&d);
+	d.name = p;
+	if(dirwstat(old, &d) < 0)
+		fprint(2, "rename: %r\n");
+}
 
 /*
 =====================
@@ -201,7 +219,6 @@ void CL_ParseDownload (void)
 {
 	int		size, percent;
 	char	name[MAX_OSPATH];
-	int		r;
 
 	// read the data
 	size = MSG_ReadShort (&net_message);
@@ -243,14 +260,14 @@ void CL_ParseDownload (void)
 	{
 		// request next block
 // change display routines by zoid
-#if 0
+/*
 		Com_Printf (".");
 		if (10*(percent/10) != cls.downloadpercent)
 		{
 			cls.downloadpercent = 10*(percent/10);
 			Com_Printf ("%i%%", cls.downloadpercent);
 		}
-#endif
+*/
 		cls.downloadpercent = percent;
 
 		MSG_WriteByte (&cls.netchan.message, clc_stringcmd);
@@ -268,9 +285,7 @@ void CL_ParseDownload (void)
 		// rename the temp file to it's final name
 		CL_DownloadFileName(oldn, sizeof(oldn), cls.downloadtempname);
 		CL_DownloadFileName(newn, sizeof(newn), cls.downloadname);
-		r = rename (oldn, newn);
-		if (r)
-			Com_Printf ("failed to rename.\n");
+		rename (oldn, newn);	/* FIXME */
 
 		cls.download = NULL;
 		cls.downloadpercent = 0;
@@ -442,7 +457,7 @@ void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 
 		// if we don't have the skin and the model wasn't male,
 		// see if the male has it (this is for CTF's skins)
- 		if (!ci->skin && Q_stricmp(model_name, "male"))
+ 		if (!ci->skin && Q_strcasecmp(model_name, "male"))
 		{
 			// change model to male
 			strcpy(model_name, "male");

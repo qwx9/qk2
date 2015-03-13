@@ -17,7 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 game_locals_t	game;
@@ -137,33 +138,6 @@ game_export_t *GetGameAPI (game_import_t *import)
 	return &globals;
 }
 
-#ifndef GAME_HARD_LINKED
-// this is only here so the functions in q_shared.c and q_shwin.c can link
-void Sys_Error (char *error, ...)
-{
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, error);
-	vsprintf (text, error, argptr);
-	va_end (argptr);
-
-	gi.error (ERR_FATAL, "%s", text);
-}
-
-void Com_Printf (char *msg, ...)
-{
-	va_list		argptr;
-	char		text[1024];
-
-	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
-	va_end (argptr);
-
-	gi.dprintf ("%s", text);
-}
-
-#endif
 
 //======================================================================
 
@@ -239,7 +213,7 @@ void EndDMLevel (void)
 		f = NULL;
 		t = strtok(s, seps);
 		while (t != NULL) {
-			if (Q_stricmp(t, level.mapname) == 0) {
+			if (Q_strcasecmp(t, level.mapname) == 0) {
 				// it's in the list, go to the next one
 				t = strtok(NULL, seps);
 				if (t == NULL) { // end of list, go to first one

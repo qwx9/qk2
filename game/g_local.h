@@ -19,13 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // g_local.h -- local definitions for game module
 
-#include "../q_shared.h"
-
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
 // because we define the full size ones in this file
-#define	GAME_INCLUDE
-#include "game.h"
 
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"baseq2"
@@ -234,10 +230,10 @@ typedef struct
 typedef struct gitem_s
 {
 	char		*classname;	// spawning name
-	qboolean	(*pickup)(struct edict_s *ent, struct edict_s *other);
-	void		(*use)(struct edict_s *ent, struct gitem_s *item);
-	void		(*drop)(struct edict_s *ent, struct gitem_s *item);
-	void		(*weaponthink)(struct edict_s *ent);
+	qboolean	(*pickup)(edict_t *ent, edict_t *other);
+	void		(*use)(edict_t *ent, struct gitem_s *item);
+	void		(*drop)(edict_t *ent, struct gitem_s *item);
+	void		(*weaponthink)(edict_t *ent);
 	char		*pickup_sound;
 	char		*world_model;
 	int			world_model_flags;
@@ -501,13 +497,13 @@ extern	int	meansOfDeath;
 
 extern	edict_t			*g_edicts;
 
-#define	FOFS(x) (int)&(((edict_t *)0)->x)
-#define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define	CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define	FOFS(x) (uintptr)&(((edict_t *)0)->x)
+#define	STOFS(x) (uintptr)&(((spawn_temp_t *)0)->x)
+#define	LLOFS(x) (uintptr)&(((level_locals_t *)0)->x)
+#define	CLOFS(x) (uintptr)&(((gclient_t *)0)->x)
 
-#define random()	((rand () & 0x7fff) / ((float)0x7fff))
-#define crandom()	(2.0 * (random() - 0.5))
+#define qrandom()	((rand () & 0x7fff) / ((float)0x7fff))	/* >_< arrrrggghh */
+#define crandom()	(2.0 * (qrandom() - 0.5))
 
 extern	cvar_t	*maxentities;
 extern	cvar_t	*deathmatch;
@@ -873,13 +869,20 @@ typedef struct
 
 // this structure is cleared on each PutClientInServer(),
 // except for 'client->pers'
-struct gclient_s
+struct gclient_t
 {
 	// known to server
 	player_state_t	ps;				// communicated by server to clients
 	int				ping;
 
-	// private to game
+// the server expects the first part
+// of gclient_s to be a player_state_t
+// but the rest of it is opaque
+
+	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
+	// EXPECTS THE FIELDS IN THAT ORDER!
+	//================================
+
 	client_persistant_t	pers;
 	client_respawn_t	resp;
 	pmove_state_t		old_pmove;	// for detecting out-of-pmove changes
@@ -958,13 +961,10 @@ struct gclient_s
 };
 
 
-struct edict_s
+struct edict_t
 {
 	entity_state_t	s;
-	struct gclient_s	*client;	// NULL if not a player
-									// the server expects the first part
-									// of gclient_s to be a player_state_t
-									// but the rest of it is opaque
+	gclient_t	*client;	// NULL if not a player
 
 	qboolean	inuse;
 	int			linkcount;
@@ -979,18 +979,17 @@ struct edict_s
 
 	//================================
 
-	int			svflags;
+	int			svflags;	// SCF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc.
 	vec3_t		mins, maxs;
 	vec3_t		absmin, absmax, size;
 	solid_t		solid;
 	int			clipmask;
 	edict_t		*owner;
 
-
 	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
 	// EXPECTS THE FIELDS IN THAT ORDER!
-
 	//================================
+
 	int			movetype;
 	int			flags;
 
@@ -1106,4 +1105,3 @@ struct edict_s
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
 };
-

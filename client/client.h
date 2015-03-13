@@ -19,23 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // client.h -- primary header for client
 
-//define	PARANOID			// speed sapping error checking
-
-#include <math.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "ref.h"
-
-#include "vid.h"
-#include "screen.h"
-#include "sound.h"
-#include "input.h"
-#include "keys.h"
-#include "console.h"
-#include "cdaudio.h"
+//#define	PARANOID			// speed sapping error checking
 
 //=============================================================================
 
@@ -414,7 +398,7 @@ void CL_WidowSplash (vec3_t org);
 // PGM
 // ========
 
-int CL_ParseEntityBits (unsigned *bits);
+int CL_ParseEntityBits (int *bits);
 void CL_ParseDelta (entity_state_t *from, entity_state_t *to, int number, int bits);
 void CL_ParseFrame (void);
 
@@ -576,7 +560,7 @@ void CL_DrawInventory (void);
 //
 void CL_PredictMovement (void);
 
-#if id386
+#ifdef id386
 void x86_TimerStart( void );
 void x86_TimerStop( void );
 void x86_TimerInit( unsigned long smallest, unsigned longest );

@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl_main.c  -- client main loop
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 cvar_t	*freelook;
 
@@ -206,7 +210,7 @@ void CL_Record_f (void)
 	//
 	// write out messages to hold the startup information
 	//
-	SZ_Init (&buf, buf_data, sizeof(buf_data));
+	SZ_Init (&buf, (uchar *)buf_data, sizeof(buf_data));
 
 	// send the serverdata
 	MSG_WriteByte (&buf, svc_serverdata);
@@ -303,35 +307,33 @@ void Cmd_ForwardToServer (void)
 
 void CL_Setenv_f( void )
 {
-	int argc = Cmd_Argc();
+	int i, l = 0, argc;
+	char name[1024], val[1024] = {0}, *env;
 
-	if ( argc > 2 )
+	argc = Cmd_Argc();
+
+	if (argc > 2)
 	{
-		char buffer[1000];
-		int i;
-
-		strcpy( buffer, Cmd_Argv(1) );
-		strcat( buffer, "=" );
-
-		for ( i = 2; i < argc; i++ )
+		strncpy(name, Cmd_Argv(1), sizeof name);
+		for (i = 2; i < argc; i++)
 		{
-			strcat( buffer, Cmd_Argv( i ) );
-			strcat( buffer, " " );
+			strncpy (val+l, Cmd_Argv(i), sizeof name - l - 2);
+			strcat (val, " ");
+			l = strlen (val);
 		}
-
-		putenv( buffer );
+		putenv (name, val);
 	}
-	else if ( argc == 2 )
+	else if (argc == 2)
 	{
-		char *env = getenv( Cmd_Argv(1) );
-
-		if ( env )
+		env = getenv (Cmd_Argv(1));
+		if (env)
 		{
-			Com_Printf( "%s=%s\n", Cmd_Argv(1), env );
+			Com_Printf ("%s=%s\n", Cmd_Argv(1), env);
+			free (env);
 		}
 		else
 		{
-			Com_Printf( "%s undefined\n", Cmd_Argv(1), env );
+			Com_Printf ("%s undefined\n", Cmd_Argv(1), env);
 		}
 	}
 }
@@ -597,7 +599,7 @@ void CL_ClearState (void)
 
 // wipe the entire cl structure
 	memset (&cl, 0, sizeof(cl));
-	memset (&cl_entities, 0, sizeof(cl_entities));
+	memset (cl_entities, 0, sizeof(cl_entities));
 
 	SZ_Clear (&cls.netchan.message);
 
@@ -644,9 +646,9 @@ void CL_Disconnect (void)
 	// send a disconnect message to the server
 	final[0] = clc_stringcmd;
 	strcpy ((char *)final+1, "disconnect");
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
-	Netchan_Transmit (&cls.netchan, strlen(final), final);
+	Netchan_Transmit (&cls.netchan, strlen((char *)final), final);
+	Netchan_Transmit (&cls.netchan, strlen((char *)final), final);
+	Netchan_Transmit (&cls.netchan, strlen((char *)final), final);
 
 	CL_ClearState ();
 
@@ -1063,9 +1065,9 @@ void CL_FixUpGender(void)
 		strncpy(sk, skin->string, sizeof(sk) - 1);
 		if ((p = strchr(sk, '/')) != NULL)
 			*p = 0;
-		if (Q_stricmp(sk, "male") == 0 || Q_stricmp(sk, "cyborg") == 0)
+		if (Q_strcasecmp(sk, "male") == 0 || Q_strcasecmp(sk, "cyborg") == 0)
 			Cvar_Set ("gender", "male");
-		else if (Q_stricmp(sk, "female") == 0 || Q_stricmp(sk, "crackhor") == 0)
+		else if (Q_strcasecmp(sk, "female") == 0 || Q_strcasecmp(sk, "crackhor") == 0)
 			Cvar_Set ("gender", "female");
 		else
 			Cvar_Set ("gender", "none");
@@ -1262,7 +1264,6 @@ void CL_RequestNextDownload (void)
 						precache_check = CS_PLAYERSKINS + i * PLAYER_MULT + 1;
 						return; // started a download
 					}
-					n++;
 					/*FALL THROUGH*/
 
 				case 1: // weapon model
@@ -1271,7 +1272,6 @@ void CL_RequestNextDownload (void)
 						precache_check = CS_PLAYERSKINS + i * PLAYER_MULT + 2;
 						return; // started a download
 					}
-					n++;
 					/*FALL THROUGH*/
 
 				case 2: // weapon skin
@@ -1280,7 +1280,6 @@ void CL_RequestNextDownload (void)
 						precache_check = CS_PLAYERSKINS + i * PLAYER_MULT + 3;
 						return; // started a download
 					}
-					n++;
 					/*FALL THROUGH*/
 
 				case 3: // skin
@@ -1289,7 +1288,6 @@ void CL_RequestNextDownload (void)
 						precache_check = CS_PLAYERSKINS + i * PLAYER_MULT + 4;
 						return; // started a download
 					}
-					n++;
 					/*FALL THROUGH*/
 
 				case 4: // skin_i
@@ -1701,13 +1699,12 @@ void CL_Frame (int msec)
 	cls.realtime = curtime;
 
 	extratime = 0;
-#if 0
+/*
 	if (cls.frametime > (1.0 / cl_minfps->value))
 		cls.frametime = (1.0 / cl_minfps->value);
-#else
+*/
 	if (cls.frametime > (1.0 / 5))
 		cls.frametime = (1.0 / 5);
-#endif
 
 	// if in the debugger last frame, don't timeout
 	if (msec > 5000)
@@ -1784,14 +1781,13 @@ void CL_Init (void)
 
 	// all archived variables will now be loaded
 
-	Con_Init ();	
-#if defined __linux__ || defined __sgi
-	S_Init ();	
-	VID_Init ();
-#else
+	Con_Init ();
+/*	
 	VID_Init ();
 	S_Init ();	// sound must be initialized after window is created
-#endif
+*/
+	S_Init ();	
+	VID_Init ();
 	
 	V_Init ();
 	

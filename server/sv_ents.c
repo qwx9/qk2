@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "server.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 /*
 =============================================================================
@@ -28,7 +31,7 @@ Encode a client frame onto the network channel
 =============================================================================
 */
 
-#if 0
+/* commented out in release
 
 // because there can be a lot of projectiles, there is a special
 // network protocol for them
@@ -113,7 +116,7 @@ void SV_EmitProjectileUpdate (sizebuf_t *msg)
 			MSG_WriteByte (msg, bits[i]);
 	}
 }
-#endif
+*/
 
 /*
 =============
@@ -124,17 +127,17 @@ Writes a delta update of an entity_state_t list to the message.
 */
 void SV_EmitPacketEntities (client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 {
-	entity_state_t	*oldent, *newent;
+	entity_state_t	*oldent = nil, *newent = nil;
 	int		oldindex, newindex;
 	int		oldnum, newnum;
 	int		from_num_entities;
 	int		bits;
 
-#if 0
+/*
 	if (numprojs)
 		MSG_WriteByte (msg, svc_packetentities2);
 	else
-#endif
+*/
 		MSG_WriteByte (msg, svc_packetentities);
 
 	if (!from)
@@ -203,10 +206,10 @@ void SV_EmitPacketEntities (client_frame_t *from, client_frame_t *to, sizebuf_t 
 
 	MSG_WriteShort (msg, 0);	// end of packetentities
 
-#if 0
+/*
 	if (numprojs)
 		SV_EmitProjectileUpdate(msg);
-#endif
+*/
 }
 
 
@@ -538,9 +541,7 @@ void SV_BuildClientFrame (client_t *client)
 	if (!clent->client)
 		return;		// not in game yet
 
-#if 0
-	numprojs = 0; // no projectiles yet
-#endif
+	//numprojs = 0; // no projectiles yet
 
 	// this is the frame we are creating
 	frame = &client->frames[sv.framenum & UPDATE_MASK];
@@ -645,10 +646,10 @@ void SV_BuildClientFrame (client_t *client)
 			}
 		}
 
-#if 0
+/*
 		if (SV_AddProjectileUpdate(ent))
 			continue; // added as a special projectile
-#endif
+*/
 
 		// add it to the circular client_entities array
 		state = &svs.client_entities[svs.next_client_entities%svs.num_client_entities];

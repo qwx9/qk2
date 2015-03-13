@@ -17,9 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// m_flash.c
-
-#include "../q_shared.h"
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 // this file is included in both the game dll and quake2,
 // the game needs it to source shot locations, the client

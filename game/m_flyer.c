@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-flyer
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_flyer.h"
 
@@ -49,7 +47,7 @@ void flyer_stand (edict_t *self);
 void flyer_nextmove (edict_t *self);
 
 
-void flyer_sight (edict_t *self, edict_t *other)
+void flyer_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -478,7 +476,7 @@ mmove_t flyer_move_loop_melee = {FRAME_attak107, FRAME_attak118, flyer_frames_lo
 
 void flyer_loop_melee (edict_t *self)
 {
-/*	if (random() <= 0.5)	
+/*	if (qrandom() <= 0.5)	
 		self->monsterinfo.currentmove = &flyer_move_attack1;
 	else */
 	self->monsterinfo.currentmove = &flyer_move_loop_melee;
@@ -488,7 +486,7 @@ void flyer_loop_melee (edict_t *self)
 
 void flyer_attack (edict_t *self)
 {
-/*	if (random() <= 0.5)	
+/*	if (qrandom() <= 0.5)	
 		self->monsterinfo.currentmove = &flyer_move_attack1;
 	else */
 	self->monsterinfo.currentmove = &flyer_move_attack2;
@@ -520,7 +518,7 @@ void flyer_melee (edict_t *self)
 void flyer_check_melee(edict_t *self)
 {
 	if (range (self, self->enemy) == RANGE_MELEE)
-		if (random() <= 0.8)
+		if (qrandom() <= 0.8)
 			self->monsterinfo.currentmove = &flyer_move_loop_melee;
 		else
 			self->monsterinfo.currentmove = &flyer_move_end_melee;
@@ -528,7 +526,7 @@ void flyer_check_melee(edict_t *self)
 		self->monsterinfo.currentmove = &flyer_move_end_melee;
 }
 
-void flyer_pain (edict_t *self, edict_t *other, float kick, int damage)
+void flyer_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	int		n;
 
@@ -561,7 +559,7 @@ void flyer_pain (edict_t *self, edict_t *other, float kick, int damage)
 }
 
 
-void flyer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void flyer_die(edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int /*damage*/, vec3_t /*point*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	BecomeExplosion1(self);
@@ -579,7 +577,7 @@ void SP_monster_flyer (edict_t *self)
 	}
 
 	// fix a map bug in jail5.bsp
-	if (!Q_stricmp(level.mapname, "jail5") && (self->s.origin[2] == -104))
+	if (!Q_strcasecmp(level.mapname, "jail5") && (self->s.origin[2] == -104))
 	{
 		self->targetname = self->target;
 		self->target = NULL;

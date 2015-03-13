@@ -18,8 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // common.c -- misc functions used in client and server
-#include "qcommon.h"
-#include <setjmp.h>
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 #define	MAXPRINTMSG	4096
 
@@ -1208,11 +1211,11 @@ For proxy protecting
 
 ====================
 */
-byte	COM_BlockSequenceCheckByte (byte *base, int length, int sequence, int challenge)
+byte	COM_BlockSequenceCheckByte (byte */*base*/, int /*length*/, int /*sequence*/, int /*challenge*/)
 {
 	Sys_Error("COM_BlockSequenceCheckByte called\n");
 
-#if 0
+/*
 	int		checksum;
 	byte	buf[68];
 	byte	*p;
@@ -1248,7 +1251,7 @@ byte	COM_BlockSequenceCheckByte (byte *base, int length, int sequence, int chall
 	checksum &= 0xff;
 
 	return checksum;
-#endif
+*/
 	return 0;
 }
 
@@ -1363,7 +1366,7 @@ byte	COM_BlockSequenceCRCByte (byte *base, int length, int sequence)
 
 //========================================================
 
-float	frand(void)
+float	qfrand(void)
 {
 	return (rand()&32767)* (1.0/32767);
 }
@@ -1450,7 +1453,7 @@ void Qcommon_Init (int argc, char **argv)
 	dedicated = Cvar_Get ("dedicated", "0", CVAR_NOSET);
 #endif
 
-	s = va("%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING);
+	s = va("%4.2f %s Nov 30 1997 %s", VERSION, CPUSTRING, BUILDSTRING);
 	Cvar_Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
 
 
@@ -1491,7 +1494,7 @@ Qcommon_Frame
 void Qcommon_Frame (int msec)
 {
 	char	*s;
-	int		time_before, time_between, time_after;
+	int		time_before = 0, time_between = 0, time_after = 0;
 
 	if (setjmp (abortframe) )
 		return;			// an ERR_DROP was thrown

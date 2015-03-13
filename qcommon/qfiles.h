@@ -329,6 +329,7 @@ typedef struct
 
 // these definitions also need to be in q_shared.h!
 
+/* ^-- macro redefinitions
 // lower bits are stronger, and will eat weaker brushes completely
 #define	CONTENTS_SOLID			1		// an eye is never valid in a solid
 #define	CONTENTS_WINDOW			2		// translucent, but not watery
@@ -374,7 +375,7 @@ typedef struct
 #define	SURF_TRANS66	0x20
 #define	SURF_FLOWING	0x40	// scroll towards angle
 #define	SURF_NODRAW		0x80	// don't bother referencing the texture
-
+*/
 
 
 

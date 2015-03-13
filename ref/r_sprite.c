@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_sprite.c
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 extern polydesc_t r_polydesc;
 
@@ -46,7 +49,7 @@ void R_DrawSprite (void)
 
 
 	s_psprite = (dsprite_t *)currentmodel->extradata;
-#if 0
+/*
 	if (currententity->frame >= s_psprite->numframes
 		|| currententity->frame < 0)
 	{
@@ -54,7 +57,7 @@ void R_DrawSprite (void)
 			currententity->frame);
 		currententity->frame = 0;
 	}
-#endif
+*/
 	currententity->frame %= s_psprite->numframes;
 
 	s_psprframe = &s_psprite->frames[currententity->frame];

@@ -22,7 +22,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // models are the only shared resource between a client and server running
 // on the same machine.
 
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 model_t	*loadmodel;
 char	loadname[32];	// for hunk tags
@@ -206,8 +210,6 @@ mleaf_t *Mod_PointInLeaf (vec3_t p, model_t *model)
 		else
 			node = node->children[1];
 	}
-	
-	return NULL;	// never reached
 }
 
 
@@ -226,9 +228,9 @@ byte *Mod_DecompressVis (byte *in, model_t *model)
 	row = (model->vis->numclusters+7)>>3;	
 	out = decompressed;
 
-#if 0
+	/*
 	memcpy (out, in, row);
-#else
+	*/
 	if (!in)
 	{	// no vis info, so make all visible
 		while (row)
@@ -255,7 +257,6 @@ byte *Mod_DecompressVis (byte *in, model_t *model)
 			c--;
 		}
 	} while (out - decompressed < row);
-#endif
 	
 	return decompressed;
 }
@@ -496,12 +497,12 @@ void Mod_LoadTexinfo (lump_t *l)
 			out->mipadjust = 2;
 		else
 			out->mipadjust = 1;
-#if 0
+		/*
 		if (len1 + len2 < 0.001)
 			out->mipadjust = 1;		// don't crash
 		else
 			out->mipadjust = 1 / floor( (len1+len2)/2 + 0.1 );
-#endif
+		*/
 
 		out->flags = LittleLong (in->flags);
 

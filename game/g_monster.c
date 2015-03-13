@@ -17,6 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 
@@ -88,7 +94,7 @@ void monster_fire_railgun (edict_t *self, vec3_t start, vec3_t aimdir, int damag
 	gi.multicast (start, MULTICAST_PVS);
 }
 
-void monster_fire_bfg (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, int kick, float damage_radius, int flashtype)
+void monster_fire_bfg (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, int /*kick*/, float damage_radius, int flashtype)
 {
 	fire_bfg (self, start, aimdir, damage, speed, damage_radius);
 
@@ -125,11 +131,11 @@ void M_FlyCheck (edict_t *self)
 	if (self->waterlevel)
 		return;
 
-	if (random() > 0.5)
+	if (qrandom() > 0.5)
 		return;
 
 	self->think = M_FliesOn;
-	self->nextthink = level.time + 5 + 10 * random();
+	self->nextthink = level.time + 5 + 10 * qrandom();
 }
 
 void AttackFinished (edict_t *self, float time)
@@ -291,7 +297,7 @@ void M_WorldEffects (edict_t *ent)
 		if (!(ent->svflags & SVF_DEADMONSTER))
 		{
 			if (ent->watertype & CONTENTS_LAVA)
-				if (random() <= 0.5)
+				if (qrandom() <= 0.5)
 					gi.sound (ent, CHAN_BODY, gi.soundindex("player/lava1.wav"), 1, ATTN_NORM, 0);
 				else
 					gi.sound (ent, CHAN_BODY, gi.soundindex("player/lava2.wav"), 1, ATTN_NORM, 0);
@@ -437,7 +443,7 @@ monster_use
 Using a monster makes it angry at the current activator
 ================
 */
-void monster_use (edict_t *self, edict_t *other, edict_t *activator)
+void monster_use (edict_t *self, edict_t */*other*/, edict_t *activator)
 {
 	if (self->enemy)
 		return;
@@ -480,7 +486,7 @@ void monster_triggered_spawn (edict_t *self)
 	}
 }
 
-void monster_triggered_spawn_use (edict_t *self, edict_t *other, edict_t *activator)
+void monster_triggered_spawn_use (edict_t *self, edict_t */*other*/, edict_t *activator)
 {
 	// we have a one frame delay here so we don't telefrag the guy who activated us
 	self->think = monster_triggered_spawn;

@@ -17,8 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// g_combat.c
-
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 /*
@@ -131,10 +135,10 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 SpawnDamage
 ================
 */
-void SpawnDamage (int type, vec3_t origin, vec3_t normal, int damage)
+void SpawnDamage (int type, vec3_t origin, vec3_t normal, int /*damage*/)
 {
-	if (damage > 255)
-		damage = 255;
+	//if (damage > 255)
+	//	damage = 255;
 	gi.WriteByte (svc_temp_entity);
 	gi.WriteByte (type);
 //	gi.WriteByte (damage);
@@ -173,10 +177,10 @@ static int CheckPowerArmor (edict_t *ent, vec3_t point, vec3_t normal, int damag
 	gclient_t	*client;
 	int			save;
 	int			power_armor_type;
-	int			index;
+	int			index = 0;
 	int			damagePerCell;
 	int			pa_te_type;
-	int			power;
+	int			power = 0;
 	int			power_used;
 
 	if (!damage)
@@ -367,10 +371,10 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 	}
 }
 
-qboolean CheckTeamDamage (edict_t *targ, edict_t *attacker)
+qboolean CheckTeamDamage (edict_t */*targ*/, edict_t */*attacker*/)
 {
-		//FIXME make the next line real and uncomment this block
-		// if ((ability to damage a teammate == OFF) && (targ's team == attacker's team))
+	//FIXME make the next line real and uncomment this block
+	// if ((ability to damage a teammate == OFF) && (targ's team == attacker's team))
 	return false;
 }
 

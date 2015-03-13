@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_player.h"
 
@@ -880,7 +882,7 @@ edict_t *SelectCoopSpawnPoint (edict_t *ent)
 		target = spot->targetname;
 		if (!target)
 			target = "";
-		if ( Q_stricmp(game.spawnpoint, target) == 0 )
+		if ( Q_strcasecmp(game.spawnpoint, target) == 0 )
 		{	// this is a coop spawn point for one of the clients here
 			index--;
 			if (!index)
@@ -925,7 +927,7 @@ void	SelectSpawnPoint (edict_t *ent, vec3_t origin, vec3_t angles)
 			if (!game.spawnpoint[0] || !spot->targetname)
 				continue;
 
-			if (Q_stricmp(game.spawnpoint, spot->targetname) == 0)
+			if (Q_strcasecmp(game.spawnpoint, spot->targetname) == 0)
 				break;
 		}
 

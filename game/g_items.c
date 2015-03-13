@@ -17,6 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 
@@ -84,7 +90,7 @@ gitem_t	*FindItemByClassname (char *classname)
 	{
 		if (!it->classname)
 			continue;
-		if (!Q_stricmp(it->classname, classname))
+		if (!Q_strcasecmp(it->classname, classname))
 			return it;
 	}
 
@@ -107,7 +113,7 @@ gitem_t	*FindItem (char *pickup_name)
 	{
 		if (!it->pickup_name)
 			continue;
-		if (!Q_stricmp(it->pickup_name, pickup_name))
+		if (!Q_strcasecmp(it->pickup_name, pickup_name))
 			return it;
 	}
 
@@ -702,7 +708,7 @@ int PowerArmorType (edict_t *ent)
 	return POWER_ARMOR_NONE;
 }
 
-void Use_PowerArmor (edict_t *ent, gitem_t *item)
+void Use_PowerArmor (edict_t *ent, gitem_t */*item*/)
 {
 	int		index;
 
@@ -758,7 +764,7 @@ void Drop_PowerArmor (edict_t *ent, gitem_t *item)
 Touch_Item
 ===============
 */
-void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+void Touch_Item (edict_t *ent, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	qboolean	taken;
 
@@ -889,7 +895,7 @@ edict_t *Drop_Item (edict_t *ent, gitem_t *item)
 	return dropped;
 }
 
-void Use_Item (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Item (edict_t *ent, edict_t */*other*/, edict_t */*activator*/)
 {
 	ent->svflags &= ~SVF_NOCLIENT;
 	ent->use = NULL;

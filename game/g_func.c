@@ -17,6 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 /*
@@ -425,7 +431,7 @@ void plat_blocked (edict_t *self, edict_t *other)
 }
 
 
-void Use_Plat (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Plat (edict_t *ent, edict_t */*other*/, edict_t */*activator*/)
 { 
 	if (ent->think)
 		return;		// already down
@@ -433,7 +439,7 @@ void Use_Plat (edict_t *ent, edict_t *other, edict_t *activator)
 }
 
 
-void Touch_Plat_Center (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+void Touch_Plat_Center (edict_t *ent, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	if (!other->client)
 		return;
@@ -597,13 +603,13 @@ void rotating_blocked (edict_t *self, edict_t *other)
 	T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, 1, 0, MOD_CRUSH);
 }
 
-void rotating_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void rotating_touch (edict_t *self, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	if (self->avelocity[0] || self->avelocity[1] || self->avelocity[2])
 		T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, 1, 0, MOD_CRUSH);
 }
 
-void rotating_use (edict_t *self, edict_t *other, edict_t *activator)
+void rotating_use (edict_t *self, edict_t */*other*/, edict_t */*activator*/)
 {
 	if (!VectorCompare (self->avelocity, vec3_origin))
 	{
@@ -734,13 +740,13 @@ void button_fire (edict_t *self)
 	Move_Calc (self, self->moveinfo.end_origin, button_wait);
 }
 
-void button_use (edict_t *self, edict_t *other, edict_t *activator)
+void button_use (edict_t *self, edict_t */*other*/, edict_t *activator)
 {
 	self->activator = activator;
 	button_fire (self);
 }
 
-void button_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void button_touch (edict_t *self, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	if (!other->client)
 		return;
@@ -752,7 +758,7 @@ void button_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	button_fire (self);
 }
 
-void button_killed (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void button_killed (edict_t *self, edict_t */*inflictor*/, edict_t *attacker, int /*damage*/, vec3_t /*point*/)
 {
 	self->activator = attacker;
 	self->health = self->max_health;
@@ -858,7 +864,7 @@ void door_use_areaportals (edict_t *self, qboolean open)
 
 	while ((t = G_Find (t, FOFS(targetname), self->target)))
 	{
-		if (Q_stricmp(t->classname, "func_areaportal") == 0)
+		if (Q_strcasecmp(t->classname, "func_areaportal") == 0)
 		{
 			gi.SetAreaPortalState (t->style, open);
 		}
@@ -946,7 +952,7 @@ void door_go_up (edict_t *self, edict_t *activator)
 	door_use_areaportals (self, true);
 }
 
-void door_use (edict_t *self, edict_t *other, edict_t *activator)
+void door_use (edict_t *self, edict_t */*other*/, edict_t *activator)
 {
 	edict_t	*ent;
 
@@ -977,7 +983,7 @@ void door_use (edict_t *self, edict_t *other, edict_t *activator)
 	}
 };
 
-void Touch_DoorTrigger (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void Touch_DoorTrigger (edict_t *self, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	if (other->health <= 0)
 		return;
@@ -1110,7 +1116,7 @@ void door_blocked  (edict_t *self, edict_t *other)
 	}
 }
 
-void door_killed (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void door_killed (edict_t *self, edict_t */*inflictor*/, edict_t *attacker, int /*damage*/, vec3_t /*point*/)
 {
 	edict_t	*ent;
 
@@ -1122,7 +1128,7 @@ void door_killed (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 	door_use (self->teammaster, attacker, attacker);
 }
 
-void door_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void door_touch (edict_t *self, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	if (!other->client)
 		return;
@@ -1630,7 +1636,7 @@ void func_train_find (edict_t *self)
 	}
 }
 
-void train_use (edict_t *self, edict_t *other, edict_t *activator)
+void train_use (edict_t *self, edict_t */*other*/, edict_t *activator)
 {
 	self->activator = activator;
 
@@ -1696,7 +1702,7 @@ void SP_func_train (edict_t *self)
 
 /*QUAKED trigger_elevator (0.3 0.1 0.6) (-8 -8 -8) (8 8 8)
 */
-void trigger_elevator_use (edict_t *self, edict_t *other, edict_t *activator)
+void trigger_elevator_use (edict_t *self, edict_t *other, edict_t */*activator*/)
 {
 	edict_t *target;
 
@@ -1774,7 +1780,7 @@ void func_timer_think (edict_t *self)
 	self->nextthink = level.time + self->wait + crandom() * self->random;
 }
 
-void func_timer_use (edict_t *self, edict_t *other, edict_t *activator)
+void func_timer_use (edict_t *self, edict_t */*other*/, edict_t *activator)
 {
 	self->activator = activator;
 
@@ -1822,7 +1828,7 @@ The brush should be have a surface with at least one current content enabled.
 speed	default 100
 */
 
-void func_conveyor_use (edict_t *self, edict_t *other, edict_t *activator)
+void func_conveyor_use (edict_t *self, edict_t */*other*/, edict_t */*activator*/)
 {
 	if (self->spawnflags & 1)
 	{
@@ -1883,7 +1889,7 @@ void door_secret_move5 (edict_t *self);
 void door_secret_move6 (edict_t *self);
 void door_secret_done (edict_t *self);
 
-void door_secret_use (edict_t *self, edict_t *other, edict_t *activator)
+void door_secret_use (edict_t *self, edict_t */*other*/, edict_t */*activator*/)
 {
 	// make sure we're not already moving
 	if (!VectorCompare(self->s.origin, vec3_origin))
@@ -1957,7 +1963,7 @@ void door_secret_blocked  (edict_t *self, edict_t *other)
 	T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, 1, 0, MOD_CRUSH);
 }
 
-void door_secret_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void door_secret_die (edict_t *self, edict_t */*inflictor*/, edict_t *attacker, int /*damage*/, vec3_t /*point*/)
 {
 	self->takedamage = DAMAGE_NO;
 	door_secret_use (self, attacker, attacker);
@@ -2034,7 +2040,7 @@ void SP_func_door_secret (edict_t *ent)
 /*QUAKED func_killbox (1 0 0) ?
 Kills everything inside when fired, irrespective of protection.
 */
-void use_killbox (edict_t *self, edict_t *other, edict_t *activator)
+void use_killbox (edict_t *self, edict_t */*other*/, edict_t */*activator*/)
 {
 	KillBox (self);
 }

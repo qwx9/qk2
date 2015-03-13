@@ -17,11 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
 // qcommon.h -- definitions common between client and server, but not game.dll
-
-#include "../q_shared.h"
-
+/* FIXME: ^- lies */
 
 #define	VERSION		3.19
 
@@ -352,10 +349,6 @@ The game starts with a Cbuf_AddText ("exec quake.rc\n"); Cbuf_Execute ();
 
 */
 
-#define	EXEC_NOW	0		// don't return until completed
-#define	EXEC_INSERT	1		// insert at current position, but don't run yet
-#define	EXEC_APPEND	2		// add to end of the command buffer
-
 void Cbuf_Init (void);
 // allocates an initial text buffer that will grow as needed
 
@@ -622,8 +615,6 @@ CMODEL
 */
 
 
-#include "../qcommon/qfiles.h"
-
 cmodel_t	*CM_LoadMap (char *name, qboolean clientload, unsigned *checksum);
 cmodel_t	*CM_InlineModel (char *name);	// *1, *2, etc
 
@@ -722,10 +713,10 @@ MISC
 ==============================================================
 */
 
-
 #define	ERR_FATAL	0		// exit the entire game with a popup window
 #define	ERR_DROP	1		// print to console and disconnect from game
 #define	ERR_QUIT	2		// not an error, just a normal exit
+#define	ERR_DISCONNECT	2		// don't kill server
 
 #define	EXEC_NOW	0		// don't return until completed
 #define	EXEC_INSERT	1		// insert at current position, but don't run yet
@@ -747,7 +738,7 @@ void		Com_SetServerState (int state);
 unsigned	Com_BlockChecksum (void *buffer, int length);
 byte		COM_BlockSequenceCRCByte (byte *base, int length, int sequence);
 
-float	frand(void);	// 0 ti 1
+float	qfrand(void);	// 0 ti 1
 float	crand(void);	// -1 to 1
 
 extern	cvar_t	*developer;
@@ -792,8 +783,6 @@ void	Sys_Init (void);
 void	Sys_AppActivate (void);
 
 void	Sys_UnloadGame (void);
-void	*Sys_GetGameAPI (void *parms);
-// loads the game dll and calls the api init function
 
 char	*Sys_ConsoleInput (void);
 void	Sys_ConsoleOutput (char *string);
@@ -821,6 +810,3 @@ void SCR_BeginLoadingPlaque (void);
 void SV_Init (void);
 void SV_Shutdown (char *finalmsg, qboolean reconnect);
 void SV_Frame (int msec);
-
-
-

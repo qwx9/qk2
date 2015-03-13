@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl_ents.c -- entity parsing and management
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 
 extern	struct model_s	*cl_mod_powerscreen;
@@ -36,7 +40,7 @@ FRAME PARSING
 =========================================================================
 */
 
-#if 0
+/* the following are commented out in release
 
 typedef struct
 {
@@ -63,6 +67,8 @@ void CL_ClearProjectiles (void)
 	}
 }
 
+*/
+
 /*
 =====================
 CL_ParseProjectiles
@@ -70,6 +76,7 @@ CL_ParseProjectiles
 Flechettes are passed as efficient temporary entities
 =====================
 */
+/*
 void CL_ParseProjectiles (void)
 {
 	int		i, c, j;
@@ -146,6 +153,7 @@ void CL_ParseProjectiles (void)
 		}
 	}
 }
+*/
 
 /*
 =============
@@ -153,6 +161,7 @@ CL_LinkProjectiles
 
 =============
 */
+/*
 void CL_AddProjectiles (void)
 {
 	int		i, j;
@@ -189,7 +198,7 @@ void CL_AddProjectiles (void)
 		V_AddEntity (&ent);
 	}
 }
-#endif
+*/
 
 /*
 =================
@@ -199,7 +208,7 @@ Returns the entity number and the header bits
 =================
 */
 int	bitcounts[32];	/// just for protocol profiling
-int CL_ParseEntityBits (unsigned *bits)
+int CL_ParseEntityBits (int *bits)
 {
 	unsigned	b, total;
 	int			i;
@@ -389,7 +398,7 @@ void CL_ParsePacketEntities (frame_t *oldframe, frame_t *newframe)
 {
 	int			newnum;
 	int			bits;
-	entity_state_t	*oldstate;
+	entity_state_t	*oldstate = nil;
 	int			oldindex, oldnum;
 
 	newframe->parse_entities = cl.parse_entities;
@@ -668,9 +677,9 @@ void CL_ParseFrame (void)
 
 	memset (&cl.frame, 0, sizeof(cl.frame));
 
-#if 0
+/*
 	CL_ClearProjectiles(); // clear projectiles for new frame
-#endif
+*/
 
 	cl.frame.serverframe = MSG_ReadLong (&net_message);
 	cl.frame.deltaframe = MSG_ReadLong (&net_message);
@@ -722,7 +731,7 @@ void CL_ParseFrame (void)
 
 	// read areabits
 	len = MSG_ReadByte (&net_message);
-	MSG_ReadData (&net_message, &cl.frame.areabits, len);
+	MSG_ReadData (&net_message, cl.frame.areabits, len);
 
 	// read playerinfo
 	cmd = MSG_ReadByte (&net_message);
@@ -738,10 +747,10 @@ void CL_ParseFrame (void)
 		Com_Error (ERR_DROP, "CL_ParseFrame: not packetentities");
 	CL_ParsePacketEntities (old, &cl.frame);
 
-#if 0
+/*
 	if (cmd == svc_packetentities2)
 		CL_ParseProjectiles();
-#endif
+*/
 
 	// save the frame off in the backup array for later delta comparisons
 	cl.frames[cl.frame.serverframe & UPDATE_MASK] = cl.frame;
@@ -1353,7 +1362,6 @@ void CL_CalcViewValues (void)
 {
 	int			i;
 	float		lerp, backlerp;
-	centity_t	*ent;
 	frame_t		*oldframe;
 	player_state_t	*ps, *ops;
 
@@ -1371,7 +1379,6 @@ void CL_CalcViewValues (void)
 		|| abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256*8)
 		ops = ps;		// don't interpolate
 
-	ent = &cl_entities[cl.playernum+1];
 	lerp = cl.lerpfrac;
 
 	// calculate the origin
@@ -1469,9 +1476,9 @@ void CL_AddEntities (void)
 	CL_CalcViewValues ();
 	// PMM - moved this here so the heat beam has the right values for the vieworg, and can lock the beam to the gun
 	CL_AddPacketEntities (&cl.frame);
-#if 0
+/*
 	CL_AddProjectiles ();
-#endif
+*/
 	CL_AddTEnts ();
 	CL_AddParticles ();
 	CL_AddDLights ();

@@ -17,9 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_light.c
-
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 int	r_dlightframecount;
 
@@ -227,7 +229,6 @@ void R_LightPoint (vec3_t p, vec3_t color)
 	float		r;
 	int			lnum;
 	dlight_t	*dl;
-	float		light;
 	vec3_t		dist;
 	float		add;
 	
@@ -255,7 +256,6 @@ void R_LightPoint (vec3_t p, vec3_t color)
 	//
 	// add dynamic lights
 	//
-	light = 0;
 	for (lnum=0 ; lnum<r_newrefdef.num_dlights ; lnum++)
 	{
 		dl = &r_newrefdef.dlights[lnum];

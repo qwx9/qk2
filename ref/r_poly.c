@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include <assert.h>
-#include "r_local.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 #define AFFINE_SPANLET_SIZE      16
 #define AFFINE_SPANLET_SIZE_BITS 4
@@ -883,7 +886,7 @@ void R_PolygonScanRightEdge (void)
 
 	} while (i != s_maxindex);
 
-	pspan->count = DS_SPAN_LIST_END;	// mark the end of the span list 
+	pspan->count = DS_SPAN_LIST_END;	// mark the end of the span list
 }
 
 /*
@@ -1005,7 +1008,6 @@ void R_BuildPolygonFromSurface(msurface_t *fa)
 {
 	int			i, lindex, lnumverts;
 	medge_t		*pedges, *r_pedge;
-	int			vertpage;
 	float		*vec;
 	vec5_t     *pverts;
 	float       tmins[2] = { 0, 0 };
@@ -1015,7 +1017,6 @@ void R_BuildPolygonFromSurface(msurface_t *fa)
 	// reconstruct the polygon
 	pedges = currentmodel->edges;
 	lnumverts = fa->numedges;
-	vertpage = 0;
 
 	pverts = r_clip_verts[0];
 

@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-brain
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_brain.h"
 
@@ -45,7 +43,7 @@ static int	sound_melee2;
 static int	sound_melee3;
 
 
-void brain_sight (edict_t *self, edict_t *other)
+void brain_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -175,10 +173,10 @@ mframe_t brain_frames_walk1 [] =
 mmove_t brain_move_walk1 = {FRAME_walk101, FRAME_walk111, brain_frames_walk1, NULL};
 
 // walk2 is FUBAR, do not use
-#if 0
+/*
 void brain_walk2_cycle (edict_t *self)
 {
-	if (random() > 0.1)
+	if (qrandom() > 0.1)
 		self->monsterinfo.nextframe = FRAME_walk220;
 }
 
@@ -229,11 +227,11 @@ mframe_t brain_frames_walk2 [] =
 	ai_walk,	-5,	NULL
 };
 mmove_t brain_move_walk2 = {FRAME_walk201, FRAME_walk240, brain_frames_walk2, NULL};
-#endif
+*/
 
 void brain_walk (edict_t *self)
 {
-//	if (random() <= 0.5)
+//	if (qrandom() <= 0.5)
 		self->monsterinfo.currentmove = &brain_move_walk1;
 //	else
 //		self->monsterinfo.currentmove = &brain_move_walk2;
@@ -351,7 +349,7 @@ mmove_t brain_move_duck = {FRAME_duck01, FRAME_duck08, brain_frames_duck, brain_
 
 void brain_dodge (edict_t *self, edict_t *attacker, float eta)
 {
-	if (random() > 0.25)
+	if (qrandom() > 0.25)
 		return;
 
 	if (!self->enemy)
@@ -502,7 +500,7 @@ mmove_t brain_move_attack2 = {FRAME_attak201, FRAME_attak217, brain_frames_attac
 
 void brain_melee(edict_t *self)
 {
-	if (random() <= 0.5)
+	if (qrandom() <= 0.5)
 		self->monsterinfo.currentmove = &brain_move_attack1;
 	else
 		self->monsterinfo.currentmove = &brain_move_attack2;
@@ -539,7 +537,7 @@ void brain_run (edict_t *self)
 }
 
 
-void brain_pain (edict_t *self, edict_t *other, float kick, int damage)
+void brain_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	float	r;
 
@@ -553,7 +551,7 @@ void brain_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare
 
-	r = random();
+	r = qrandom();
 	if (r < 0.33)
 	{
 		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
@@ -583,7 +581,7 @@ void brain_dead (edict_t *self)
 
 
 
-void brain_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void brain_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -610,7 +608,7 @@ void brain_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
-	if (random() <= 0.5)
+	if (qrandom() <= 0.5)
 		self->monsterinfo.currentmove = &brain_move_death1;
 	else
 		self->monsterinfo.currentmove = &brain_move_death2;

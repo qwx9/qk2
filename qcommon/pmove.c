@@ -17,9 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "qcommon.h"
-
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 
 #define	STEPSIZE	18
@@ -171,7 +173,7 @@ void PM_StepSlideMove_ (void)
 		VectorCopy (trace.plane.normal, planes[numplanes]);
 		numplanes++;
 
-#if 0
+/* commented out in release
 	float		rub;
 
 		//
@@ -212,7 +214,7 @@ void PM_StepSlideMove_ (void)
 			break;
 		}
 
-#else
+*/
 //
 // modify original_velocity so it parallels all of the clip planes
 //
@@ -244,7 +246,6 @@ void PM_StepSlideMove_ (void)
 			d = DotProduct (dir, pml.velocity);
 			VectorScale (dir, d, pml.velocity);
 		}
-#endif
 		//
 		// if velocity is against the original velocity, stop dead
 		// to avoid tiny occilations in sloping corners
@@ -307,13 +308,13 @@ void PM_StepSlideMove (void)
 		VectorCopy (trace.endpos, pml.origin);
 	}
 
-#if 0
+/*
 	VectorSubtract (pml.origin, up, delta);
 	up_dist = DotProduct (delta, start_v);
 
 	VectorSubtract (down_o, start_o, delta);
 	down_dist = DotProduct (delta, start_v);
-#else
+*/
 	VectorCopy(pml.origin, up);
 
 	// decide which one went farther
@@ -321,7 +322,6 @@ void PM_StepSlideMove (void)
         + (down_o[1] - start_o[1])*(down_o[1] - start_o[1]);
     up_dist = (up[0] - start_o[0])*(up[0] - start_o[0])
         + (up[1] - start_o[1])*(up[1] - start_o[1]);
-#endif
 
 	if (down_dist > up_dist || trace.plane.normal[2] < MIN_STEP_NORMAL)
 	{
@@ -585,12 +585,12 @@ void PM_AirMove (void)
 	smove = pm->cmd.sidemove;
 	
 //!!!!! pitch should be 1/3 so this isn't needed??!
-#if 0
+/*
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
 	VectorNormalize (pml.forward);
 	VectorNormalize (pml.right);
-#endif
+*/
 
 	for (i=0 ; i<2 ; i++)
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
@@ -727,10 +727,10 @@ void PM_CatagorizePosition (void)
 			}
 		}
 
-#if 0
+/*
 		if (trace.fraction < 1.0 && trace.ent && pml.velocity[2] < 0)
 			pml.velocity[2] = 0;
-#endif
+*/
 
 		if (pm->numtouch < MAXTOUCH && trace.ent)
 		{
@@ -1120,14 +1120,13 @@ void PM_SnapPosition (void)
 //	Com_DPrintf ("using previous_origin\n");
 }
 
-#if 0
-//NO LONGER USED
 /*
 ================
 PM_InitialSnapPosition
 
 ================
 */
+/* NO LONGER USED
 void PM_InitialSnapPosition (void)
 {
 	int		x, y, z;
@@ -1158,7 +1157,7 @@ void PM_InitialSnapPosition (void)
 
 	Com_DPrintf ("Bad InitialSnapPosition\n");
 }
-#else
+*/
 /*
 ================
 PM_InitialSnapPosition
@@ -1192,8 +1191,6 @@ void PM_InitialSnapPosition(void)
 
 	Com_DPrintf ("Bad InitialSnapPosition\n");
 }
-
-#endif
 
 /*
 ================

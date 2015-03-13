@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cmd.c -- Quake script command processing module
 
-#include "qcommon.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 void Cmd_ForwardToServer (void);
 
@@ -158,7 +162,7 @@ Cbuf_InsertFromDefer
 */
 void Cbuf_InsertFromDefer (void)
 {
-	Cbuf_InsertText (defer_text_buf);
+	Cbuf_InsertText ((char *)defer_text_buf);
 	defer_text_buf[0] = 0;
 }
 

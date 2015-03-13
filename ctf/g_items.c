@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 
@@ -84,7 +86,7 @@ gitem_t	*FindItemByClassname (char *classname)
 	{
 		if (!it->classname)
 			continue;
-		if (!Q_stricmp(it->classname, classname))
+		if (!Q_strcasecmp(it->classname, classname))
 			return it;
 	}
 
@@ -107,7 +109,7 @@ gitem_t	*FindItem (char *pickup_name)
 	{
 		if (!it->pickup_name)
 			continue;
-		if (!Q_stricmp(it->pickup_name, pickup_name))
+		if (!Q_strcasecmp(it->pickup_name, pickup_name))
 			return it;
 	}
 

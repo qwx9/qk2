@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-BERSERK
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_berserk.h"
 
@@ -36,7 +34,7 @@ static int sound_punch;
 static int sound_sight;
 static int sound_search;
 
-void berserk_sight (edict_t *self, edict_t *other)
+void berserk_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -92,7 +90,7 @@ void berserk_fidget (edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 		return;
-	if (random() > 0.15)
+	if (qrandom() > 0.15)
 		return;
 
 	self->monsterinfo.currentmove = &berserk_move_stand_fidget;
@@ -219,7 +217,7 @@ mframe_t berserk_frames_attack_club [] =
 mmove_t berserk_move_attack_club = {FRAME_att_c9, FRAME_att_c20, berserk_frames_attack_club, berserk_run};
 
 
-void berserk_strike (edict_t *self)
+void berserk_strike (edict_t */*self*/)
 {
 	//FIXME play impact sound
 }
@@ -312,7 +310,7 @@ mframe_t berserk_frames_pain2 [] =
 };
 mmove_t berserk_move_pain2 = {FRAME_painb1, FRAME_painb20, berserk_frames_pain2, berserk_run};
 
-void berserk_pain (edict_t *self, edict_t *other, float kick, int damage)
+void berserk_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 	if (self->health < (self->max_health / 2))
 		self->s.skinnum = 1;
@@ -326,7 +324,7 @@ void berserk_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare
 
-	if ((damage < 20) || (random() < 0.5))
+	if ((damage < 20) || (qrandom() < 0.5))
 		self->monsterinfo.currentmove = &berserk_move_pain1;
 	else
 		self->monsterinfo.currentmove = &berserk_move_pain2;
@@ -378,7 +376,7 @@ mframe_t berserk_frames_death2 [] =
 mmove_t berserk_move_death2 = {FRAME_deathc1, FRAME_deathc8, berserk_frames_death2, berserk_dead};
 
 
-void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void berserk_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 

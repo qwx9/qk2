@@ -17,32 +17,30 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include <string.h>
+
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
 #include <ctype.h>
+#include "../dat.h"
+#include "../fns.h"
 
-#include "client.h"
-#include "qmenu.h"
-
-static void	 Action_DoEnter( menuaction_s *a );
-static void	 Action_Draw( menuaction_s *a );
-static void  Menu_DrawStatusBar( const char *string );
-static void	 Menulist_DoEnter( menulist_s *l );
-static void	 MenuList_Draw( menulist_s *l );
-static void	 Separator_Draw( menuseparator_s *s );
-static void	 Slider_DoSlide( menuslider_s *s, int dir );
-static void	 Slider_Draw( menuslider_s *s );
-static void	 SpinControl_DoEnter( menulist_s *s );
-static void	 SpinControl_Draw( menulist_s *s );
-static void	 SpinControl_DoSlide( menulist_s *s, int dir );
+void	 Action_DoEnter( menuaction_s *a );
+void	 Action_Draw( menuaction_s *a );
+void  Menu_DrawStatusBar( const char *string );
+void	 Menulist_DoEnter( menulist_s *l );
+void	 MenuList_Draw( menulist_s *l );
+void	 Separator_Draw( menuseparator_s *s );
+void	 Slider_DoSlide( menuslider_s *s, int dir );
+void	 Slider_Draw( menuslider_s *s );
+void	 SpinControl_DoEnter( menulist_s *s );
+void	 SpinControl_Draw( menulist_s *s );
+void	 SpinControl_DoSlide( menulist_s *s, int dir );
 
 #define RCOLUMN_OFFSET  16
 #define LCOLUMN_OFFSET -16
 
 extern refexport_t re;
-extern viddef_t viddef;
-
-#define VID_WIDTH viddef.width
-#define VID_HEIGHT viddef.height
 
 #define Draw_Char re.DrawChar
 #define Draw_Fill re.DrawFill
@@ -339,7 +337,7 @@ void Menu_Center( menuframework_s *menu )
 	height = ( ( menucommon_s * ) menu->items[menu->nitems-1])->y;
 	height += 10;
 
-	menu->y = ( VID_HEIGHT - height ) / 2;
+	menu->y = ( vid.height - height ) / 2;
 }
 
 void Menu_Draw( menuframework_s *menu )
@@ -418,16 +416,16 @@ void Menu_DrawStatusBar( const char *string )
 	if ( string )
 	{
 		int l = strlen( string );
-		int maxrow = VID_HEIGHT / 8;
-		int maxcol = VID_WIDTH / 8;
+		//int maxrow = vid.height / 8;
+		int maxcol = vid.width / 8;
 		int col = maxcol / 2 - l / 2;
 
-		Draw_Fill( 0, VID_HEIGHT-8, VID_WIDTH, 8, 4 );
-		Menu_DrawString( col*8, VID_HEIGHT - 8, string );
+		Draw_Fill( 0, vid.height-8, vid.width, 8, 4 );
+		Menu_DrawString( col*8, vid.height - 8, string );
 	}
 	else
 	{
-		Draw_Fill( 0, VID_HEIGHT-8, VID_WIDTH, 8, 0 );
+		Draw_Fill( 0, vid.height-8, vid.width, 8, 0 );
 	}
 }
 

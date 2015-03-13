@@ -17,7 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 #define Function(f) {#f, f}
@@ -169,7 +174,7 @@ void InitGame (void)
 	// latched vars
 	sv_cheats = gi.cvar ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
 	gi.cvar ("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
-	gi.cvar ("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
+	gi.cvar ("gamedate", "Nov 30 1997" , CVAR_SERVERINFO | CVAR_LATCH);
 
 	maxclients = gi.cvar ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
 	maxspectators = gi.cvar ("maxspectators", "4", CVAR_SERVERINFO);
@@ -223,7 +228,7 @@ void InitGame (void)
 
 //=========================================================
 
-void WriteField1 (FILE *f, field_t *field, byte *base)
+void WriteField1 (FILE *, field_t *field, byte *base)
 {
 	void		*p;
 	int			len;
@@ -471,7 +476,7 @@ void WriteGame (char *filename, qboolean autosave)
 		gi.error ("Couldn't open %s", filename);
 
 	memset (str, 0, sizeof(str));
-	strcpy (str, __DATE__);
+	strcpy (str, "Nov 30 1997");
 	fwrite (str, sizeof(str), 1, f);
 
 	game.autosaved = autosave;
@@ -497,7 +502,7 @@ void ReadGame (char *filename)
 		gi.error ("Couldn't open %s", filename);
 
 	fread (str, sizeof(str), 1, f);
-	if (strcmp (str, __DATE__))
+	if (strcmp (str, "Nov 30 1997"))
 	{
 		fclose (f);
 		gi.error ("Savegame from an older version.\n");

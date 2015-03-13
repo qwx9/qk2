@@ -17,8 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// g_actor.c
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_actor.h"
 
@@ -227,7 +231,7 @@ char *messages[] =
 	"Check your targets"
 };
 
-void actor_pain (edict_t *self, edict_t *other, float kick, int damage)
+void actor_pain (edict_t *self, edict_t *other, float /*kick*/, int /*damage*/)
 {
 	int		n;
 
@@ -240,14 +244,14 @@ void actor_pain (edict_t *self, edict_t *other, float kick, int damage)
 	self->pain_debounce_time = level.time + 3;
 //	gi.sound (self, CHAN_VOICE, actor.sound_pain, 1, ATTN_NORM, 0);
 
-	if ((other->client) && (random() < 0.4))
+	if ((other->client) && (qrandom() < 0.4))
 	{
 		vec3_t	v;
 		char	*name;
 
 		VectorSubtract (other->s.origin, self->s.origin, v);
 		self->ideal_yaw = vectoyaw (v);
-		if (random() < 0.5)
+		if (qrandom() < 0.5)
 			self->monsterinfo.currentmove = &actor_move_flipoff;
 		else
 			self->monsterinfo.currentmove = &actor_move_taunt;
@@ -336,7 +340,7 @@ mframe_t actor_frames_death2 [] =
 };
 mmove_t actor_move_death2 = {FRAME_death201, FRAME_death213, actor_frames_death2, actor_dead};
 
-void actor_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void actor_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -398,7 +402,7 @@ void actor_attack(edict_t *self)
 }
 
 
-void actor_use (edict_t *self, edict_t *other, edict_t *activator)
+void actor_use (edict_t *self, edict_t */*other*/, edict_t */*activator*/)
 {
 	vec3_t		v;
 
@@ -493,7 +497,7 @@ for JUMP only:
 "height"		speed thrown upwards (default 200)
 */
 
-void target_actor_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void target_actor_touch (edict_t *self, edict_t *other, cplane_t */*plane*/, csurface_t */*surf*/)
 {
 	vec3_t	v;
 

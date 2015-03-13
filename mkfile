@@ -52,12 +52,12 @@ CLOFILES=\
 	$SVDIR/sv_user.$O\
 	$SVDIR/sv_world.$O\
 	$P9DIR/cd_9.$O\
+	$P9DIR/in_9.$O\
 	$P9DIR/q_sh9.$O\
 	$P9DIR/vid_menu.$O\
 	$P9DIR/vid_so.$O\
 	$P9DIR/snd_9.$O\
 	$P9DIR/sys_9.$O\
-	$P9DIR/glob.$O\
 	$P9DIR/net_udp.$O\
 
 CLHFILES=\
@@ -261,13 +261,11 @@ SROFILES=\
 	$SRDIR/r_surf.$O\
 	$GMDIR/q_shared.$O\
 	$P9DIR/q_sh9.$O\
-	$P9DIR/glob.$O\
 	$P9DIR/rw_9.$O\
 
 SRHFILES=\
 	$SRDIR/adivtab.h\
 	$SRDIR/r_local.h\
-	$SRDIR/r_model.h\
 	$SRDIR/rand1k.h\
 
 CMHFILES=\
@@ -275,12 +273,11 @@ CMHFILES=\
 	$CMDIR/qcommon.h\
 	$CMDIR/qfiles.h\
 
-# only build and link needed modules for main game
-# *ofiles: ofiles needed for each module
-# *hfiles: hfiles in each module directory...
 OFILES= $CLOFILES $GMOFILES $SROFILES
 HFILES= $CLHFILES $GMHFILES $SRHFILES $CMHFILES \
 	anorms.h\
+	dat.h\
+	fns.h\
 	q_shared.h\
 
 </sys/src/cmd/mkone

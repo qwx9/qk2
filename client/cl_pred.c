@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 
 /*
@@ -125,7 +128,7 @@ void CL_ClipMoveToEntities ( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end,
 		if (trace.allsolid || trace.startsolid ||
 		trace.fraction < tr->fraction)
 		{
-			trace.ent = (struct edict_s *)ent;
+			trace.ent = (edict_t *)ent;
 		 	if (tr->startsolid)
 			{
 				*tr = trace;
@@ -152,7 +155,7 @@ trace_t		CL_PMTrace (vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 	// check against world
 	t = CM_BoxTrace (start, end, mins, maxs, 0, MASK_PLAYERSOLID);
 	if (t.fraction < 1.0)
-		t.ent = (struct edict_s *)1;
+		t.ent = (edict_t *)1;
 
 	// check all other solid models
 	CL_ClipMoveToEntities (start, mins, maxs, end, &t);
@@ -243,8 +246,6 @@ void CL_PredictMovement (void)
 	pm.s = cl.frame.playerstate.pmove;
 
 //	SCR_DebugGraph (current - ack - 1, 0);
-
-	frame = 0;
 
 	// run frames
 	while (++ack < current)

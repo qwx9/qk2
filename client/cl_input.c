@@ -19,7 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cl.input.c  -- builds an intended movement command to send to the server
 
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 cvar_t	*cl_nodelta;
 
@@ -198,12 +202,12 @@ float CL_KeyState (kbutton_t *key)
 		key->downtime = sys_frame_time;
 	}
 
-#if 0
+/*
 	if (msec)
 	{
 		Com_Printf ("%i ", msec);
 	}
-#endif
+*/
 
 	val = (float)msec / frame_msec;
 	if (val < 0)

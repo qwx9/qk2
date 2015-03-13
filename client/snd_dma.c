@@ -19,12 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // snd_dma.c -- main control for any streaming sound output device
 
-#include "client.h"
-#include "snd_loc.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 void S_Play(void);
 void S_SoundList(void);
-void S_Update_();
+void S_Update_(void);
 void S_StopAllSounds(void);
 
 
@@ -1011,7 +1014,6 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 	int			i;
 	int			total;
 	channel_t	*ch;
-	channel_t	*combine;
 
 	if (!sound_started)
 		return;
@@ -1033,8 +1035,6 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 	VectorCopy(forward, listener_forward);
 	VectorCopy(right, listener_right);
 	VectorCopy(up, listener_up);
-
-	combine = NULL;
 
 	// update spatialization for dynamic sounds	
 	ch = channels;

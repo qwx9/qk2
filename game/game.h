@@ -17,25 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 
 // game.h -- game dll information visible to server
 
@@ -67,14 +48,13 @@ typedef struct link_s
 
 #define	MAX_ENT_CLUSTERS	16
 
-
-typedef struct edict_s edict_t;
-typedef struct gclient_s gclient_t;
+typedef struct edict_t edict_t;
+typedef struct gclient_t gclient_t;
 
 
 #ifndef GAME_INCLUDE
 
-struct gclient_s
+struct gclient_t
 {
 	player_state_t	ps;		// communicated by server to clients
 	int				ping;
@@ -83,10 +63,10 @@ struct gclient_s
 };
 
 
-struct edict_s
+struct edict_t
 {
 	entity_state_t	s;
-	struct gclient_s	*client;
+	gclient_t	*client;
 	qboolean	inuse;
 	int			linkcount;
 
@@ -245,10 +225,10 @@ typedef struct
 	// can vary in size from one game to another.
 	// 
 	// The size will be fixed when ge->Init() is called
-	struct edict_s	*edicts;
+	edict_t	*edicts;
 	int			edict_size;
 	int			num_edicts;		// current number, <= max_edicts
 	int			max_edicts;
 } game_export_t;
 
-game_export_t *GetGameApi (game_import_t *import);
+game_export_t *GetGameAPI (game_import_t *import);

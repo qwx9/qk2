@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-SUPERTANK
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_supertank.h"
 
@@ -48,7 +46,7 @@ void TreadSound (edict_t *self)
 
 void supertank_search (edict_t *self)
 {
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		gi.sound (self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
 	else
 		gi.sound (self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
@@ -441,7 +439,7 @@ mmove_t supertank_move_end_attack1 = {FRAME_attak1_7, FRAME_attak1_20, supertank
 void supertank_reattack1(edict_t *self)
 {
 	if (visible(self, self->enemy))
-		if (random() < 0.9)
+		if (qrandom() < 0.9)
 			self->monsterinfo.currentmove = &supertank_move_attack1;
 		else
 			self->monsterinfo.currentmove = &supertank_move_end_attack1;	
@@ -449,7 +447,7 @@ void supertank_reattack1(edict_t *self)
 		self->monsterinfo.currentmove = &supertank_move_end_attack1;
 }
 
-void supertank_pain (edict_t *self, edict_t *other, float kick, int damage)
+void supertank_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 
 	if (self->health < (self->max_health / 2))
@@ -460,7 +458,7 @@ void supertank_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	// Lessen the chance of him going into his pain frames
 	if (damage <=25)
-		if (random()<0.2)
+		if (qrandom()<0.2)
 			return;
 
 	// Don't go into pain if he's firing his rockets
@@ -557,7 +555,7 @@ void supertank_attack(edict_t *self)
 	VectorSubtract (self->enemy->s.origin, self->s.origin, vec);
 	range = VectorLength (vec);
 
-	//r = random();
+	//r = qrandom();
 
 	// Attack 1 == Chaingun
 	// Attack 2 == Rocket Launcher
@@ -568,7 +566,7 @@ void supertank_attack(edict_t *self)
 	}
 	else
 	{	// fire rockets more often at distance
-		if (random() < 0.3)
+		if (qrandom() < 0.3)
 			self->monsterinfo.currentmove = &supertank_move_attack1;
 		else
 			self->monsterinfo.currentmove = &supertank_move_attack2;
@@ -654,7 +652,7 @@ void BossExplode (edict_t *self)
 }
 
 
-void supertank_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void supertank_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int /*damage*/, vec3_t /*point*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;

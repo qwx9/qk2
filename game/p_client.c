@@ -17,6 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_player.h"
 
@@ -53,7 +59,7 @@ static void SP_FixCoopSpots (edict_t *self)
 		VectorSubtract(self->s.origin, spot->s.origin, d);
 		if (VectorLength(d) < 384)
 		{
-			if ((!self->targetname) || Q_stricmp(self->targetname, spot->targetname) != 0)
+			if ((!self->targetname) || Q_strcasecmp(self->targetname, spot->targetname) != 0)
 			{
 //				gi.dprintf("FixCoopSpots changed %s at %s targetname from %s to %s\n", self->classname, vtos(self->s.origin), self->targetname, spot->targetname);
 				self->targetname = spot->targetname;
@@ -67,11 +73,11 @@ static void SP_FixCoopSpots (edict_t *self)
 // some maps don't have any coop spots at all, so we need to create them
 // where they should have been
 
-static void SP_CreateCoopSpots (edict_t *self)
+static void SP_CreateCoopSpots (edict_t */*self*/)
 {
 	edict_t	*spot;
 
-	if(Q_stricmp(level.mapname, "security") == 0)
+	if(Q_strcasecmp(level.mapname, "security") == 0)
 	{
 		spot = G_Spawn();
 		spot->classname = "info_player_coop";
@@ -109,7 +115,7 @@ void SP_info_player_start(edict_t *self)
 {
 	if (!coop->value)
 		return;
-	if(Q_stricmp(level.mapname, "security") == 0)
+	if(Q_strcasecmp(level.mapname, "security") == 0)
 	{
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_CreateCoopSpots;
@@ -142,20 +148,20 @@ void SP_info_player_coop(edict_t *self)
 		return;
 	}
 
-	if((Q_stricmp(level.mapname, "jail2") == 0)   ||
-	   (Q_stricmp(level.mapname, "jail4") == 0)   ||
-	   (Q_stricmp(level.mapname, "mine1") == 0)   ||
-	   (Q_stricmp(level.mapname, "mine2") == 0)   ||
-	   (Q_stricmp(level.mapname, "mine3") == 0)   ||
-	   (Q_stricmp(level.mapname, "mine4") == 0)   ||
-	   (Q_stricmp(level.mapname, "lab") == 0)     ||
-	   (Q_stricmp(level.mapname, "boss1") == 0)   ||
-	   (Q_stricmp(level.mapname, "fact3") == 0)   ||
-	   (Q_stricmp(level.mapname, "biggun") == 0)  ||
-	   (Q_stricmp(level.mapname, "space") == 0)   ||
-	   (Q_stricmp(level.mapname, "command") == 0) ||
-	   (Q_stricmp(level.mapname, "power2") == 0) ||
-	   (Q_stricmp(level.mapname, "strike") == 0))
+	if((Q_strcasecmp(level.mapname, "jail2") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "jail4") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "mine1") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "mine2") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "mine3") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "mine4") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "lab") == 0)     ||
+	   (Q_strcasecmp(level.mapname, "boss1") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "fact3") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "biggun") == 0)  ||
+	   (Q_strcasecmp(level.mapname, "space") == 0)   ||
+	   (Q_strcasecmp(level.mapname, "command") == 0) ||
+	   (Q_strcasecmp(level.mapname, "power2") == 0) ||
+	   (Q_strcasecmp(level.mapname, "strike") == 0))
 	{
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_FixCoopSpots;
@@ -168,7 +174,7 @@ void SP_info_player_coop(edict_t *self)
 The deathmatch intermission point will be at one of these
 Use 'angles' instead of 'angle', so you can set pitch or roll as well as yaw.  'pitch yaw roll'
 */
-void SP_info_player_intermission(void)
+void SP_info_player_intermission (edict_t */*ent*/)
 {
 }
 
@@ -176,7 +182,7 @@ void SP_info_player_intermission(void)
 //=======================================================================
 
 
-void player_pain (edict_t *self, edict_t *other, float kick, int damage)
+void player_pain (edict_t */*self*/, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	// player pain is handled at the end of the frame in P_DamageFeedback
 }
@@ -208,7 +214,7 @@ qboolean IsNeutral (edict_t *ent)
 	return false;
 }
 
-void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
+void ClientObituary (edict_t *self, edict_t */*inflictor*/, edict_t *attacker)
 {
 	int			mod;
 	char		*message;
@@ -498,7 +504,7 @@ void LookAtKiller (edict_t *self, edict_t *inflictor, edict_t *attacker)
 player_die
 ==================
 */
-void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -840,8 +846,6 @@ edict_t *SelectCoopSpawnPoint (edict_t *ent)
 	if (!index)
 		return NULL;
 
-	spot = NULL;
-
 	// assume there are four coop spots at each spawnpoint
 	while (1)
 	{
@@ -852,16 +856,13 @@ edict_t *SelectCoopSpawnPoint (edict_t *ent)
 		target = spot->targetname;
 		if (!target)
 			target = "";
-		if ( Q_stricmp(game.spawnpoint, target) == 0 )
+		if ( Q_strcasecmp(game.spawnpoint, target) == 0 )
 		{	// this is a coop spawn point for one of the clients here
 			index--;
 			if (!index)
 				return spot;		// this is it
 		}
 	}
-
-
-	return spot;
 }
 
 
@@ -892,7 +893,7 @@ void	SelectSpawnPoint (edict_t *ent, vec3_t origin, vec3_t angles)
 			if (!game.spawnpoint[0] || !spot->targetname)
 				continue;
 
-			if (Q_stricmp(game.spawnpoint, spot->targetname) == 0)
+			if (Q_strcasecmp(game.spawnpoint, spot->targetname) == 0)
 				break;
 		}
 
@@ -928,7 +929,7 @@ void InitBodyQue (void)
 	}
 }
 
-void body_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void body_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int	n;
 

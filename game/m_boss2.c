@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-boss2
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_boss2.h"
 
@@ -40,7 +38,7 @@ static int	sound_search1;
 
 void boss2_search (edict_t *self)
 {
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		gi.sound (self, CHAN_VOICE, sound_search1, 1, ATTN_NONE, 0);
 }
 
@@ -443,7 +441,7 @@ void boss2_attack (edict_t *self)
 	}
 	else 
 	{
-		if (random() <= 0.6)
+		if (qrandom() <= 0.6)
 			self->monsterinfo.currentmove = &boss2_move_attack_pre_mg;
 		else
 			self->monsterinfo.currentmove = &boss2_move_attack_rocket;
@@ -458,7 +456,7 @@ void boss2_attack_mg (edict_t *self)
 void boss2_reattack_mg (edict_t *self)
 {
 	if ( infront(self, self->enemy) )
-		if (random() <= 0.7)
+		if (qrandom() <= 0.7)
 			self->monsterinfo.currentmove = &boss2_move_attack_mg;
 		else
 			self->monsterinfo.currentmove = &boss2_move_attack_post_mg;
@@ -467,7 +465,7 @@ void boss2_reattack_mg (edict_t *self)
 }
 
 
-void boss2_pain (edict_t *self, edict_t *other, float kick, int damage)
+void boss2_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 	if (self->health < (self->max_health / 2))
 		self->s.skinnum = 1;
@@ -504,14 +502,14 @@ void boss2_dead (edict_t *self)
 	gi.linkentity (self);
 }
 
-void boss2_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void boss2_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int /*damage*/, vec3_t /*point*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NONE, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_NO;
 	self->count = 0;
 	self->monsterinfo.currentmove = &boss2_move_death;
-#if 0
+/*
 	int		n;
 
 	self->s.sound = 0;
@@ -534,7 +532,7 @@ void boss2_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 	self->monsterinfo.currentmove = &boss2_move_death;
-#endif
+*/
 }
 
 qboolean Boss2_CheckAttack (edict_t *self)
@@ -543,7 +541,6 @@ qboolean Boss2_CheckAttack (edict_t *self)
 	vec3_t	temp;
 	float	chance;
 	trace_t	tr;
-	qboolean	enemy_infront;
 	int			enemy_range;
 	float		enemy_yaw;
 
@@ -562,7 +559,7 @@ qboolean Boss2_CheckAttack (edict_t *self)
 			return false;
 	}
 	
-	enemy_infront = infront(self, self->enemy);
+	infront(self, self->enemy);	/* qboolean enemy_infront = */
 	enemy_range = range(self, self->enemy);
 	VectorSubtract (self->enemy->s.origin, self->s.origin, temp);
 	enemy_yaw = vectoyaw(temp);
@@ -611,16 +608,16 @@ qboolean Boss2_CheckAttack (edict_t *self)
 		return false;
 	}
 
-	if (random () < chance)
+	if (qrandom() < chance)
 	{
 		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + 2*random();
+		self->monsterinfo.attack_finished = level.time + 2*qrandom();
 		return true;
 	}
 
 	if (self->flags & FL_FLY)
 	{
-		if (random() < 0.3)
+		if (qrandom() < 0.3)
 			self->monsterinfo.attack_state = AS_SLIDING;
 		else
 			self->monsterinfo.attack_state = AS_STRAIGHT;

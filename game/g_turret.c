@@ -17,8 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// g_turret.c
-
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 
@@ -87,7 +91,7 @@ void turret_breach_fire (edict_t *self)
 	VectorMA (start, self->move_origin[1], r, start);
 	VectorMA (start, self->move_origin[2], u, start);
 
-	damage = 100 + random() * 50;
+	damage = 100 + qrandom() * 50;
 	speed = 550 + 50 * skill->value;
 	fire_rocket (self->teammaster->owner, start, f, damage, speed, 150, damage);
 	gi.positioned_sound (start, self, CHAN_WEAPON, gi.soundindex("weapons/rocklf1a.wav"), 1, ATTN_NORM, 0);
@@ -271,7 +275,7 @@ Must NOT be on the team with the rest of the turret parts.
 Instead it must target the turret_breach.
 */
 
-void infantry_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage);
+void infantry_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
 void infantry_stand (edict_t *self);
 void monster_use (edict_t *self, edict_t *other, edict_t *activator);
 
@@ -292,7 +296,7 @@ void turret_driver_die (edict_t *self, edict_t *inflictor, edict_t *attacker, in
 	self->target_ent->owner = NULL;
 	self->target_ent->teammaster->owner = NULL;
 
-	infantry_die (self, inflictor, attacker, damage);
+	infantry_die (self, inflictor, attacker, damage, point);
 }
 
 qboolean FindTarget (edict_t *self);

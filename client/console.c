@@ -17,9 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// console.c
-
-#include "client.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 console_t	con;
 
@@ -247,7 +249,7 @@ void Con_CheckResize (void)
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	char	tbuf[CON_TEXTSIZE];
 
-	width = (viddef.width >> 3) - 2;
+	width = (vid.width >> 3) - 2;
 
 	if (width == con.linewidth)
 		return;
@@ -457,7 +459,6 @@ The input line scrolls horizontally if typing goes beyond the right edge
 */
 void Con_DrawInput (void)
 {
-	int		y;
 	int		i;
 	char	*text;
 
@@ -480,8 +481,6 @@ void Con_DrawInput (void)
 		text += 1 + key_linepos - con.linewidth;
 		
 // draw it
-	y = con.vislines-16;
-
 	for (i=0 ; i<con.linewidth ; i++)
 		re.DrawChar ( (i+1)<<3, con.vislines - 22, text[i]);
 
@@ -540,8 +539,8 @@ void Con_DrawNotify (void)
 		}
 
 		s = chat_buffer;
-		if (chat_bufferlen > (viddef.width>>3)-(skip+1))
-			s += chat_bufferlen - ((viddef.width>>3)-(skip+1));
+		if (chat_bufferlen > (vid.width>>3)-(skip+1))
+			s += chat_bufferlen - ((vid.width>>3)-(skip+1));
 		x = 0;
 		while(s[x])
 		{
@@ -555,7 +554,7 @@ void Con_DrawNotify (void)
 	if (v)
 	{
 		SCR_AddDirtyPoint (0,0);
-		SCR_AddDirtyPoint (viddef.width-1, v);
+		SCR_AddDirtyPoint (vid.width-1, v);
 	}
 }
 
@@ -576,34 +575,33 @@ void Con_DrawConsole (float frac)
 	char			version[64];
 	char			dlbar[1024];
 
-	lines = viddef.height * frac;
+	lines = vid.height * frac;
 	if (lines <= 0)
 		return;
 
-	if (lines > viddef.height)
-		lines = viddef.height;
+	if (lines > vid.height)
+		lines = vid.height;
 
 // draw the background
-	re.DrawStretchPic (0, -viddef.height+lines, viddef.width, viddef.height, "conback");
+	re.DrawStretchPic (0, -vid.height+lines, vid.width, vid.height, "conback");
 	SCR_AddDirtyPoint (0,0);
-	SCR_AddDirtyPoint (viddef.width-1,lines-1);
+	SCR_AddDirtyPoint (vid.width-1,lines-1);
 
 	Com_sprintf (version, sizeof(version), "v%4.2f", VERSION);
 	for (x=0 ; x<5 ; x++)
-		re.DrawChar (viddef.width-44+x*8, lines-12, 128 + version[x] );
+		re.DrawChar (vid.width-44+x*8, lines-12, 128 + version[x] );
 
 // draw the text
 	con.vislines = lines;
 	
-#if 0
+/*
 	rows = (lines-8)>>3;		// rows of text to draw
 
 	y = lines - 24;
-#else
+*/
 	rows = (lines-22)>>3;		// rows of text to draw
 
 	y = lines - 30;
-#endif
 
 // draw from the bottom up
 	if (con.display != con.current)
@@ -651,7 +649,7 @@ void Con_DrawConsole (float frac)
 			strcpy(dlbar, text);
 		strcat(dlbar, ": ");
 		i = strlen(dlbar);
-		dlbar[i++] = '\x80';
+		dlbar[i++] = 0x80;
 		// where's the dot go?
 		if (cls.downloadpercent == 0)
 			n = 0;
@@ -660,10 +658,10 @@ void Con_DrawConsole (float frac)
 			
 		for (j = 0; j < y; j++)
 			if (j == n)
-				dlbar[i++] = '\x83';
+				dlbar[i++] = 0x83;
 			else
-				dlbar[i++] = '\x81';
-		dlbar[i++] = '\x82';
+				dlbar[i++] = 0x81;
+		dlbar[i++] = 0x82;
 		dlbar[i] = 0;
 
 		sprintf(dlbar + strlen(dlbar), " %02d%%", cls.downloadpercent);
@@ -678,5 +676,3 @@ void Con_DrawConsole (float frac)
 // draw the input prompt, user text, and cursor if desired
 	Con_DrawInput ();
 }
-
-

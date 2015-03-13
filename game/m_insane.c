@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-insane
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_insane.h"
 
@@ -433,7 +431,7 @@ mmove_t insane_move_struggle_cross = {FRAME_cross16, FRAME_cross30, insane_frame
 
 void insane_cross (edict_t *self)
 {
-	if (random() < 0.8)		
+	if (qrandom() < 0.8)		
 		self->monsterinfo.currentmove = &insane_move_cross;
 	else
 		self->monsterinfo.currentmove = &insane_move_struggle_cross;
@@ -450,7 +448,7 @@ void insane_walk (edict_t *self)
 	if (self->spawnflags & 4)
 		self->monsterinfo.currentmove = &insane_move_crawl;
 	else
-		if (random() <= 0.5)
+		if (qrandom() <= 0.5)
 			self->monsterinfo.currentmove = &insane_move_walk_normal;
 		else
 			self->monsterinfo.currentmove = &insane_move_walk_insane;
@@ -467,14 +465,14 @@ void insane_run (edict_t *self)
 	if (self->spawnflags & 4)				// Crawling?
 		self->monsterinfo.currentmove = &insane_move_runcrawl;
 	else
-		if (random() <= 0.5)				// Else, mix it up
+		if (qrandom() <= 0.5)				// Else, mix it up
 			self->monsterinfo.currentmove = &insane_move_run_normal;
 		else
 			self->monsterinfo.currentmove = &insane_move_run_insane;
 }
 
 
-void insane_pain (edict_t *self, edict_t *other, float kick, int damage)
+void insane_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	int	l,r;
 
@@ -526,8 +524,8 @@ void insane_checkdown (edict_t *self)
 //	if ( (self->s.frame == FRAME_stand94) || (self->s.frame == FRAME_stand65) )
 	if (self->spawnflags & 32)				// Always stand
 		return;
-	if (random() < 0.3)
-		if (random() < 0.5)
+	if (qrandom() < 0.3)
+		if (qrandom() < 0.5)
 			self->monsterinfo.currentmove = &insane_move_uptodown;
 		else
 			self->monsterinfo.currentmove = &insane_move_jumpdown; 
@@ -538,7 +536,7 @@ void insane_checkup (edict_t *self)
 	// If Hold_Ground and Crawl are set
 	if ( (self->spawnflags & 4) && (self->spawnflags & 16) )
 		return;
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		self->monsterinfo.currentmove = &insane_move_downtoup;				
 
 }
@@ -554,7 +552,7 @@ void insane_stand (edict_t *self)
 	else if ( (self->spawnflags & 4) && (self->spawnflags & 16) )
 		self->monsterinfo.currentmove = &insane_move_down;
 	else
-		if (random() < 0.5)
+		if (qrandom() < 0.5)
 			self->monsterinfo.currentmove = &insane_move_stand_normal;
 		else
 			self->monsterinfo.currentmove = &insane_move_stand_insane;
@@ -578,7 +576,7 @@ void insane_dead (edict_t *self)
 }
 
 
-void insane_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void insane_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 

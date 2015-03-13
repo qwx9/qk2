@@ -17,14 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-Makron -- Final Boss
-
-==============================================================================
-*/
-
+// Makron -- Final Boss
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_boss32.h"
 
@@ -57,7 +56,7 @@ void makron_taunt (edict_t *self)
 {
 	float r;
 
-	r=random();
+	r=qrandom();
 	if (r <= 0.3)
 		gi.sound (self, CHAN_AUTO, sound_taunt1, 1, ATTN_NONE, 0);
 	else if (r <= 0.6)
@@ -552,7 +551,7 @@ void MakronHyperblaster (edict_t *self)
 }	
 
 
-void makron_pain (edict_t *self, edict_t *other, float kick, int damage)
+void makron_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 
 	if (self->health < (self->max_health / 2))
@@ -563,7 +562,7 @@ void makron_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	// Lessen the chance of him going into his pain frames
 	if (damage <=25)
-		if (random()<0.2)
+		if (qrandom()<0.2)
 			return;
 
 	self->pain_debounce_time = level.time + 3;
@@ -584,13 +583,13 @@ void makron_pain (edict_t *self, edict_t *other, float kick, int damage)
 	else
 	{
 		if (damage <= 150)
-			if (random() <= 0.45)
+			if (qrandom() <= 0.45)
 			{
 				gi.sound (self, CHAN_VOICE, sound_pain6, 1, ATTN_NONE,0);
 				self->monsterinfo.currentmove = &makron_move_pain6;
 			}
 		else
-			if (random() <= 0.35)
+			if (qrandom() <= 0.35)
 			{
 				gi.sound (self, CHAN_VOICE, sound_pain6, 1, ATTN_NONE,0);
 				self->monsterinfo.currentmove = &makron_move_pain6;
@@ -598,7 +597,7 @@ void makron_pain (edict_t *self, edict_t *other, float kick, int damage)
 	}
 };
 
-void makron_sight(edict_t *self, edict_t *other)
+void makron_sight(edict_t *self, edict_t */*other*/)
 {
 	self->monsterinfo.currentmove = &makron_move_sight;
 };
@@ -606,14 +605,12 @@ void makron_sight(edict_t *self, edict_t *other)
 void makron_attack(edict_t *self)
 {
 	vec3_t	vec;
-	float	range;
 	float	r;
 
-	r = random();
+	r = qrandom();
 
 	VectorSubtract (self->enemy->s.origin, self->s.origin, vec);
-	range = VectorLength (vec);
-
+	//float range = VectorLength (vec);
 
 	if (r <= 0.3)
 		self->monsterinfo.currentmove = &makron_move_attack3;
@@ -670,7 +667,7 @@ void makron_dead (edict_t *self)
 }
 
 
-void makron_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void makron_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	edict_t *tempent;
 
@@ -714,7 +711,6 @@ qboolean Makron_CheckAttack (edict_t *self)
 	vec3_t	temp;
 	float	chance;
 	trace_t	tr;
-	qboolean	enemy_infront;
 	int			enemy_range;
 	float		enemy_yaw;
 
@@ -733,7 +729,7 @@ qboolean Makron_CheckAttack (edict_t *self)
 			return false;
 	}
 	
-	enemy_infront = infront(self, self->enemy);
+	infront(self, self->enemy);	/* qboolean enemy_infront = */
 	enemy_range = range(self, self->enemy);
 	VectorSubtract (self->enemy->s.origin, self->s.origin, temp);
 	enemy_yaw = vectoyaw(temp);
@@ -782,16 +778,16 @@ qboolean Makron_CheckAttack (edict_t *self)
 		return false;
 	}
 
-	if (random () < chance)
+	if (qrandom () < chance)
 	{
 		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + 2*random();
+		self->monsterinfo.attack_finished = level.time + 2*qrandom();
 		return true;
 	}
 
 	if (self->flags & FL_FLY)
 	{
-		if (random() < 0.3)
+		if (qrandom() < 0.3)
 			self->monsterinfo.attack_state = AS_SLIDING;
 		else
 			self->monsterinfo.attack_state = AS_STRAIGHT;

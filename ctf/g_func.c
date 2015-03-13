@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 /*
@@ -858,7 +860,7 @@ void door_use_areaportals (edict_t *self, qboolean open)
 
 	while ((t = G_Find (t, FOFS(targetname), self->target)))
 	{
-		if (Q_stricmp(t->classname, "func_areaportal") == 0)
+		if (Q_strcasecmp(t->classname, "func_areaportal") == 0)
 		{
 			gi.SetAreaPortalState (t->style, open);
 		}

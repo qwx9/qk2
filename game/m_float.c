@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-floater
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_float.h"
 
@@ -38,7 +36,7 @@ static int	sound_pain2;
 static int	sound_sight;
 
 
-void floater_sight (edict_t *self, edict_t *other)
+void floater_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -196,7 +194,7 @@ mmove_t	floater_move_stand2 = {FRAME_stand201, FRAME_stand252, floater_frames_st
 
 void floater_stand (edict_t *self)
 {
-	if (random() <= 0.5)		
+	if (qrandom() <= 0.5)		
 		self->monsterinfo.currentmove = &floater_move_stand1;
 	else
 		self->monsterinfo.currentmove = &floater_move_stand2;
@@ -556,14 +554,14 @@ void floater_attack(edict_t *self)
 
 void floater_melee(edict_t *self)
 {
-	if (random() < 0.5)		
+	if (qrandom() < 0.5)
 		self->monsterinfo.currentmove = &floater_move_attack3;
 	else
 		self->monsterinfo.currentmove = &floater_move_attack2;
 }
 
 
-void floater_pain (edict_t *self, edict_t *other, float kick, int damage)
+void floater_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	int		n;
 
@@ -600,7 +598,7 @@ void floater_dead (edict_t *self)
 	gi.linkentity (self);
 }
 
-void floater_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void floater_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int /*damage*/, vec3_t /*point*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
 	BecomeExplosion1(self);
@@ -652,7 +650,7 @@ void SP_monster_floater (edict_t *self)
 
 	gi.linkentity (self);
 
-	if (random() <= 0.5)		
+	if (qrandom() <= 0.5)
 		self->monsterinfo.currentmove = &floater_move_stand1;	
 	else
 		self->monsterinfo.currentmove = &floater_move_stand2;	

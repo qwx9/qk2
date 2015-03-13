@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "qcommon.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 /*
 
@@ -299,7 +302,6 @@ qboolean Netchan_Process (netchan_t *chan, sizebuf_t *msg)
 {
 	unsigned	sequence, sequence_ack;
 	unsigned	reliable_ack, reliable_message;
-	int			qport;
 
 // get sequence numbers		
 	MSG_BeginReading (msg);
@@ -308,7 +310,7 @@ qboolean Netchan_Process (netchan_t *chan, sizebuf_t *msg)
 
 	// read the qport if we are a server
 	if (chan->sock == NS_SERVER)
-		qport = MSG_ReadShort (msg);
+		MSG_ReadShort (msg);	/* toss read */
 
 	reliable_message = sequence >> 31;
 	reliable_ack = sequence_ack >> 31;

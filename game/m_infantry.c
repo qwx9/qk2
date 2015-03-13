@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-INFANTRY
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_infantry.h"
 
@@ -212,7 +210,7 @@ mframe_t infantry_frames_pain2 [] =
 };
 mmove_t infantry_move_pain2 = {FRAME_pain201, FRAME_pain210, infantry_frames_pain2, infantry_run};
 
-void infantry_pain (edict_t *self, edict_t *other, float kick, int damage)
+void infantry_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int /*damage*/)
 {
 	int		n;
 
@@ -296,7 +294,7 @@ void InfantryMachineGun (edict_t *self)
 	monster_fire_bullet (self, start, forward, 3, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, flash_number);
 }
 
-void infantry_sight (edict_t *self, edict_t *other)
+void infantry_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_BODY, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -383,7 +381,7 @@ mframe_t infantry_frames_death3 [] =
 mmove_t infantry_move_death3 = {FRAME_death301, FRAME_death309, infantry_frames_death3, infantry_dead};
 
 
-void infantry_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void infantry_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -463,9 +461,9 @@ mframe_t infantry_frames_duck [] =
 };
 mmove_t infantry_move_duck = {FRAME_duck01, FRAME_duck05, infantry_frames_duck, infantry_run};
 
-void infantry_dodge (edict_t *self, edict_t *attacker, float eta)
+void infantry_dodge (edict_t *self, edict_t *attacker, float /*eta*/)
 {
-	if (random() > 0.25)
+	if (qrandom() > 0.25)
 		return;
 
 	if (!self->enemy)

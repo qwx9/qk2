@@ -17,7 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#define	GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 
 
@@ -284,15 +289,15 @@ void	ServerCommand (void)
 	char	*cmd;
 
 	cmd = gi.argv(1);
-	if (Q_stricmp (cmd, "test") == 0)
+	if (Q_strcasecmp (cmd, "test") == 0)
 		Svcmd_Test_f ();
-	else if (Q_stricmp (cmd, "addip") == 0)
+	else if (Q_strcasecmp (cmd, "addip") == 0)
 		SVCmd_AddIP_f ();
-	else if (Q_stricmp (cmd, "removeip") == 0)
+	else if (Q_strcasecmp (cmd, "removeip") == 0)
 		SVCmd_RemoveIP_f ();
-	else if (Q_stricmp (cmd, "listip") == 0)
+	else if (Q_strcasecmp (cmd, "listip") == 0)
 		SVCmd_ListIP_f ();
-	else if (Q_stricmp (cmd, "writeip") == 0)
+	else if (Q_strcasecmp (cmd, "writeip") == 0)
 		SVCmd_WriteIP_f ();
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);

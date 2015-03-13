@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-==============================================================================
-
-hover
-
-==============================================================================
-*/
-
+#define GAME_INCLUDE
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 #include "g_local.h"
 #include "m_hover.h"
 
@@ -40,14 +38,14 @@ static int	sound_search1;
 static int	sound_search2;
 
 
-void hover_sight (edict_t *self, edict_t *other)
+void hover_sight (edict_t *self, edict_t */*other*/)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void hover_search (edict_t *self)
 {
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		gi.sound (self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
 	else
 		gi.sound (self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
@@ -422,7 +420,7 @@ void hover_reattack (edict_t *self)
 {
 	if (self->enemy->health > 0 )
 		if (visible (self, self->enemy) )
-			if (random() <= 0.6)		
+			if (qrandom() <= 0.6)		
 			{
 				self->monsterinfo.currentmove = &hover_move_attack1;
 				return;
@@ -484,7 +482,7 @@ void hover_attack(edict_t *self)
 }
 
 
-void hover_pain (edict_t *self, edict_t *other, float kick, int damage)
+void hover_pain (edict_t *self, edict_t */*other*/, float /*kick*/, int damage)
 {
 	if (self->health < (self->max_health / 2))
 		self->s.skinnum = 1;
@@ -499,7 +497,7 @@ void hover_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	if (damage <= 25)
 	{
-		if (random() < 0.5)
+		if (qrandom() < 0.5)
 		{
 			gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 			self->monsterinfo.currentmove = &hover_move_pain3;
@@ -538,7 +536,7 @@ void hover_dead (edict_t *self)
 	gi.linkentity (self);
 }
 
-void hover_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void hover_die (edict_t *self, edict_t */*inflictor*/, edict_t */*attacker*/, int damage, vec3_t /*point*/)
 {
 	int		n;
 
@@ -559,7 +557,7 @@ void hover_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 		return;
 
 // regular death
-	if (random() < 0.5)
+	if (qrandom() < 0.5)
 		gi.sound (self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
 	else
 		gi.sound (self, CHAN_VOICE, sound_death2, 1, ATTN_NORM, 0);

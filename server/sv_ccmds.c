@@ -17,8 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#include "server.h"
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
+#include "../dat.h"
+#include "../fns.h"
 
 /*
 ===============================================================================
@@ -337,8 +340,7 @@ void SV_WriteServerFile (qboolean autosave)
 	cvar_t	*var;
 	char	name[MAX_OSPATH], string[128];
 	char	comment[32];
-	time_t	aclock;
-	struct tm	*newtime;
+	Tm	*newtime;
 
 	Com_DPrintf("SV_WriteServerFile(%s)\n", autosave ? "true" : "false");
 
@@ -354,11 +356,9 @@ void SV_WriteServerFile (qboolean autosave)
 
 	if (!autosave)
 	{
-		time (&aclock);
-		newtime = localtime (&aclock);
-		Com_sprintf (comment,sizeof(comment), "%2i:%i%i %2i/%2i  ", newtime->tm_hour
-			, newtime->tm_min/10, newtime->tm_min%10,
-			newtime->tm_mon+1, newtime->tm_mday);
+		newtime = localtime (time(nil));
+		Com_sprintf (comment,sizeof(comment), "%2i:%i%i %2i/%2i  ", newtime->hour
+			, newtime->min/10, newtime->min%10, newtime->mon+1, newtime->mday);
 		strncat (comment, sv.configstrings[CS_NAME], sizeof(comment)-1-strlen(comment) );
 	}
 	else
@@ -925,7 +925,7 @@ void SV_ServerRecord_f (void)
 	//
 	// write a single giant fake message with all the startup info
 	//
-	SZ_Init (&buf, buf_data, sizeof(buf_data));
+	SZ_Init (&buf, (byte *)buf_data, sizeof(buf_data));
 
 	//
 	// serverdata needs to go over for all types of servers
