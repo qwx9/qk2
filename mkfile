@@ -5,7 +5,7 @@ TARG=qk2
 
 CLDIR=client
 SVDIR=server
-SRDIR=ref_soft
+SRDIR=ref
 CMDIR=qcommon
 P9DIR=plan9
 GMDIR=game
@@ -51,12 +51,12 @@ CLOFILES=\
 	$SVDIR/sv_send.$O\
 	$SVDIR/sv_user.$O\
 	$SVDIR/sv_world.$O\
-	$P9DIR/cd_linux.$O\
-	$P9DIR/q_shlinux.$O\
+	$P9DIR/cd_9.$O\
+	$P9DIR/q_sh9.$O\
 	$P9DIR/vid_menu.$O\
 	$P9DIR/vid_so.$O\
-	$P9DIR/snd_linux.$O\
-	$P9DIR/sys_linux.$O\
+	$P9DIR/snd_9.$O\
+	$P9DIR/sys_9.$O\
 	$P9DIR/glob.$O\
 	$P9DIR/net_udp.$O\
 
@@ -260,9 +260,9 @@ SROFILES=\
 	$SRDIR/r_sprite.$O\
 	$SRDIR/r_surf.$O\
 	$GMDIR/q_shared.$O\
-	$P9DIR/q_shlinux.$O\
+	$P9DIR/q_sh9.$O\
 	$P9DIR/glob.$O\
-	$P9DIR/rw_x11.$O\
+	$P9DIR/rw_9.$O\
 
 SRHFILES=\
 	$SRDIR/adivtab.h\
