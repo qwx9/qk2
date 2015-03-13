@@ -3,14 +3,14 @@
 BIN=.
 TARG=qk2
 
-CLDIR=../client
-SVDIR=../server
-SRDIR=../ref_soft
-CMDIR=../qcommon
-P9DIR=.
-GMDIR=../game
-CTFDIR=../ctf
-XADIR=../xatrix
+CLDIR=client
+SVDIR=server
+SRDIR=ref_soft
+CMDIR=qcommon
+P9DIR=plan9
+GMDIR=game
+CTFDIR=ctf
+XADIR=xatrix
 
 CLOFILES=\
 	$CLDIR/cl_cin.$O\
@@ -61,11 +61,6 @@ CLOFILES=\
 	$P9DIR/net_udp.$O\
 
 CLHFILES=\
-	$CLDIR/adivtab.h\
-	$CLDIR/anorms.h\
-	$CLDIR/asm_i386.h\
-	$CLDIR/block16.h\
-	$CLDIR/block8.h\
 	$CLDIR/cdaudio.h\
 	$CLDIR/client.h\
 	$CLDIR/console.h\
@@ -78,11 +73,10 @@ CLHFILES=\
 	$CLDIR/sound.h\
 	$CLDIR/vid.h\
 
-# g_chase.c -> ChasePrev, ChaseNext, .. undefined symbols -> dlopen fails
-	#$GMDIR/g_chase.$O\
 GMOFILES=\
 	$GMDIR/g_ai.$O\
 	$GMDIR/p_client.$O\
+	$GMDIR/g_chase.$O\
 	$GMDIR/g_cmds.$O\
 	$GMDIR/g_svcmds.$O\
 	$GMDIR/g_combat.$O\
@@ -155,7 +149,6 @@ GMHFILES=\
 	$GMDIR/m_soldier.h\
 	$GMDIR/m_supertank.h\
 	$GMDIR/m_tank.h\
-	$GMDIR/q_shared.h\
 
 CTFOFILES=\
 	$CTFDIR/g_ai.$O\
@@ -191,7 +184,6 @@ CTFHFILES=\
 	$CTFDIR/game.h\
 	$CTFDIR/m_player.h\
 	$CTFDIR/p_menu.h\
-	$CTFDIR/q_shared.h\
 
 XAOFILES=\
 	$XADIR/g_ai.$O\
@@ -274,9 +266,6 @@ SROFILES=\
 
 SRHFILES=\
 	$SRDIR/adivtab.h\
-	$SRDIR/anorms.h\
-	$SRDIR/asm_draw.h\
-	$SRDIR/d_ifacea.h\
 	$SRDIR/r_local.h\
 	$SRDIR/r_model.h\
 	$SRDIR/rand1k.h\
@@ -290,10 +279,11 @@ CMHFILES=\
 # *ofiles: ofiles needed for each module
 # *hfiles: hfiles in each module directory...
 OFILES= $CLOFILES $GMOFILES $SROFILES
-HFILES= $CLHFILES $GMHFILES $SRHFILES $CMHFILES
+HFILES= $CLHFILES $GMHFILES $SRHFILES $CMHFILES \
+	anorms.h\
+	q_shared.h\
 
 </sys/src/cmd/mkone
 
 # FIXME
-clean:
-	rm -f $CLOFILES $GMOFILES $SROFILES $CTFOFILES $XAOFILES
+CFLAGS=-FVw
