@@ -3457,7 +3457,8 @@ static qboolean PlayerConfig_ScanDirectories( void )
 	*/
 	do 
 	{
-		path = FS_NextPath( path );
+		if ( ( path = FS_NextPath( path ) ) == NULL)
+			break;
 		Com_sprintf( findname, sizeof(findname), "%s/players/*.*", path );
 
 		if ( ( dirnames = FS_ListFiles( findname, &ndirs, SFF_SUBDIR, 0 ) ) != 0 )
