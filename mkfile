@@ -3,284 +3,301 @@
 BIN=.
 TARG=qk2
 
-CLDIR=client
-SVDIR=server
-SRDIR=ref
-CMDIR=qcommon
-P9DIR=plan9
-GMDIR=game
-CTFDIR=ctf
-XADIR=xatrix
-
 CLOFILES=\
-	$CLDIR/cl_cin.$O\
-	$CLDIR/cl_ents.$O\
-	$CLDIR/cl_fx.$O\
-	$CLDIR/cl_newfx.$O\
-	$CLDIR/cl_input.$O\
-	$CLDIR/cl_inv.$O\
-	$CLDIR/cl_main.$O\
-	$CLDIR/cl_parse.$O\
-	$CLDIR/cl_pred.$O\
-	$CLDIR/cl_tent.$O\
-	$CLDIR/cl_scrn.$O\
-	$CLDIR/cl_view.$O\
-	$CLDIR/console.$O\
-	$CLDIR/keys.$O\
-	$CLDIR/menu.$O\
-	$CLDIR/snd_dma.$O\
-	$CLDIR/snd_mem.$O\
-	$CLDIR/snd_mix.$O\
-	$CLDIR/qmenu.$O\
-	$GMDIR/m_flash.$O\
-	$CMDIR/cmd.$O\
-	$CMDIR/cmodel.$O\
-	$CMDIR/common.$O\
-	$CMDIR/crc.$O\
-	$CMDIR/cvar.$O\
-	$CMDIR/files.$O\
-	$CMDIR/md4.$O\
-	$CMDIR/net_chan.$O\
-	$GMDIR/q_shared.$O\
-	$CMDIR/pmove.$O\
-	$SVDIR/sv_ccmds.$O\
-	$SVDIR/sv_ents.$O\
-	$SVDIR/sv_game.$O\
-	$SVDIR/sv_init.$O\
-	$SVDIR/sv_main.$O\
-	$SVDIR/sv_send.$O\
-	$SVDIR/sv_user.$O\
-	$SVDIR/sv_world.$O\
-	$P9DIR/cd_9.$O\
-	$P9DIR/in_9.$O\
-	$P9DIR/q_sh9.$O\
-	$P9DIR/vid_menu.$O\
-	$P9DIR/vid_so.$O\
-	$P9DIR/snd_9.$O\
-	$P9DIR/sys_9.$O\
-	$P9DIR/net_udp.$O\
+	client/cl_cin.$O\
+	client/cl_ents.$O\
+	client/cl_fx.$O\
+	client/cl_newfx.$O\
+	client/cl_input.$O\
+	client/cl_inv.$O\
+	client/cl_main.$O\
+	client/cl_parse.$O\
+	client/cl_pred.$O\
+	client/cl_tent.$O\
+	client/cl_scrn.$O\
+	client/cl_view.$O\
+	client/console.$O\
+	client/keys.$O\
+	client/menu.$O\
+	client/snd_dma.$O\
+	client/snd_mem.$O\
+	client/snd_mix.$O\
+	client/qmenu.$O\
 
 CLHFILES=\
-	$CLDIR/cdaudio.h\
-	$CLDIR/client.h\
-	$CLDIR/console.h\
-	$CLDIR/input.h\
-	$CLDIR/keys.h\
-	$CLDIR/qmenu.h\
-	$CLDIR/ref.h\
-	$CLDIR/screen.h\
-	$CLDIR/snd_loc.h\
-	$CLDIR/sound.h\
-	$CLDIR/vid.h\
+	client/cdaudio.h\
+	client/client.h\
+	client/console.h\
+	client/input.h\
+	client/keys.h\
+	client/qmenu.h\
+	client/ref.h\
+	client/screen.h\
+	client/snd_loc.h\
+	client/sound.h\
+	client/vid.h\
 
-GMOFILES=\
-	$GMDIR/g_ai.$O\
-	$GMDIR/p_client.$O\
-	$GMDIR/g_chase.$O\
-	$GMDIR/g_cmds.$O\
-	$GMDIR/g_svcmds.$O\
-	$GMDIR/g_combat.$O\
-	$GMDIR/g_func.$O\
-	$GMDIR/g_items.$O\
-	$GMDIR/g_main.$O\
-	$GMDIR/g_misc.$O\
-	$GMDIR/g_monster.$O\
-	$GMDIR/g_phys.$O\
-	$GMDIR/g_save.$O\
-	$GMDIR/g_spawn.$O\
-	$GMDIR/g_target.$O\
-	$GMDIR/g_trigger.$O\
-	$GMDIR/g_turret.$O\
-	$GMDIR/g_utils.$O\
-	$GMDIR/g_weapon.$O\
-	$GMDIR/m_actor.$O\
-	$GMDIR/m_berserk.$O\
-	$GMDIR/m_boss2.$O\
-	$GMDIR/m_boss3.$O\
-	$GMDIR/m_boss31.$O\
-	$GMDIR/m_boss32.$O\
-	$GMDIR/m_brain.$O\
-	$GMDIR/m_chick.$O\
-	$GMDIR/m_flipper.$O\
-	$GMDIR/m_float.$O\
-	$GMDIR/m_flyer.$O\
-	$GMDIR/m_gladiator.$O\
-	$GMDIR/m_gunner.$O\
-	$GMDIR/m_hover.$O\
-	$GMDIR/m_infantry.$O\
-	$GMDIR/m_insane.$O\
-	$GMDIR/m_medic.$O\
-	$GMDIR/m_move.$O\
-	$GMDIR/m_mutant.$O\
-	$GMDIR/m_parasite.$O\
-	$GMDIR/m_soldier.$O\
-	$GMDIR/m_supertank.$O\
-	$GMDIR/m_tank.$O\
-	$GMDIR/p_hud.$O\
-	$GMDIR/p_trail.$O\
-	$GMDIR/p_view.$O\
-	$GMDIR/p_weapon.$O\
-	$GMDIR/q_shared.$O\
-	$GMDIR/m_flash.$O\
+SVOFILES=\
+	server/sv_ccmds.$O\
+	server/sv_ents.$O\
+	server/sv_game.$O\
+	server/sv_init.$O\
+	server/sv_main.$O\
+	server/sv_send.$O\
+	server/sv_user.$O\
+	server/sv_world.$O\
 
-GMHFILES=\
-	$GMDIR/g_local.h\
-	$GMDIR/game.h\
-	$GMDIR/m_actor.h\
-	$GMDIR/m_berserk.h\
-	$GMDIR/m_boss2.h\
-	$GMDIR/m_boss31.h\
-	$GMDIR/m_boss32.h\
-	$GMDIR/m_brain.h\
-	$GMDIR/m_chick.h\
-	$GMDIR/m_flipper.h\
-	$GMDIR/m_float.h\
-	$GMDIR/m_flyer.h\
-	$GMDIR/m_gladiator.h\
-	$GMDIR/m_gunner.h\
-	$GMDIR/m_hover.h\
-	$GMDIR/m_infantry.h\
-	$GMDIR/m_insane.h\
-	$GMDIR/m_medic.h\
-	$GMDIR/m_mutant.h\
-	$GMDIR/m_parasite.h\
-	$GMDIR/m_player.h\
-	$GMDIR/m_rider.h\
-	$GMDIR/m_soldier.h\
-	$GMDIR/m_supertank.h\
-	$GMDIR/m_tank.h\
+SVHFILES=\
+	server/server.h\
 
-CTFOFILES=\
-	$CTFDIR/g_ai.$O\
-	$CTFDIR/g_chase.$O\
-	$CTFDIR/g_cmds.$O\
-	$CTFDIR/g_combat.$O\
-	$CTFDIR/g_ctf.$O\
-	$CTFDIR/g_func.$O\
-	$CTFDIR/g_items.$O\
-	$CTFDIR/g_main.$O\
-	$CTFDIR/g_misc.$O\
-	$CTFDIR/g_monster.$O\
-	$CTFDIR/g_phys.$O\
-	$CTFDIR/g_save.$O\
-	$CTFDIR/g_spawn.$O\
-	$CTFDIR/g_svcmds.$O\
-	$CTFDIR/g_target.$O\
-	$CTFDIR/g_trigger.$O\
-	$CTFDIR/g_utils.$O\
-	$CTFDIR/g_weapon.$O\
-	$CTFDIR/m_move.$O\
-	$CTFDIR/p_client.$O\
-	$CTFDIR/p_hud.$O\
-	$CTFDIR/p_menu.$O\
-	$CTFDIR/p_trail.$O\
-	$CTFDIR/p_view.$O\
-	$CTFDIR/p_weapon.$O\
-	$CTFDIR/q_shared.$O\
-
-CTFHFILES=\
-	$CTFDIR/g_ctf.h\
-	$CTFDIR/g_local.h\
-	$CTFDIR/game.h\
-	$CTFDIR/m_player.h\
-	$CTFDIR/p_menu.h\
-
-XAOFILES=\
-	$XADIR/g_ai.$O\
-	$XADIR/g_cmds.$O\
-	$XADIR/g_combat.$O\
-	$XADIR/g_func.$O\
-	$XADIR/g_items.$O\
-	$XADIR/g_main.$O\
-	$XADIR/g_misc.$O\
-	$XADIR/g_monster.$O\
-	$XADIR/g_phys.$O\
-	$XADIR/g_save.$O\
-	$XADIR/g_spawn.$O\
-	$XADIR/g_svcmds.$O\
-	$XADIR/g_target.$O\
-	$XADIR/g_trigger.$O\
-	$XADIR/g_turret.$O\
-	$XADIR/g_utils.$O\
-	$XADIR/g_weapon.$O\
-	$XADIR/m_actor.$O\
-	$XADIR/m_berserk.$O\
-	$XADIR/m_boss2.$O\
-	$XADIR/m_boss3.$O\
-	$XADIR/m_boss31.$O\
-	$XADIR/m_boss32.$O\
-	$XADIR/m_boss5.$O\
-	$XADIR/m_brain.$O\
-	$XADIR/m_chick.$O\
-	$XADIR/m_fixbot.$O\
-	$XADIR/m_flash.$O\
-	$XADIR/m_flipper.$O\
-	$XADIR/m_float.$O\
-	$XADIR/m_flyer.$O\
-	$XADIR/m_gekk.$O\
-	$XADIR/m_gladb.$O\
-	$XADIR/m_gladiator.$O\
-	$XADIR/m_gunner.$O\
-	$XADIR/m_hover.$O\
-	$XADIR/m_infantry.$O\
-	$XADIR/m_insane.$O\
-	$XADIR/m_medic.$O\
-	$XADIR/m_move.$O\
-	$XADIR/m_mutant.$O\
-	$XADIR/m_parasite.$O\
-	$XADIR/m_soldier.$O\
-	$XADIR/m_supertank.$O\
-	$XADIR/m_tank.$O\
-	$XADIR/p_client.$O\
-	$XADIR/p_hud.$O\
-	$XADIR/p_trail.$O\
-	$XADIR/p_view.$O\
-	$XADIR/p_weapon.$O\
-	$XADIR/q_shared.$O\
-
-# FIXME
-XAHFILES=
-
-SROFILES=\
-	$SRDIR/r_aclip.$O\
-	$SRDIR/r_alias.$O\
-	$SRDIR/r_bsp.$O\
-	$SRDIR/r_draw.$O\
-	$SRDIR/r_edge.$O\
-	$SRDIR/r_image.$O\
-	$SRDIR/r_light.$O\
-	$SRDIR/r_main.$O\
-	$SRDIR/r_misc.$O\
-	$SRDIR/r_model.$O\
-	$SRDIR/r_part.$O\
-	$SRDIR/r_poly.$O\
-	$SRDIR/r_polyse.$O\
-	$SRDIR/r_rast.$O\
-	$SRDIR/r_scan.$O\
-	$SRDIR/r_sprite.$O\
-	$SRDIR/r_surf.$O\
-	$GMDIR/q_shared.$O\
-	$P9DIR/q_sh9.$O\
-	$P9DIR/rw_9.$O\
-
-SRHFILES=\
-	$SRDIR/adivtab.h\
-	$SRDIR/r_local.h\
-	$SRDIR/rand1k.h\
+CMOFILES=\
+	qcommon/cmd.$O\
+	qcommon/cmodel.$O\
+	qcommon/common.$O\
+	qcommon/crc.$O\
+	qcommon/cvar.$O\
+	qcommon/files.$O\
+	qcommon/md4.$O\
+	qcommon/net_chan.$O\
+	qcommon/pmove.$O\
 
 CMHFILES=\
-	$CMDIR/crc.h\
-	$CMDIR/qcommon.h\
-	$CMDIR/qfiles.h\
+	qcommon/crc.h\
+	qcommon/qcommon.h\
+	qcommon/qfiles.h\
 
-OFILES= $CLOFILES $GMOFILES $SROFILES
-HFILES= $CLHFILES $GMHFILES $SRHFILES $CMHFILES \
+P9OFILES=\
+	plan9/cd_9.$O\
+	plan9/in_9.$O\
+	plan9/net_udp.$O\
+	plan9/q_sh9.$O\
+	plan9/rw_9.$O\
+	plan9/snd_9.$O\
+	plan9/sys_9.$O\
+	plan9/vid_menu.$O\
+	plan9/vid_so.$O\
+
+P9HFILES=\
+
+RFOFILES=\
+	ref/r_aclip.$O\
+	ref/r_alias.$O\
+	ref/r_bsp.$O\
+	ref/r_draw.$O\
+	ref/r_edge.$O\
+	ref/r_image.$O\
+	ref/r_light.$O\
+	ref/r_main.$O\
+	ref/r_misc.$O\
+	ref/r_model.$O\
+	ref/r_part.$O\
+	ref/r_poly.$O\
+	ref/r_polyse.$O\
+	ref/r_rast.$O\
+	ref/r_scan.$O\
+	ref/r_sprite.$O\
+	ref/r_surf.$O\
+	game/q_shared.$O\
+
+RFHFILES=\
+	ref/adivtab.h\
+	ref/r_local.h\
+	ref/rand1k.h\
+
+GMOFILES=\
+	game/g_ai.$O\
+	game/p_client.$O\
+	game/g_chase.$O\
+	game/g_cmds.$O\
+	game/g_svcmds.$O\
+	game/g_combat.$O\
+	game/g_func.$O\
+	game/g_items.$O\
+	game/g_main.$O\
+	game/g_misc.$O\
+	game/g_monster.$O\
+	game/g_phys.$O\
+	game/g_save.$O\
+	game/g_spawn.$O\
+	game/g_target.$O\
+	game/g_trigger.$O\
+	game/g_turret.$O\
+	game/g_utils.$O\
+	game/g_weapon.$O\
+	game/m_actor.$O\
+	game/m_berserk.$O\
+	game/m_boss2.$O\
+	game/m_boss3.$O\
+	game/m_boss31.$O\
+	game/m_boss32.$O\
+	game/m_brain.$O\
+	game/m_chick.$O\
+	game/m_flash.$O\
+	game/m_flipper.$O\
+	game/m_float.$O\
+	game/m_flyer.$O\
+	game/m_gladiator.$O\
+	game/m_gunner.$O\
+	game/m_hover.$O\
+	game/m_infantry.$O\
+	game/m_insane.$O\
+	game/m_medic.$O\
+	game/m_move.$O\
+	game/m_mutant.$O\
+	game/m_parasite.$O\
+	game/m_soldier.$O\
+	game/m_supertank.$O\
+	game/m_tank.$O\
+	game/p_hud.$O\
+	game/p_trail.$O\
+	game/p_view.$O\
+	game/p_weapon.$O\
+	game/q_shared.$O\
+
+GMHFILES=\
+	game/g_local.h\
+	game/game.h\
+	game/m_actor.h\
+	game/m_berserk.h\
+	game/m_boss2.h\
+	game/m_boss31.h\
+	game/m_boss32.h\
+	game/m_brain.h\
+	game/m_chick.h\
+	game/m_flipper.h\
+	game/m_float.h\
+	game/m_flyer.h\
+	game/m_gladiator.h\
+	game/m_gunner.h\
+	game/m_hover.h\
+	game/m_infantry.h\
+	game/m_insane.h\
+	game/m_medic.h\
+	game/m_mutant.h\
+	game/m_parasite.h\
+	game/m_player.h\
+	game/m_rider.h\
+	game/m_soldier.h\
+	game/m_supertank.h\
+	game/m_tank.h\
+
+CTFOFILES=\
+	ctf/g_ai.$O\
+	ctf/g_chase.$O\
+	ctf/g_cmds.$O\
+	ctf/g_combat.$O\
+	ctf/g_ctf.$O\
+	ctf/g_func.$O\
+	ctf/g_items.$O\
+	ctf/g_main.$O\
+	ctf/g_misc.$O\
+	ctf/g_monster.$O\
+	ctf/g_phys.$O\
+	ctf/g_save.$O\
+	ctf/g_spawn.$O\
+	ctf/g_svcmds.$O\
+	ctf/g_target.$O\
+	ctf/g_trigger.$O\
+	ctf/g_utils.$O\
+	ctf/g_weapon.$O\
+	ctf/m_move.$O\
+	ctf/p_client.$O\
+	ctf/p_hud.$O\
+	ctf/p_menu.$O\
+	ctf/p_trail.$O\
+	ctf/p_view.$O\
+	ctf/p_weapon.$O\
+	ctf/q_shared.$O\
+
+CTFHFILES=\
+	ctf/g_ctf.h\
+	ctf/g_local.h\
+	ctf/game.h\
+	ctf/m_player.h\
+	ctf/p_menu.h\
+
+XAOFILES=\
+	xatrix/g_ai.$O\
+	xatrix/g_cmds.$O\
+	xatrix/g_combat.$O\
+	xatrix/g_func.$O\
+	xatrix/g_items.$O\
+	xatrix/g_main.$O\
+	xatrix/g_misc.$O\
+	xatrix/g_monster.$O\
+	xatrix/g_phys.$O\
+	xatrix/g_save.$O\
+	xatrix/g_spawn.$O\
+	xatrix/g_svcmds.$O\
+	xatrix/g_target.$O\
+	xatrix/g_trigger.$O\
+	xatrix/g_turret.$O\
+	xatrix/g_utils.$O\
+	xatrix/g_weapon.$O\
+	xatrix/m_actor.$O\
+	xatrix/m_berserk.$O\
+	xatrix/m_boss2.$O\
+	xatrix/m_boss3.$O\
+	xatrix/m_boss31.$O\
+	xatrix/m_boss32.$O\
+	xatrix/m_boss5.$O\
+	xatrix/m_brain.$O\
+	xatrix/m_chick.$O\
+	xatrix/m_fixbot.$O\
+	xatrix/m_flash.$O\
+	xatrix/m_flipper.$O\
+	xatrix/m_float.$O\
+	xatrix/m_flyer.$O\
+	xatrix/m_gekk.$O\
+	xatrix/m_gladb.$O\
+	xatrix/m_gladiator.$O\
+	xatrix/m_gunner.$O\
+	xatrix/m_hover.$O\
+	xatrix/m_infantry.$O\
+	xatrix/m_insane.$O\
+	xatrix/m_medic.$O\
+	xatrix/m_move.$O\
+	xatrix/m_mutant.$O\
+	xatrix/m_parasite.$O\
+	xatrix/m_soldier.$O\
+	xatrix/m_supertank.$O\
+	xatrix/m_tank.$O\
+	xatrix/p_client.$O\
+	xatrix/p_hud.$O\
+	xatrix/p_trail.$O\
+	xatrix/p_view.$O\
+	xatrix/p_weapon.$O\
+	xatrix/q_shared.$O\
+
+XAHFILES=\
+
+# All modules are not meant to be loaded together; above are defined several game modules
+OFILES=\
+	$CLOFILES\
+	$SVOFILES\
+	$CMOFILES\
+	$P9OFILES\
+	$RFOFILES\
+	$GMOFILES\
+
+HFILES=\
 	anorms.h\
 	dat.h\
 	fns.h\
 	q_shared.h\
+	$CLHFILES\
+	$SVHFILES\
+	$CMHFILES\
+	$P9HFILES\
+	$RFHFILES\
+	$GMHFILES\
+
+CLEANFILES=$OFILES
 
 </sys/src/cmd/mkone
 
 # FIXME
 CFLAGS=-FVw
+
+%.$O:	%.c
+	$CC -o $target $CFLAGS $stem.c
