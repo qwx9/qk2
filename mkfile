@@ -1,7 +1,7 @@
 </$objtype/mkfile
 
-BIN=.
-TARG=qk2
+BIN=$home/bin/$objtype
+TARG=quake2
 
 CLOFILES=\
 	client/cl_cin.$O\

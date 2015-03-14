@@ -834,6 +834,9 @@ FS_InitFilesystem
 */
 void FS_InitFilesystem (void)
 {
+	static char homedir[1024];
+	char *home;
+
 	Cmd_AddCommand ("path", FS_Path_f);
 	Cmd_AddCommand ("link", FS_Link_f);
 	Cmd_AddCommand ("dir", FS_Dir_f );
@@ -842,7 +845,12 @@ void FS_InitFilesystem (void)
 	// basedir <path>
 	// allows the game to run from outside the data tree
 	//
-	fs_basedir = Cvar_Get ("basedir", ".", CVAR_NOSET);
+	if(home = getenv("home")){
+		snprint(homedir, sizeof homedir, "%s/lib/quake2", home);
+		free(home);
+	}else
+		snprint(homedir, sizeof homedir, "/sys/lib/quake2");
+	fs_basedir = Cvar_Get ("basedir", homedir, CVAR_NOSET);
 
 	//
 	// cddir <path>
