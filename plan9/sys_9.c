@@ -8,7 +8,6 @@
 
 mainstacksize = 512*1024;	/* FIXME */
 
-cvar_t *nostdout;
 uint sys_frame_time;
 qboolean stdin_active = true;
 
@@ -18,9 +17,7 @@ void KBD_Update(void);
 /* prints to "debugging console" */
 void Sys_ConsoleOutput (char *string)
 {
-	if(nostdout != nil && nostdout->value)
-		return;
-	print("%s", string);
+	write(1, string, strlen(string));
 }
 
 void Sys_Quit (void)
@@ -112,8 +109,6 @@ void threadmain (int argc, char *argv[])
 	setfcr(getfcr() & ~(FPOVFL|FPUNFL|FPINVAL|FPZDIV));	/* assumed ignored in code */
 
 	Qcommon_Init(argc, argv);
-
-	nostdout = Cvar_Get("nostdout", "0", 0);
 
 	oldtime = Sys_Milliseconds();
 	for(;;){

@@ -19,7 +19,6 @@ cvar_t *sndbits;
 cvar_t *sndspeed;
 cvar_t *sndchannels;
 cvar_t *snddevice;
-cvar_t *nosound;
 
 
 void sproc (void *)
@@ -45,7 +44,7 @@ qboolean SNDDMA_Init(void)
 	if(sndon)
 		return false;
 
-	if(COM_CheckParm("-nosound"))	/* FIXME */
+	if(COM_CheckParm("-nosound"))
 		return false;
 
 	if(!snddevice){
