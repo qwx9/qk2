@@ -300,13 +300,6 @@ void IN_Shutdown (void)
 	mouseon = false;
 }
 
-void sucks (void *, char *note)
-{
-	if(!strncmp(note, "sys:", 4))
-		IN_Shutdown();
-	noted(NDFLT);
-}
-
 void IN_Init (void)
 {
 	in_mouse = ri.Cvar_Get("in_mouse", "1", CVAR_ARCHIVE);
@@ -325,7 +318,6 @@ void IN_Init (void)
 	ri.Cmd_AddCommand("-mlook", IN_MLookUp);
 	ri.Cmd_AddCommand("force_centerview", IN_ForceCenterView);
 
-	notify(sucks);
 	kchan = chancreate(sizeof(Kev), Nbuf);
 	if((ktid = proccreate(kproc, nil, 8192)) < 0)
 		sysfatal("proccreate kproc: %r");

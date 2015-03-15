@@ -102,11 +102,21 @@ void Sys_CopyProtect (void)
 {
 }
 
+void croak (void *, char *note)
+{
+	if(!strncmp(note, "sys:", 4)){
+		IN_Shutdown();
+		SNDDMA_Shutdown();
+	}
+	noted(NDFLT);
+}
+
 void threadmain (int argc, char *argv[])
 {
 	int time, oldtime, newtime;
 
 	setfcr(getfcr() & ~(FPOVFL|FPUNFL|FPINVAL|FPZDIV));	/* assumed ignored in code */
+	notify(croak);
 
 	Qcommon_Init(argc, argv);
 
