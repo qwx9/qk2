@@ -89,6 +89,7 @@ void Con_ToggleConsole_f (void)
 	{
 		M_ForceMenuOff ();
 		Cvar_Set ("paused", "0");
+		IN_Grabm (1);
 	}
 	else
 	{
@@ -98,6 +99,7 @@ void Con_ToggleConsole_f (void)
 		if (Cvar_VariableValue ("maxclients") == 1 
 			&& Com_ServerState ())
 			Cvar_Set ("paused", "1");
+		IN_Grabm (0);
 	}
 }
 

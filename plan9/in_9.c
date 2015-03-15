@@ -48,7 +48,7 @@ void IN_Grabm(int on)
 
 	if(mouseon == on)
 		return;
-	if(mouseon = on){
+	if(mouseon = on && m_windowed->value){
 		if((fd = open("/dev/cursor", ORDWR|OCEXEC)) < 0){
 			sysfatal("IN_Grabm:open: %r\n");
 			return;
@@ -82,10 +82,7 @@ void KBD_Update (void)
 
 	if(oldmwin != m_windowed->value){
 		oldmwin = m_windowed->value;
-		if(!m_windowed->value)
-			IN_Grabm(0);
-		else
-			IN_Grabm(1);
+		IN_Grabm(m_windowed->value);
 	}
 	while((r = nbrecv(kchan, &ev)) > 0)
 		Key_Event(ev.key, ev.down, Sys_Milliseconds());
@@ -276,7 +273,7 @@ void mproc (void *)
 			mbtn = b&1 | (b&2)<<1 | (b&4)>>1;
 			dx += x;
 			dy += y;
-			if(m_windowed->value && (x != 0 || y != 0))
+			if(x != 0 || y != 0)
 				fprint(fd, "m%d %d", center.x, center.y);
 			break;
 		}
@@ -332,8 +329,6 @@ void IN_Init (void)
 	kchan = chancreate(sizeof(Kev), Nbuf);
 	if((ktid = proccreate(kproc, nil, 8192)) < 0)
 		sysfatal("proccreate kproc: %r");
-	if(m_windowed->value)
-		IN_Grabm(1);
 	if((mtid = proccreate(mproc, nil, 8192)) < 0)
 		sysfatal("proccreate mproc: %r");
 	mx = my = 0;

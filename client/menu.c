@@ -122,6 +122,7 @@ void M_ForceMenuOff (void)
 	m_menudepth = 0;
 	Key_ClearStates ();
 	Cvar_Set ("paused", "0");
+	IN_Grabm (1);
 }
 
 void M_PopMenu (void)
@@ -487,6 +488,7 @@ const char *M_Main_Key (int key)
 
 void M_Menu_Main_f (void)
 {
+	IN_Grabm (0);
 	M_PushMenu (M_Main_Draw, M_Main_Key);
 }
 
