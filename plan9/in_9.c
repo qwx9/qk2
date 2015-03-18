@@ -96,8 +96,8 @@ void IN_Move (usercmd_t *cmd)
 		return;
 
 	if(m_filter->value){
-		mx = (mx + oldmx) * 0.5;
-		my = (my + oldmy) * 0.5;
+		mx = (dx + oldmx) * 0.5;
+		my = (dy + oldmy) * 0.5;
 	}else{
 		mx = dx;
 		my = dy;
