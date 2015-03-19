@@ -66,7 +66,7 @@ void IN_Commands (void)
 
 	if(!mouseon)
 		return;
-	for(i = 0; i < 3; i++){
+	for(i = 0; i < 5; i++){
 		if(mbtn & 1<<i && ~oldmbtn & 1<<i)
 			Key_Event(K_MOUSE1+i, true, Sys_Milliseconds());
 		if(~mbtn & 1<<i && oldmbtn & 1<<i)
@@ -243,7 +243,7 @@ void kproc (void *)
 
 void mproc (void *)
 {
-	int b, n, nerr = 0, fd;
+	int n, nerr = 0, fd;
 	char buf[1+5*12];
 	int x, y;
 
@@ -268,9 +268,7 @@ void mproc (void *)
 
 			x = atoi(buf+1+0*12) - center.x;
 			y = atoi(buf+1+1*12) - center.y;
-			b = atoi(buf+1+2*12);
-
-			mbtn = b&1 | (b&2)<<1 | (b&4)>>1;
+			mbtn = atoi(buf+1+2*12);
 			dx += x;
 			dy += y;
 			if(x != 0 || y != 0)
