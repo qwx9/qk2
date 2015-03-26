@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma pack off
 
 //=============================================================================
-
 typedef struct
 {
 	qboolean		valid;			// cleared if delta parsing was invalid
@@ -156,7 +155,6 @@ typedef struct
 } client_state_t;
 
 extern	client_state_t	cl;
-
 /*
 ==================================================================
 
@@ -569,4 +567,4 @@ void x86_TimerInit( unsigned long smallest, unsigned longest );
 unsigned long *x86_TimerGetHistogram( void );
 #endif
 
-#pragma pack off
+#pragma pack on

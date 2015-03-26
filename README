@@ -1,5 +1,24 @@
 qk2 - (9) quake 2
 =================
+	- game data is stored in $home/lib/quake2/
+	- 386 and amd64 only
+
+
+horrors
+-------
+	- fault read when warping screen underwater
+	- rendering glitches on screen borders
+	- rendering glitches underwater
+	- #pragma pack on set globally
+	- edict_t definitions merged without much looking
+	- q_sh9: stupid posixish glob stuff
+	- portme: net_udp, cd_9
+	- garbled stdout: Sys_ConsoleOutput
+	- race between mproc and IN_Commands
+	- cinematic palette is fucked up if you resize during playback
+	- sound only works thanks to shitty workarounds
+	- bad/unsafe rename() implementation
+	- ctf is untouched, so are rogue, xatrix
 
 
 legal

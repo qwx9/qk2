@@ -5,8 +5,7 @@
 #include <thread.h>
 #include <mouse.h>
 #include <keyboard.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 cvar_t	*in_mouse;
 cvar_t	*in_joystick;

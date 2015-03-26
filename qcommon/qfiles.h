@@ -296,12 +296,10 @@ typedef struct
 										// without walking the bsp tree
 } dmodel_t;
 
-
 typedef struct
 {
 	float	point[3];
 } dvertex_t;
-
 
 // 0-2 are axial planes
 #define	PLANE_X			0
@@ -321,7 +319,6 @@ typedef struct
 	float	dist;
 	int		type;		// PLANE_X - PLANE_ANYZ ?remove? trivial to regenerate
 } dplane_t;
-
 
 // contents flags are seperate bits
 // a given brush can contribute multiple content bits
@@ -377,8 +374,6 @@ typedef struct
 #define	SURF_NODRAW		0x80	// don't bother referencing the texture
 */
 
-
-
 typedef struct
 {
 	int			planenum;
@@ -389,7 +384,6 @@ typedef struct
 	unsigned short	numfaces;	// counting both sides
 } dnode_t;
 
-
 typedef struct texinfo_s
 {
 	float		vecs[2][4];		// [s/t][xyz offset]
@@ -398,7 +392,6 @@ typedef struct texinfo_s
 	char		texture[32];	// texture name (textures/*.wal)
 	int			nexttexinfo;	// for animations, -1 = end of chain
 } texinfo_t;
-
 
 // note that edge 0 is never used, because negative edge nums are used for
 // counterclockwise use of the edge in a face

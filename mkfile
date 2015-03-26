@@ -282,8 +282,6 @@ OFILES=\
 
 HFILES=\
 	anorms.h\
-	dat.h\
-	fns.h\
 	q_shared.h\
 	$CLHFILES\
 	$SVHFILES\
@@ -292,12 +290,10 @@ HFILES=\
 	$RFHFILES\
 	$GMHFILES\
 
-CLEANFILES=$OFILES
+# FIXME
+CLEANFILES=$OFILES */*.acid
 
 </sys/src/cmd/mkone
-
-# FIXME
-CFLAGS=-FVw
 
 %.$O:	%.c
 	$CC -o $target $CFLAGS $stem.c

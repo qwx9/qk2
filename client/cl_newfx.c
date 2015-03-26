@@ -22,8 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 extern cparticle_t	*active_particles, *free_particles;
 extern cparticle_t	particles[MAX_PARTICLES];

@@ -25,8 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 #define LIGHT_MIN	5		// lowest light value we'll allow, to avoid the
 							//  need for inner-loop light clamping

@@ -1,8 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_gamma;

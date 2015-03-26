@@ -2,8 +2,7 @@
 #include <libc.h>
 #include <stdio.h>
 #include <thread.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 int sndon;
 

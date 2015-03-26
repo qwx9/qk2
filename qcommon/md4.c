@@ -3,8 +3,7 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 /* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;

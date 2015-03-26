@@ -22,8 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 void CL_LogoutEffect (vec3_t org, int type);
 void CL_ItemRespawnParticles (vec3_t org);

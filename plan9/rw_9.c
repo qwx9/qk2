@@ -3,8 +3,7 @@
 #include <draw.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 qboolean rwon;
 uchar *framebuf;

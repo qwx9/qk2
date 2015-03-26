@@ -26,16 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"baseq2"
 
-// protocol bytes that can be directly added to messages
-#define	svc_muzzleflash		1
-#define	svc_muzzleflash2	2
-#define	svc_temp_entity		3
-#define	svc_layout			4
-#define	svc_inventory		5
-#define	svc_stufftext		11
-
-//==================================================================
-
 // view pitching times
 #define DAMAGE_TIME		0.5
 #define	FALL_TIME		0.3
@@ -542,7 +532,7 @@ extern	cvar_t	*flood_waitdelay;
 
 extern	cvar_t	*sv_maplist;
 
-#define world	(&g_edicts[0])
+#define WORLD	(&g_edicts[0])
 
 // item spawnflags
 #define ITEM_TRIGGER_SPAWN		0x00000001

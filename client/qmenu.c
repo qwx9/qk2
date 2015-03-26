@@ -22,8 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <libc.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 void	 Action_DoEnter( menuaction_s *a );
 void	 Action_Draw( menuaction_s *a );

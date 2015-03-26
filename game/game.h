@@ -52,47 +52,6 @@ typedef struct edict_t edict_t;
 typedef struct gclient_t gclient_t;
 
 
-#ifndef GAME_INCLUDE
-
-struct gclient_t
-{
-	player_state_t	ps;		// communicated by server to clients
-	int				ping;
-	// the game dll can add anything it wants after
-	// this point in the structure
-};
-
-
-struct edict_t
-{
-	entity_state_t	s;
-	gclient_t	*client;
-	qboolean	inuse;
-	int			linkcount;
-
-	// FIXME: move these fields to a server private sv_entity_t
-	link_t		area;				// linked to a division node or leaf
-	
-	int			num_clusters;		// if -1, use headnode instead
-	int			clusternums[MAX_ENT_CLUSTERS];
-	int			headnode;			// unused if num_clusters != -1
-	int			areanum, areanum2;
-
-	//================================
-
-	int			svflags;			// SVF_NOCLIENT, SVF_DEADMONSTER, SVF_MONSTER, etc
-	vec3_t		mins, maxs;
-	vec3_t		absmin, absmax, size;
-	solid_t		solid;
-	int			clipmask;
-	edict_t		*owner;
-
-	// the game dll can add anything it wants after
-	// this point in the structure
-};
-
-#endif		// GAME_INCLUDE
-
 //===============================================================
 
 //

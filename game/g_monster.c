@@ -21,9 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
-#include "g_local.h"
+#include "../q_shared.h"
 
 
 //
@@ -240,7 +238,7 @@ void M_WorldEffects (edict_t *ent)
 					dmg = 2 + 2 * floor(level.time - ent->air_finished);
 					if (dmg > 15)
 						dmg = 15;
-					T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
+					T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
 					ent->pain_debounce_time = level.time + 1;
 				}
 			}
@@ -258,7 +256,7 @@ void M_WorldEffects (edict_t *ent)
 					dmg = 2 + 2 * floor(level.time - ent->air_finished);
 					if (dmg > 15)
 						dmg = 15;
-					T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
+					T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
 					ent->pain_debounce_time = level.time + 1;
 				}
 			}
@@ -280,7 +278,7 @@ void M_WorldEffects (edict_t *ent)
 		if (ent->damage_debounce_time < level.time)
 		{
 			ent->damage_debounce_time = level.time + 0.2;
-			T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, 10*ent->waterlevel, 0, 0, MOD_LAVA);
+			T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, 10*ent->waterlevel, 0, 0, MOD_LAVA);
 		}
 	}
 	if ((ent->watertype & CONTENTS_SLIME) && !(ent->flags & FL_IMMUNE_SLIME))
@@ -288,7 +286,7 @@ void M_WorldEffects (edict_t *ent)
 		if (ent->damage_debounce_time < level.time)
 		{
 			ent->damage_debounce_time = level.time + 1;
-			T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, 4*ent->waterlevel, 0, 0, MOD_SLIME);
+			T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, 4*ent->waterlevel, 0, 0, MOD_SLIME);
 		}
 	}
 	

@@ -4,8 +4,7 @@
 #include <ctype.h>
 #include <bio.h>
 #include <ndb.h>
-#include "../dat.h"
-#include "../fns.h"
+#include "../q_shared.h"
 
 /* FIXME: only loopback works, the rest is complete bullshit */
 

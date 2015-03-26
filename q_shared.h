@@ -1152,3 +1152,31 @@ typedef struct
 extern int vidref_val;
 // PGM
 // ==================
+
+/* FIXME: figure out how to do this cleanly without kilometric headers */
+
+/* game dll */
+#include "../game/game.h"		/* baseq2 */
+#include "../game/g_local.h"
+//#include "../ctf/game.h"		/* ctf */
+//#include "../ctf/p_menu.h"
+//#include "../ctf/g_ctf.h"
+/* common */
+#include "../qcommon/qcommon.h"
+#include "../qcommon/qfiles.h"
+/* client */
+#include "../client/cdaudio.h"
+#include "../client/ref.h"
+#include "../client/vid.h"
+#include "../client/screen.h"
+#include "../client/snd_loc.h"
+#include "../client/sound.h"
+#include "../client/input.h"
+#include "../client/keys.h"
+#include "../client/console.h"
+#include "../client/client.h"
+#include "../client/qmenu.h"
+/* refresh */
+#include "../ref/r_local.h"
+/* server */
+#include "../server/server.h"

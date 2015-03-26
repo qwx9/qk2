@@ -195,7 +195,7 @@ PROTOCOL
 //==================
 
 //
-// server to client
+// server to client: protocol bytes that can be directly added to messages
 //
 enum svc_ops_e
 {

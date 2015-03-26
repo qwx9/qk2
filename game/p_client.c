@@ -21,9 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../dat.h"
-#include "../fns.h"
-#include "g_local.h"
+#include "../q_shared.h"
 #include "m_player.h"
 
 void ClientUserinfoChanged (edict_t *ent, char *userinfo);
@@ -470,11 +468,11 @@ void LookAtKiller (edict_t *self, edict_t *inflictor, edict_t *attacker)
 {
 	vec3_t		dir;
 
-	if (attacker && attacker != world && attacker != self)
+	if (attacker && attacker != WORLD && attacker != self)
 	{
 		VectorSubtract (attacker->s.origin, self->s.origin, dir);
 	}
-	else if (inflictor && inflictor != world && inflictor != self)
+	else if (inflictor && inflictor != WORLD && inflictor != self)
 	{
 		VectorSubtract (inflictor->s.origin, self->s.origin, dir);
 	}
