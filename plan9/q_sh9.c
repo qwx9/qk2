@@ -8,8 +8,8 @@ int maxhunksize;
 int curhunksize;
 int curtime;
 char findbase[MAX_OSPATH], findpath[MAX_OSPATH], findpattern[MAX_OSPATH];
-int fdir = -1;
-Dir *ddir;
+long dirn, di;
+Dir *dirs;
 
 int	glob_match(char *, char *);
 
@@ -172,6 +172,7 @@ int glob_match(char *pattern, char *text)
 				return 0;
 		}
 
+	/* if the pattern is empty, Sys_FindNext looks at the current file anyway */
 	return *t == '\0';
 }
 
@@ -231,11 +232,11 @@ void Sys_Mkdir (char *path)
 		close(d);
 }
 
-qboolean CompareAttributes (Dir *d, uint musthave, uint canthave)
+qboolean CompareAttributes (ulong m, uint musthave, uint canthave)
 {
-	if(d->mode & DMDIR && canthave & SFF_SUBDIR)
+	if(m & DMDIR && canthave & SFF_SUBDIR)
 		return false;
-	if(musthave & SFF_SUBDIR && ~d->mode & DMDIR)
+	if(musthave & SFF_SUBDIR && ~m & DMDIR)
 		return false;
 	return true;
 }
@@ -243,9 +244,9 @@ qboolean CompareAttributes (Dir *d, uint musthave, uint canthave)
 char *Sys_FindFirst (char *path, uint musthave, uint canhave)
 {
 	char *p;
-	long n;
+	int fd;
 
-	if(fdir != -1)
+	if(dirs != nil)
 		Sys_Error("Sys_BeginFind without close");
 
 	strncpy(findbase, path, sizeof findbase-1);
@@ -261,50 +262,46 @@ char *Sys_FindFirst (char *path, uint musthave, uint canhave)
 		return nil;
 	}
 
-	if((fdir = open(findbase, OREAD)) < 0){
+	if((fd = open(findbase, OREAD)) < 0){
 		fprint(2, "Sys_BeginFind:open: %r\n");
 		return nil;
 	}
-
-	while((n = dirread(fdir, &ddir)) > 0){
-		if(glob_match(findpattern, ddir->name)){
-			if(CompareAttributes(ddir, musthave, canhave)){
-				sprintf(findpath, "%s/%s", findbase, ddir->name);
-				return findpath;
-			}
-		}
-	}
-	if(n < 0)
+	dirn = dirreadall(fd, &dirs);
+	close(fd);
+	if(dirn == 0)
+		return nil;
+	if(dirn < 0){
 		fprint(2, "Sys_BeginFind:dirread: %r\n");
-	return nil;
+		return nil;
+	}
+
+	di = 0;
+	return Sys_FindNext (musthave, canhave);
 }
 
 char *Sys_FindNext (uint musthave, uint canhave)
 {
-	long n;
+	int i;
 
-	if(fdir == -1){
+	if(dirs == nil)
 		Sys_Error("Sys_FindNext without open\n");
-		return nil;
-	}
-	while((n = dirread(fdir, &ddir)) > 0){
-		if(glob_match(findpattern, ddir->name)){
-			if(CompareAttributes(ddir, musthave, canhave)){
-				sprintf(findpath, "%s/%s", findbase, ddir->name);
+
+	while(di < dirn){
+		i = di++;
+		if(glob_match(findpattern, dirs[i].name)){
+			if(CompareAttributes(dirs[i].mode, musthave, canhave)){
+				snprintf(findpath, sizeof findpath, "%s/%s", findbase, dirs[i].name);
 				return findpath;
 			}
 		}
 	}
-	if(n < 0)
-		fprint(2, "Sys_BeginFind:dirread: %r\n");
 	return nil;
 }
 
 void Sys_FindClose (void)
 {
-	if(fdir != -1){
-		close(fdir);
-		free(ddir);
-		fdir = -1;
+	if(dirs != nil){
+		free(dirs);
+		dirs = nil;
 	}
 }
