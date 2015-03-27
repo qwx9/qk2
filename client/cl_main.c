@@ -1782,10 +1782,6 @@ void CL_Init (void)
 	// all archived variables will now be loaded
 
 	Con_Init ();
-/*	
-	VID_Init ();
-	S_Init ();	// sound must be initialized after window is created
-*/
 	S_Init ();	
 	VID_Init ();
 	

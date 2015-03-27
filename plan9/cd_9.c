@@ -374,7 +374,7 @@ int CDAudio_Init(void)
 
 	if((cdfile = open(cd_dev->string, OREAD)) < 0){
 		fprint(2, "CDAudio_Init: %r\n");
-		Com_Printf("CDAudio_Init: failed to open \"%s\"\n", cd_dev);
+		Com_Printf("CDAudio_Init: failed to open \"%s\"\n", cd_dev->string);
 		cdfile = -1;
 		return -1;
 	}

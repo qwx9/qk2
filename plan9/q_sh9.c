@@ -284,8 +284,8 @@ char *Sys_FindNext (uint musthave, uint canhave)
 {
 	long n;
 
-	if(fdir = -1){
-		Sys_Error("Sys_FindNext without open");
+	if(fdir == -1){
+		Sys_Error("Sys_FindNext without open\n");
 		return nil;
 	}
 	while((n = dirread(fdir, &ddir)) > 0){
