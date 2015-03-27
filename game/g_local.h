@@ -19,10 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // g_local.h -- local definitions for game module
 
-// define GAME_INCLUDE so that game.h does not define the
-// short, server-visible gclient_t and edict_t structures,
-// because we define the full size ones in this file
-
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"baseq2"
 

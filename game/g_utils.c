@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // g_utils.c -- misc utility functions for game module
-#define	GAME_INCLUDE
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
