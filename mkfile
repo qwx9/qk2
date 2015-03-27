@@ -3,7 +3,10 @@
 BIN=$home/bin/$objtype
 TARG=quake2
 
-CLOFILES=\
+# change this to build/load a different game "dll"
+<mk.baseq2
+
+OFILES=\
 	client/cl_cin.$O\
 	client/cl_ents.$O\
 	client/cl_fx.$O\
@@ -23,21 +26,6 @@ CLOFILES=\
 	client/snd_mem.$O\
 	client/snd_mix.$O\
 	client/qmenu.$O\
-
-CLHFILES=\
-	client/cdaudio.h\
-	client/client.h\
-	client/console.h\
-	client/input.h\
-	client/keys.h\
-	client/qmenu.h\
-	client/ref.h\
-	client/screen.h\
-	client/snd_loc.h\
-	client/sound.h\
-	client/vid.h\
-
-SVOFILES=\
 	server/sv_ccmds.$O\
 	server/sv_ents.$O\
 	server/sv_game.$O\
@@ -46,11 +34,6 @@ SVOFILES=\
 	server/sv_send.$O\
 	server/sv_user.$O\
 	server/sv_world.$O\
-
-SVHFILES=\
-	server/server.h\
-
-CMOFILES=\
 	qcommon/cmd.$O\
 	qcommon/cmodel.$O\
 	qcommon/common.$O\
@@ -60,13 +43,6 @@ CMOFILES=\
 	qcommon/md4.$O\
 	qcommon/net_chan.$O\
 	qcommon/pmove.$O\
-
-CMHFILES=\
-	qcommon/crc.h\
-	qcommon/qcommon.h\
-	qcommon/qfiles.h\
-
-P9OFILES=\
 	plan9/cd_9.$O\
 	plan9/in_9.$O\
 	plan9/net_udp.$O\
@@ -76,10 +52,6 @@ P9OFILES=\
 	plan9/sys_9.$O\
 	plan9/vid_menu.$O\
 	plan9/vid_so.$O\
-
-P9HFILES=\
-
-RFOFILES=\
 	ref/r_aclip.$O\
 	ref/r_alias.$O\
 	ref/r_bsp.$O\
@@ -97,197 +69,29 @@ RFOFILES=\
 	ref/r_scan.$O\
 	ref/r_sprite.$O\
 	ref/r_surf.$O\
-	game/q_shared.$O\
-
-RFHFILES=\
-	ref/adivtab.h\
-	ref/r_local.h\
-	ref/rand1k.h\
-
-GMOFILES=\
-	game/g_ai.$O\
-	game/p_client.$O\
-	game/g_chase.$O\
-	game/g_cmds.$O\
-	game/g_svcmds.$O\
-	game/g_combat.$O\
-	game/g_func.$O\
-	game/g_items.$O\
-	game/g_main.$O\
-	game/g_misc.$O\
-	game/g_monster.$O\
-	game/g_phys.$O\
-	game/g_save.$O\
-	game/g_spawn.$O\
-	game/g_target.$O\
-	game/g_trigger.$O\
-	game/g_turret.$O\
-	game/g_utils.$O\
-	game/g_weapon.$O\
-	game/m_actor.$O\
-	game/m_berserk.$O\
-	game/m_boss2.$O\
-	game/m_boss3.$O\
-	game/m_boss31.$O\
-	game/m_boss32.$O\
-	game/m_brain.$O\
-	game/m_chick.$O\
-	game/m_flash.$O\
-	game/m_flipper.$O\
-	game/m_float.$O\
-	game/m_flyer.$O\
-	game/m_gladiator.$O\
-	game/m_gunner.$O\
-	game/m_hover.$O\
-	game/m_infantry.$O\
-	game/m_insane.$O\
-	game/m_medic.$O\
-	game/m_move.$O\
-	game/m_mutant.$O\
-	game/m_parasite.$O\
-	game/m_soldier.$O\
-	game/m_supertank.$O\
-	game/m_tank.$O\
-	game/p_hud.$O\
-	game/p_trail.$O\
-	game/p_view.$O\
-	game/p_weapon.$O\
-	game/q_shared.$O\
-
-GMHFILES=\
-	game/g_local.h\
-	game/game.h\
-	game/m_actor.h\
-	game/m_berserk.h\
-	game/m_boss2.h\
-	game/m_boss31.h\
-	game/m_boss32.h\
-	game/m_brain.h\
-	game/m_chick.h\
-	game/m_flipper.h\
-	game/m_float.h\
-	game/m_flyer.h\
-	game/m_gladiator.h\
-	game/m_gunner.h\
-	game/m_hover.h\
-	game/m_infantry.h\
-	game/m_insane.h\
-	game/m_medic.h\
-	game/m_mutant.h\
-	game/m_parasite.h\
-	game/m_player.h\
-	game/m_rider.h\
-	game/m_soldier.h\
-	game/m_supertank.h\
-	game/m_tank.h\
-
-CTFOFILES=\
-	ctf/g_ai.$O\
-	ctf/g_chase.$O\
-	ctf/g_cmds.$O\
-	ctf/g_combat.$O\
-	ctf/g_ctf.$O\
-	ctf/g_func.$O\
-	ctf/g_items.$O\
-	ctf/g_main.$O\
-	ctf/g_misc.$O\
-	ctf/g_monster.$O\
-	ctf/g_phys.$O\
-	ctf/g_save.$O\
-	ctf/g_spawn.$O\
-	ctf/g_svcmds.$O\
-	ctf/g_target.$O\
-	ctf/g_trigger.$O\
-	ctf/g_utils.$O\
-	ctf/g_weapon.$O\
-	ctf/m_move.$O\
-	ctf/p_client.$O\
-	ctf/p_hud.$O\
-	ctf/p_menu.$O\
-	ctf/p_trail.$O\
-	ctf/p_view.$O\
-	ctf/p_weapon.$O\
-	ctf/q_shared.$O\
-
-CTFHFILES=\
-	ctf/g_ctf.h\
-	ctf/g_local.h\
-	ctf/game.h\
-	ctf/m_player.h\
-	ctf/p_menu.h\
-
-XAOFILES=\
-	xatrix/g_ai.$O\
-	xatrix/g_cmds.$O\
-	xatrix/g_combat.$O\
-	xatrix/g_func.$O\
-	xatrix/g_items.$O\
-	xatrix/g_main.$O\
-	xatrix/g_misc.$O\
-	xatrix/g_monster.$O\
-	xatrix/g_phys.$O\
-	xatrix/g_save.$O\
-	xatrix/g_spawn.$O\
-	xatrix/g_svcmds.$O\
-	xatrix/g_target.$O\
-	xatrix/g_trigger.$O\
-	xatrix/g_turret.$O\
-	xatrix/g_utils.$O\
-	xatrix/g_weapon.$O\
-	xatrix/m_actor.$O\
-	xatrix/m_berserk.$O\
-	xatrix/m_boss2.$O\
-	xatrix/m_boss3.$O\
-	xatrix/m_boss31.$O\
-	xatrix/m_boss32.$O\
-	xatrix/m_boss5.$O\
-	xatrix/m_brain.$O\
-	xatrix/m_chick.$O\
-	xatrix/m_fixbot.$O\
-	xatrix/m_flash.$O\
-	xatrix/m_flipper.$O\
-	xatrix/m_float.$O\
-	xatrix/m_flyer.$O\
-	xatrix/m_gekk.$O\
-	xatrix/m_gladb.$O\
-	xatrix/m_gladiator.$O\
-	xatrix/m_gunner.$O\
-	xatrix/m_hover.$O\
-	xatrix/m_infantry.$O\
-	xatrix/m_insane.$O\
-	xatrix/m_medic.$O\
-	xatrix/m_move.$O\
-	xatrix/m_mutant.$O\
-	xatrix/m_parasite.$O\
-	xatrix/m_soldier.$O\
-	xatrix/m_supertank.$O\
-	xatrix/m_tank.$O\
-	xatrix/p_client.$O\
-	xatrix/p_hud.$O\
-	xatrix/p_trail.$O\
-	xatrix/p_view.$O\
-	xatrix/p_weapon.$O\
-	xatrix/q_shared.$O\
-
-XAHFILES=\
-
-# All modules are not meant to be loaded together; above are defined several game modules
-OFILES=\
-	$CLOFILES\
-	$SVOFILES\
-	$CMOFILES\
-	$P9OFILES\
-	$RFOFILES\
 	$GMOFILES\
 
 HFILES=\
 	anorms.h\
 	q_shared.h\
-	$CLHFILES\
-	$SVHFILES\
-	$CMHFILES\
-	$P9HFILES\
-	$RFHFILES\
+	client/cdaudio.h\
+	client/client.h\
+	client/console.h\
+	client/input.h\
+	client/keys.h\
+	client/qmenu.h\
+	client/ref.h\
+	client/screen.h\
+	client/snd_loc.h\
+	client/sound.h\
+	client/vid.h\
+	server/server.h\
+	qcommon/crc.h\
+	qcommon/qcommon.h\
+	qcommon/qfiles.h\
+	ref/adivtab.h\
+	ref/r_local.h\
+	ref/rand1k.h\
 	$GMHFILES\
 
 # FIXME

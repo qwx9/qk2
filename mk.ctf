@@ -1,0 +1,35 @@
+GMOFILES=\
+	ctf/g_ai.$O\
+	ctf/g_chase.$O\
+	ctf/g_cmds.$O\
+	ctf/g_combat.$O\
+	ctf/g_ctf.$O\
+	ctf/g_func.$O\
+	ctf/g_items.$O\
+	ctf/g_main.$O\
+	ctf/g_misc.$O\
+	ctf/g_monster.$O\
+	ctf/g_phys.$O\
+	ctf/g_save.$O\
+	ctf/g_spawn.$O\
+	ctf/g_svcmds.$O\
+	ctf/g_target.$O\
+	ctf/g_trigger.$O\
+	ctf/g_utils.$O\
+	ctf/g_weapon.$O\
+	ctf/m_move.$O\
+	ctf/p_client.$O\
+	ctf/p_hud.$O\
+	ctf/p_menu.$O\
+	ctf/p_trail.$O\
+	ctf/p_view.$O\
+	ctf/p_weapon.$O\
+	ctf/q_shared.$O\
+
+GMHFILES=\
+	ctf/g_ctf.h\
+	ctf/g_local.h\
+	ctf/game.h\
+	ctf/m_player.h\
+	ctf/p_menu.h\
+
