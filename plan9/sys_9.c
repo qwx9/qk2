@@ -106,6 +106,7 @@ void croak (void *, char *note)
 	if(!strncmp(note, "sys:", 4)){
 		IN_Shutdown();
 		SNDDMA_Shutdown();
+		NET_Shutdown();
 	}
 	noted(NDFLT);
 }
