@@ -21,7 +21,7 @@ cvar_t	*freelook;
 
 qboolean mouseon;
 qboolean mlooking;
-int mx, my, mbtn, dx, dy, oldmx, oldmy, oldmbtn;
+int dx, dy;
 int oldmwin;
 
 typedef struct Kev Kev;
@@ -30,10 +30,11 @@ struct Kev{
 	int down;
 };
 enum{
-	Nbuf	= 64
+	Nbuf	= 64,
+	ITHGRP	= 2
 };
 Channel *kchan;
-int ktid = -1, mtid = -1;
+Channel *mchan;
 
 /* rw_9.c */
 extern int resized;
@@ -61,23 +62,37 @@ void IN_Grabm(int on)
 
 void IN_Commands (void)
 {
-	int i;
+	/* joystick stuff */
+}
 
-	if(!mouseon)
-		return;
-	for(i = 0; i < 5; i++){
-		if(mbtn & 1<<i && ~oldmbtn & 1<<i)
-			Key_Event(K_MOUSE1+i, true, Sys_Milliseconds());
-		if(~mbtn & 1<<i && oldmbtn & 1<<i)
-			Key_Event(K_MOUSE1+i, false, Sys_Milliseconds());
+void btnev (int btn, ulong msec)
+{
+	static int oldb;
+	int i, b;
+
+	for(i = 0; i < 3; i++){
+		b = 1<<i;
+		if(btn & b && ~oldb & b)
+			Key_Event(K_MOUSE1+i, true, msec);
+		else if(~btn & b && oldb & b)
+			Key_Event(K_MOUSE1+i, false, msec);
 	}
-	oldmbtn = mbtn;
+	oldb = btn;
+	/* mwheelup and mwheeldn buttons are never held down */
+	for(i = 3; i < 5; i++){
+		b = 1<<i;
+		if(btn & b){
+			Key_Event(K_MOUSE1+i, true, msec);
+			Key_Event(K_MOUSE1+i, false, msec);
+		}
+	}
 }
 
 void KBD_Update (void)
 {
-	Kev ev;
 	int r;
+	Kev ev;
+	Mouse m;
 
 	if(oldmwin != m_windowed->value){
 		oldmwin = m_windowed->value;
@@ -87,10 +102,19 @@ void KBD_Update (void)
 		Key_Event(ev.key, ev.down, Sys_Milliseconds());
 	if(r < 0)
 		sysfatal("KBD_Update:nbrecv: %r\n");
+	while((r = nbrecv(mchan, &m)) > 0){
+		dx += m.xy.x;
+		dy += m.xy.y;
+		btnev(m.buttons, m.msec);
+	}
+	if(r < 0)
+		sysfatal("KBD_Update:nbrecv: %r\n");
 }
 
 void IN_Move (usercmd_t *cmd)
 {
+	static int mx, my, oldmx, oldmy;
+
 	if(!mouseon)
 		return;
 
@@ -103,11 +127,11 @@ void IN_Move (usercmd_t *cmd)
 	}
 	oldmx = dx;
 	oldmy = dy;
+	dx = dy = 0;
 	if(!mx && !my)
 		return;
 	mx *= sensitivity->value;
 	my *= sensitivity->value;
-	dx = dy = 0;
 
 	/* add mouse x/y movement to cmd */
 	if(in_strafe.state & 1 || lookstrafe->value && mlooking)
@@ -196,6 +220,8 @@ void kproc (void *)
 	Rune r;
 	Kev ev;
 
+	if(threadsetgrp(ITHGRP) < 0)
+		sysfatal("kproc:threadsetgrp: %r");
 	if((fd = open("/dev/kbd", OREAD)) < 0)
 		sysfatal("open /dev/kbd: %r");
 
@@ -213,7 +239,7 @@ void kproc (void *)
 					if(k = runetokey(r)){
 						ev.key = k;
 						ev.down = true;
-						if(nbsend(kchan, &ev) < 0)
+						if(send(kchan, &ev) < 0)
 							sysfatal("kproc:nbsend: %r\n");
 					}
 				}
@@ -227,7 +253,7 @@ void kproc (void *)
 					if(k = runetokey(r)){
 						ev.key = k;
 						ev.down = false;
-						if(nbsend(kchan, &ev) < 0)
+						if(send(kchan, &ev) < 0)
 							sysfatal("mproc:nbsend: %r\n");
 					}
 				}
@@ -236,16 +262,18 @@ void kproc (void *)
 		}
 		strcpy(kdown, buf);
 	}
+	fprint(2, "kproc: %r\n");
 	close(fd);
-	ktid = -1;
 }
 
 void mproc (void *)
 {
 	int n, nerr = 0, fd;
 	char buf[1+5*12];
-	int x, y;
+	Mouse m;
 
+	if(threadsetgrp(ITHGRP) < 0)
+		sysfatal("mproc:threadsetgrp: %r");
 	if((fd = open("/dev/mouse", ORDWR)) < 0)
 		sysfatal("open /dev/mouse: %r");
 
@@ -265,36 +293,34 @@ void mproc (void *)
 			if(!mouseon)
 				break;
 
-			x = atoi(buf+1+0*12) - center.x;
-			y = atoi(buf+1+1*12) - center.y;
-			mbtn = atoi(buf+1+2*12);
-			dx += x;
-			dy += y;
-			if(x != 0 || y != 0)
+			m.xy.x = atoi(buf+1+0*12) - center.x;
+			m.xy.y = atoi(buf+1+1*12) - center.y;
+			if(m.xy.x != 0 || m.xy.y != 0)
 				fprint(fd, "m%d %d", center.x, center.y);
+			m.buttons = atoi(buf+1+2*12);
+			m.msec = atoi(buf+1+3*12);
+			if(nbsend(mchan, &m) < 0)
+				sysfatal("mproc:nbsend: %r\n");
 			break;
 		}
 	}
+	fprint(2, "mproc: %r\n");
+	IN_Grabm(0);
 	close(fd);
-	mtid = -1;
 }
 
 void IN_Shutdown (void)
 {
 	IN_Grabm(0);
-	if(ktid != -1){
-		threadkill(ktid);
-		ktid = -1;
-	}
-	if(mtid != -1){
-		threadkill(mtid);
-		mtid = -1;
-	}
+	threadkillgrp(ITHGRP);
 	if(kchan != nil){
 		chanfree(kchan);
 		kchan = nil;
 	}
-	mouseon = false;
+	if(mchan != nil){
+		chanfree(mchan);
+		mchan = nil;
+	}
 }
 
 void IN_Init (void)
@@ -315,10 +341,12 @@ void IN_Init (void)
 	ri.Cmd_AddCommand("-mlook", IN_MLookUp);
 	ri.Cmd_AddCommand("force_centerview", IN_ForceCenterView);
 
-	kchan = chancreate(sizeof(Kev), Nbuf);
-	if((ktid = proccreate(kproc, nil, 8192)) < 0)
+	if((kchan = chancreate(sizeof(Kev), Nbuf)) == nil)
+		sysfatal("chancreate kchan: %r");
+	if(proccreate(kproc, nil, 8192) < 0)
 		sysfatal("proccreate kproc: %r");
-	if((mtid = proccreate(mproc, nil, 8192)) < 0)
+	if((mchan = chancreate(sizeof(Mouse), Nbuf)) == nil)
+		sysfatal("chancreate kchan: %r");
+	if(proccreate(mproc, nil, 8192) < 0)
 		sysfatal("proccreate mproc: %r");
-	mx = my = 0;
 }
