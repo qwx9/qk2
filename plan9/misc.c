@@ -227,7 +227,7 @@ void Sys_Mkdir (char *path)
 	int d;
 
 	if((d = create(path, OREAD, DMDIR|0777)) < 0)
-		fprint(2, "Sys_mkdir:create: %r\n");
+		fprint(2, "Sys_Mkdir:create: %r\n");
 	else
 		close(d);
 }

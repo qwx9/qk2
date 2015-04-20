@@ -43,15 +43,15 @@ OFILES=\
 	qcommon/md4.$O\
 	qcommon/net_chan.$O\
 	qcommon/pmove.$O\
-	plan9/cd_9.$O\
-	plan9/in_9.$O\
-	plan9/net_udp.$O\
-	plan9/q_sh9.$O\
-	plan9/rw_9.$O\
-	plan9/snd_9.$O\
-	plan9/sys_9.$O\
-	plan9/vid_menu.$O\
-	plan9/vid_so.$O\
+	plan9/cd.$O\
+	plan9/in.$O\
+	plan9/menu.$O\
+	plan9/misc.$O\
+	plan9/snd.$O\
+	plan9/so.$O\
+	plan9/sys.$O\
+	plan9/udp.$O\
+	plan9/vid.$O\
 	ref/r_aclip.$O\
 	ref/r_alias.$O\
 	ref/r_bsp.$O\
