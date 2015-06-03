@@ -9,10 +9,12 @@
 
 /* FIXME: this shit SUCKS, and ipv4 only because of other code */
 
-cvar_t	*svport;	/* server port and copy of string value */
-char	srv[6];
-cvar_t	*clport;	/* "client" port and copy */
-char	clsrv[6];
+extern Channel *fuckchan, *tchan;
+
+static cvar_t *svport;	/* server port and copy of string value */
+static char srv[6];
+static cvar_t *clport;	/* "client" port and copy */
+static char clsrv[6];
 
 typedef struct Loopmsg Loopmsg;
 typedef struct Loopback Loopback;
@@ -20,11 +22,10 @@ typedef struct Conmsg Conmsg;
 typedef struct Conlist Conlist;
 
 enum{
+	Hdrsz		= 16+16+16+2+2,	/* sizeof Udphdr w/o padding */
+	Bufsz		= MAX_MSGLEN,
+	Nbuf		= 64,
 	MAX_LOOPBACK	= 4,
-	HDRSZ		= 16+16+16+2+2,	/* sizeof Udphdr w/o padding */
-	BUFSZ		= MAX_MSGLEN,
-	NBUF		= 64,
-	DTHGRP		= 1,
 	CLPORT		= 27909
 };
 struct Loopmsg{
@@ -36,7 +37,7 @@ struct Loopback{
 	int	get;
 	int	send;
 };
-Loopback	loopbacks[2];
+static Loopback loopbacks[2];
 
 struct Conlist{
 	Conlist *p;
@@ -46,28 +47,29 @@ struct Conlist{
 	Udphdr	h;
 	int	src;	/* q2 assumes broadcast replies are received on NS_CLIENT */
 };
-Conlist *cnroot;
+static Conlist *cnroot;
 
 struct Conmsg{
 	Conlist *p;
 	int	n;
-	uchar	buf[BUFSZ];
+	uchar	buf[Bufsz];
 };
-Channel *udpchan;
-Channel *clchan;
+static Channel *udpchan, *clchan;
 
-netadr_t laddr;		/* 0.0.0.0:0 */
-int cfd = -1, ufd = -1, clfd = -1, cldfd = -1;
-QLock cnlock;
+static netadr_t laddr;		/* 0.0.0.0:0 */
+static int cfd = -1, ufd = -1, clfd = -1, cldfd = -1;
+static QLock cnlock;
 
 
-qboolean NET_CompareAdr (netadr_t a, netadr_t b)
+qboolean
+NET_CompareAdr(netadr_t a, netadr_t b)
 {
-	return (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port);
+	return(a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port);
 }
 
 /* compares without the port */
-qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
+qboolean
+NET_CompareBaseAdr(netadr_t a, netadr_t b)
 {
 	if(a.type != b.type)
 		return false;
@@ -83,7 +85,8 @@ qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
 	}
 }
 
-char *NET_AdrToString (netadr_t a)
+char *
+NET_AdrToString(netadr_t a)
 {
 	static char s[256];
 
@@ -91,7 +94,8 @@ char *NET_AdrToString (netadr_t a)
 	return s;
 }
 
-char *NET_BaseAdrToString (netadr_t a)
+char *
+NET_BaseAdrToString(netadr_t a)
 {
 	static char s[256];
 
@@ -110,12 +114,12 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean NET_StringToAdr (char *addr, netadr_t *a)		/* assumes IPv4 */
+qboolean
+NET_StringToAdr(char *addr, netadr_t *a)	/* assumes IPv4 */
 {
 	int i;
 	char s[256], *p, *pp;
-	Ndb *db;
-	Ndbtuple *nt;
+	Ndbtuple *t, *nt;
 
 	if(!strcmp(addr, "localhost")){
 		memset(a, 0, sizeof *a);
@@ -126,24 +130,25 @@ qboolean NET_StringToAdr (char *addr, netadr_t *a)		/* assumes IPv4 */
 	strncpy(s, addr, sizeof s);
 	s[sizeof(s)-1] = 0;
 
+	/* FIXME: arbitrary length strings */
 	if((p = strrchr(s, ':')) != nil){
 		*p++ = '\0';
 		a->port = BigShort(atoi(p));
 	}
 
-	if((db = ndbopen(nil)) == nil){
-		fprint(2, "NET_StringToAdr:ndbopen: %r\n");
-		return false;
+	if((t = dnsquery(nil, s, "ip")) == nil){
+		fprint(2, "NET_StringToAdr:dnsquery %s: %r\n", s);
+		return 0;
 	}
-	if((nt = ndbgetipaddr(db, s)) == nil){
-		ndbclose(db);
-		fprint(2, "NET_StringToAdr:ndbgetipaddr: %r\n");
-		return false;
-	}
-	strncpy(s, nt->val, sizeof(s)-1);	/* just look at first value found */
-	ndbfree(nt);
-	ndbclose(db);
 
+	for(nt = t; nt != nil; nt = nt->entry)
+		if(!strcmp(nt->attr, "ip")){
+			strncpy(s, nt->val, sizeof(s)-1);
+			break;
+		}
+	ndbfree(t);
+
+	/* FIXMEGASHIT */
 	for(i = 0, pp = s; i < IPv4addrlen; i++){
 		if((p = strchr(pp, '.')) != nil)
 			*p++ = '\0';
@@ -154,12 +159,14 @@ qboolean NET_StringToAdr (char *addr, netadr_t *a)		/* assumes IPv4 */
 	return true;
 }
 
-qboolean NET_IsLocalAddress (netadr_t adr)
+qboolean
+NET_IsLocalAddress(netadr_t adr)
 {
 	return NET_CompareAdr(adr, laddr);
 }
 
-qboolean looprecv (netsrc_t sock, netadr_t *net_from, sizebuf_t *d)
+static int
+looprecv(netsrc_t sock, netadr_t *net_from, sizebuf_t *d)
 {
 	int i;
 	Loopback *l;
@@ -168,17 +175,18 @@ qboolean looprecv (netsrc_t sock, netadr_t *net_from, sizebuf_t *d)
 	if(l->send - l->get > MAX_LOOPBACK)
 		l->get = l->send - MAX_LOOPBACK;
 	if(l->get >= l->send)
-		return false;
+		return 0;
 	i = l->get & (MAX_LOOPBACK-1);
 	l->get++;
 
 	memcpy(d->data, l->msgs[i].data, l->msgs[i].datalen);
 	d->cursize = l->msgs[i].datalen;
 	*net_from = laddr;
-	return true;
+	return 1;
 }
 
-void loopsend (netsrc_t sock, int length, void *data, netadr_t /*to*/)
+static void
+loopsend(netsrc_t sock, int length, void *data, netadr_t /*to*/)
 {
 	Loopback *l;
 	int i;
@@ -190,7 +198,8 @@ void loopsend (netsrc_t sock, int length, void *data, netadr_t /*to*/)
 	l->msgs[i].datalen = length;
 }
 
-void cninit (void)
+static void
+cninit(void)
 {
 	if(cnroot != nil)
 		return;
@@ -202,7 +211,8 @@ void cninit (void)
 	cnroot->dfd = -1;
 }
 
-Conlist *cnins (int fd, char *addr, uchar *u, Udphdr *h, int src)
+static Conlist *
+cnins(int fd, char *addr, uchar *u, Udphdr *h, int src)
 {
 	Conlist *p, *l;
 
@@ -221,7 +231,8 @@ Conlist *cnins (int fd, char *addr, uchar *u, Udphdr *h, int src)
 	return p;
 }
 
-Conlist *cnfind (char *raddr)
+static Conlist *
+cnfind(char *raddr)
 {
 	Conlist *p = cnroot->p;
 
@@ -233,7 +244,8 @@ Conlist *cnfind (char *raddr)
 	return nil;
 }
 
-void cndel (Conlist *p)
+static void
+cndel(Conlist *p)
 {
 	Conlist *l = cnroot;
 
@@ -248,7 +260,8 @@ void cndel (Conlist *p)
 	free(p);
 }
 
-void cnnuke (void)
+static void
+cnnuke(void)
 {
 	Conlist *p, *l = cnroot;
 
@@ -264,15 +277,15 @@ void cnnuke (void)
 	cnroot = nil;
 }
 
-void dproc (void *me)
+static void
+dproc(void *me)
 {
 	int n, fd;
 	Conmsg m;
 	Conlist *p;
 	Channel *c;
 
-	if(threadsetgrp(DTHGRP) < 0)
-		sysfatal("dproc:threadsetgrp: %r");
+	threadsetgrp(THnet);
 
 	m.p = p = me;
 	c = p->src == NS_CLIENT ? clchan : udpchan;
@@ -283,31 +296,33 @@ void dproc (void *me)
 			break;
 		m.n = n;
 		if(send(c, &m) < 0)
-			sysfatal("uproc:send: %r\n");
+			sysfatal("uproc:send: %r");
+		if(nbsend(fuckchan, nil) < 0)
+			sysfatal("uproc:nbsend; %r");
 	}
 	fprint(2, "dproc %d: %r\n", threadpid(threadid()));
 	cndel(me);
 }
 
-void uproc (void *c)
+static void
+uproc(void *c)
 {
 	int n, fd;
-	uchar udpbuf[BUFSZ+HDRSZ], u[IPaddrlen+2];
+	uchar udpbuf[Bufsz+Hdrsz], u[IPaddrlen+2];
 	char a[IPaddrlen*2+8+6];
 	Udphdr h;
 	Conmsg m;
 	Conlist *p;
 
-	if(threadsetgrp(DTHGRP) < 0)
-		sysfatal("uproc:threadsetgrp: %r");
+	threadsetgrp(THnet);
 
 	fd = ufd;
 	if(c == clchan)
 		fd = cldfd;
 	for(;;){
 		if((n = read(fd, udpbuf, sizeof udpbuf)) <= 0)
-			sysfatal("uproc:read: %r\n");
-		memcpy(&h, udpbuf, HDRSZ);
+			sysfatal("uproc:read: %r");
+		memcpy(&h, udpbuf, Hdrsz);
 
 		memcpy(u, h.raddr, IPaddrlen);
 		memcpy(u+IPaddrlen, h.rport, 2);
@@ -318,19 +333,22 @@ void uproc (void *c)
 		qunlock(&cnlock);
 		m.p = p;
 
-		if(n - HDRSZ < 0){	/* FIXME */
+		if(n - Hdrsz < 0){	/* FIXME */
 			m.n = n;
 			memcpy(m.buf, udpbuf, m.n);
 		}else{
-			m.n = n - HDRSZ;
-			memcpy(m.buf, udpbuf+HDRSZ, m.n);
+			m.n = n - Hdrsz;
+			memcpy(m.buf, udpbuf+Hdrsz, m.n);
 		}
 		if(send(c, &m) < 0)
-			sysfatal("uproc:send: %r\n");
+			sysfatal("uproc:send: %r");
+		if(nbsend(fuckchan, nil) < 0)
+			sysfatal("uproc:nbsend: %r");
 	}
 }
 
-qboolean NET_GetPacket (netsrc_t src, netadr_t *from, sizebuf_t *d)
+qboolean
+NET_GetPacket(netsrc_t src, netadr_t *from, sizebuf_t *d)
 {
 	int n;
 	Conmsg m;
@@ -357,11 +375,12 @@ qboolean NET_GetPacket (netsrc_t src, netadr_t *from, sizebuf_t *d)
 	return true;
 }
 
-void NET_SendPacket (netsrc_t src, int length, void *data, netadr_t to)
+void
+NET_SendPacket(netsrc_t src, int length, void *data, netadr_t to)
 {
 	int fd;
 	char *addr, *s, *lport;
-	uchar b[BUFSZ+HDRSZ], u[IPaddrlen+2];
+	uchar b[Bufsz+Hdrsz], u[IPaddrlen+2];
 	Conlist *p;
 
 	switch(to.type){
@@ -393,9 +412,9 @@ void NET_SendPacket (netsrc_t src, int length, void *data, netadr_t to)
 		if(p != nil){
 			fd = p->dfd;
 			if(fd == ufd || fd == cldfd){
-				memcpy(b, &p->h, HDRSZ);
-				memcpy(b+HDRSZ, data, length);
-				write(fd, b, length+HDRSZ);
+				memcpy(b, &p->h, Hdrsz);
+				memcpy(b+Hdrsz, data, length);
+				write(fd, b, length+Hdrsz);
 				break;
 			}
 		}else{
@@ -425,17 +444,23 @@ void NET_SendPacket (netsrc_t src, int length, void *data, netadr_t to)
 	}
 }
 
-/* sleeps msec or until data is read from dfd */
-void NET_Sleep (int msec)
+void
+NET_Sleep(int ms)	/* sleep for ms, or wakeup for stdio or incoming packets */
 {
 	if(cfd == -1 || dedicated != nil && !dedicated->value)
 		return; // we're not a server, just run full speed
 
-	/* FIXME */
-	print("NET_Sleep %d: PORTME\n", msec);
+	if(send(tchan, &ms) < 0)
+		sysfatal("NET_Sleep:send: %r");
+	if(recv(fuckchan, nil) < 0)
+		sysfatal("NET_Sleep:recv: %r");
+	ms = -1;
+	if(nbsend(tchan, &ms) < 0)	/* stop timer */
+		sysfatal("NET_Sleep:nbsend: %r");
 }
 
-int openname (char *port, int *dfd, Channel **c)
+static int
+openname(char *port, int *dfd, Channel **c)
 {
 	int fd;
 	char data[64], adir[40];
@@ -447,14 +472,15 @@ int openname (char *port, int *dfd, Channel **c)
 	snprint(data, sizeof data, "%s/data", adir);
 	if((*dfd = open(data, ORDWR)) < 0)
 		sysfatal("openname:open %r");
-	if((*c = chancreate(sizeof(Conmsg), NBUF)) == nil)
+	if((*c = chancreate(sizeof(Conmsg), Nbuf)) == nil)
 		sysfatal("openname:chancreate: %r");
-	if(proccreate(uproc, *c, 8196) < 0)
+	if(proccreate(uproc, *c, 8192) < 0)
 		sysfatal("openname:proccreate: %r");
 	return fd;
 }
 
-void openudp (void)
+static void
+openudp(void)
 {
 	if(cfd != -1)
 		return;
@@ -476,10 +502,11 @@ void openudp (void)
 }
 
 /* a single player game will only use the loopback code */
-void NET_Config (qboolean multiplayer)
+void
+NET_Config(qboolean multiplayer)
 {
 	if(!multiplayer){	/* shut down existing udp connections */
-		threadkillgrp(DTHGRP);
+		threadkillgrp(THnet);
 		cnnuke();
 		if(udpchan != nil){
 			chanfree(udpchan);
@@ -511,13 +538,15 @@ void NET_Config (qboolean multiplayer)
 	}
 }
 
-void NET_Shutdown (void)
+void
+NET_Shutdown(void)
 {
 	NET_Config(false);
 }
 
-void NET_Init (void)
+void
+NET_Init(void)
 {
-	svport = Cvar_Get("port", va("%d", PORT_SERVER), CVAR_NOSET);
-	clport = Cvar_Get("clport", va("%hud", CLPORT), CVAR_NOSET);
+	svport = Cvar_Get("port", va("%hu", PORT_SERVER), CVAR_NOSET);
+	clport = Cvar_Get("clport", va("%hu", CLPORT), CVAR_NOSET);
 }

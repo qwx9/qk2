@@ -761,7 +761,6 @@ void Z_FreeTags (int tag);
 
 void Qcommon_Init (int argc, char **argv);
 void Qcommon_Frame (int msec);
-void Qcommon_Shutdown (void);
 
 #define NUMVERTEXNORMALS	162
 extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
@@ -777,6 +776,14 @@ NON-PORTABLE SYSTEM SERVICES
 
 ==============================================================
 */
+
+enum{
+	THin	= 1,
+	THsnd	= 2,
+	THnet	= 3
+};
+
+extern uint sys_frame_time;
 
 void	Sys_Init (void);
 

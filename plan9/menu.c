@@ -3,44 +3,43 @@
 #include <stdio.h>
 #include "../q_shared.h"
 
-extern cvar_t *vid_fullscreen;
-extern cvar_t *vid_gamma;
-extern cvar_t *scr_viewsize;
-
 extern void M_PopMenu(void);
 
-menuframework_s	vmenu;
-menuslider_s	ssizeslide;
-menuslider_s	gammaslide;
-menulist_s	fullscrbox;
-menuaction_s	applyaction;
-menuaction_s	defaultsaction;
+static menuframework_s vmenu;
+static menuslider_s ssizeslide, gammaslide;
+static menulist_s fullscrbox;
+static menuaction_s applyaction, defaultsaction;
 
 
-void vmssize (void *s)
+void
+vmssize(void *s)
 {
 	Cvar_SetValue("viewsize", ((menuslider_s *)s)->curvalue * 10);
 }
 
-void vmgamma (void *s)
+void
+vmgamma(void *s)
 {
 	// invert sense so greater = brighter, and scale to a range of 0.5 to 1.3
 	Cvar_SetValue("vid_gamma", 0.8 - (((menuslider_s *)s)->curvalue/10.0 - 0.5) + 0.5);
 }
 
-void vmreset (void *)
+void
+vmreset(void *)
 {
 	VID_MenuInit();
 }
 
-void vmapply (void *)
+void
+vmapply(void *)
 {
 	Cvar_SetValue("vid_gamma", 0.8 - (gammaslide.curvalue/10.0 - 0.5) + 0.5);
 	Cvar_SetValue("vid_fullscreen", fullscrbox.curvalue);
 	M_ForceMenuOff();
 }
 
-void VID_MenuInit (void)
+void
+VID_MenuInit(void)
 {
 	static char *yesno[] = {"no", "yes", nil};
 
@@ -97,12 +96,13 @@ void VID_MenuInit (void)
 	vmenu.x -= 8;
 }
 
-void VID_MenuDraw (void)
+void
+VID_MenuDraw(void)
 {
 	int w, h;
 
-	re.DrawGetPicSize(&w, &h, "m_banner_video");
-	re.DrawPic(vid.width/2 - w/2, vid.height/2 - 110, "m_banner_video");
+	Draw_GetPicSize(&w, &h, "m_banner_video");
+	Draw_Pic(vid.width/2 - w/2, vid.height/2 - 110, "m_banner_video");
 	Menu_AdjustCursor(&vmenu, 1);	// starting position
 	Menu_Draw(&vmenu);
 }

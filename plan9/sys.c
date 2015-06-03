@@ -5,39 +5,27 @@
 #include <thread.h>
 #include "../q_shared.h"
 
-mainstacksize = 512*1024;	/* FIXME */
-
+mainstacksize = 512*1024;
 uint sys_frame_time;
-qboolean stdin_active = true;
+Channel *fuckchan, *tchan;
 
 void KBD_Update(void);
 
 
 /* prints to "debugging console" */
-void Sys_ConsoleOutput (char *string)
+void
+Sys_ConsoleOutput(char *s)
 {
-	write(1, string, strlen(string));
+	write(1, s, strlen(s));
 }
 
-void Sys_Quit (void)
-{
-	CL_Shutdown();
-	Qcommon_Shutdown();
-	threadexitsall(nil);
-}
-
-void Sys_Init(void)
-{
-	//Sys_SetFPCW();
-}
-
-void Sys_Error (char *error, ...)
+void
+Sys_Error(char *error, ...)
 { 
 	char buf[1024], *out;
 	va_list arg;
 
 	CL_Shutdown();
-	Qcommon_Shutdown();
 
 	va_start(arg, error);
 	out = vseprint(buf, buf+sizeof(buf), error, arg);
@@ -47,7 +35,20 @@ void Sys_Error (char *error, ...)
 	sysfatal("ending.");
 }
 
-int Sys_FileTime (char *path)
+vlong
+flen(int fd)
+{
+	uchar bs[1024];
+
+	if(fstat(fd, bs, sizeof bs) < 0){
+		fprint(2, "flen:fstat: %r\n");
+		return -1;
+	}
+	return *((vlong *)(bs+2+2+4+1+4+8+4+4+4));	/* length[8] */
+}
+
+int
+Sys_FileTime(char *path)
 {
 	uchar sb[1024];
 
@@ -58,50 +59,54 @@ int Sys_FileTime (char *path)
 	return *((int *)(sb+25));
 }
 
-char *Sys_ConsoleInput(void)
-{
-	static char text[256];
-	int n;
-
-	if(!dedicated || !dedicated->value || !stdin_active)
-		return nil;
-
-	if((n = read(0, text, sizeof(text))) < 0)
-		return nil;
-	if(n == 0){
-		stdin_active = false;
-		return nil;
-	}
-	text[n-1] = '\0';	/* rip off \n */
-	return text;
-}
-
-void Sys_UnloadGame (void)
+void
+Sys_UnloadGame(void)
 {
 }
 
-void Sys_AppActivate (void)
+void
+Sys_AppActivate(void)
 {
 }
 
-void Sys_SendKeyEvents (void)
+void
+Sys_SendKeyEvents(void)
 {
-#ifndef DEDICATED_ONLY
 	KBD_Update();
-#endif
 	sys_frame_time = Sys_Milliseconds();	// grab frame time 
 }
 
-char *Sys_GetClipboardData (void)
+char *
+Sys_GetClipboardData(void)
 {
 	return nil;
 }
 
-void Sys_CopyProtect (void)
+void
+Sys_CopyProtect(void)
 {
 }
 
-void croak (void *, char *note)
+void
+Sys_Quit(void)
+{
+	chanfree(fuckchan);
+	chanfree(tchan);
+	threadexitsall(nil);
+}
+
+void
+Sys_Init(void)
+{
+	//Sys_SetFPCW();
+	if((fuckchan = chancreate(sizeof(int), 1)) == nil)
+		sysfatal("chancreate fuckchan: %r");
+	if((tchan = chancreate(sizeof(int), 16)) == nil)
+		sysfatal("chancreate tchan: %r");
+}
+
+void
+croak(void *, char *note)
 {
 	if(!strncmp(note, "sys:", 4)){
 		IN_Shutdown();
@@ -111,7 +116,8 @@ void croak (void *, char *note)
 	noted(NDFLT);
 }
 
-void threadmain (int argc, char *argv[])
+void
+threadmain(int argc, char *argv[])
 {
 	int time, oldtime, newtime;
 

@@ -3,19 +3,20 @@
 #include <stdio.h>
 #include "../q_shared.h"
 
-byte *membase;
-int maxhunksize;
-int curhunksize;
 int curtime;
-char findbase[MAX_OSPATH], findpath[MAX_OSPATH], findpattern[MAX_OSPATH];
-long dirn, di;
-Dir *dirs;
 
-int	glob_match(char *, char *);
+static uchar *membase;
+static int maxhunksize, curhunksize;
+static char findbase[MAX_OSPATH], findpath[MAX_OSPATH], findpattern[MAX_OSPATH];
+static Dir *dirs;
+static long dirn, di;
+
+static int glob_match(char *, char *);
 
 
 /* Like glob_match, but match PATTERN against any final segment of TEXT.  */
-int glob_match_after_star(char *pattern, char *text)
+static int
+glob_match_after_star(char *pattern, char *text)
 {
 	char *p = pattern, *t = text;
 	char c, c1;
@@ -41,7 +42,8 @@ int glob_match_after_star(char *pattern, char *text)
 }
 
 /* Return nonzero if PATTERN has any special globbing chars in it.  */
-int glob_pattern_p(char *pattern)
+static int
+glob_pattern_p(char *pattern)
 {
 	char *p = pattern;
 	char c;
@@ -87,7 +89,8 @@ int glob_pattern_p(char *pattern)
    and match the character exactly, precede it with a `\'.
 */
 
-int glob_match(char *pattern, char *text)
+static int
+glob_match(char *pattern, char *text)
 {
 	char *p = pattern, *t = text;
 	char c, c1, cstart, cend;
@@ -176,7 +179,8 @@ int glob_match(char *pattern, char *text)
 	return *t == '\0';
 }
 
-void *Hunk_Begin (int maxsize)
+void *
+Hunk_Begin(int maxsize)
 {
 	// reserve a huge chunk of memory, but don't commit any yet
 	maxhunksize = maxsize;
@@ -186,7 +190,8 @@ void *Hunk_Begin (int maxsize)
 	return membase;
 }
 
-void *Hunk_Alloc (int size)
+void *
+Hunk_Alloc(int size)
 {
 	byte *buf;
 
@@ -199,20 +204,23 @@ void *Hunk_Alloc (int size)
 	return buf;
 }
 
-int Hunk_End (void)
+int
+Hunk_End(void)
 {
 	if(realloc(membase, curhunksize) != membase)
 		sysfatal("Hunk_End:realloc: %r");
 	return curhunksize;
 }
 
-void Hunk_Free (void *base)
+void
+Hunk_Free(void *base)
 {
 	if(base != nil)
 		free(base);
 }
 
-int Sys_Milliseconds (void)
+int
+Sys_Milliseconds(void)
 {
 	static long msbase;
 
@@ -222,7 +230,8 @@ int Sys_Milliseconds (void)
 	return curtime;
 }
 
-void Sys_Mkdir (char *path)
+void
+Sys_Mkdir(char *path)
 {
 	int d;
 
@@ -232,7 +241,8 @@ void Sys_Mkdir (char *path)
 		close(d);
 }
 
-qboolean CompareAttributes (ulong m, uint musthave, uint canthave)
+static qboolean
+CompareAttributes(ulong m, uint musthave, uint canthave)
 {
 	if(m & DMDIR && canthave & SFF_SUBDIR)
 		return false;
@@ -241,7 +251,8 @@ qboolean CompareAttributes (ulong m, uint musthave, uint canthave)
 	return true;
 }
 
-char *Sys_FindFirst (char *path, uint musthave, uint canhave)
+char *
+Sys_FindFirst(char *path, uint musthave, uint canhave)
 {
 	char *p;
 	int fd;
@@ -279,7 +290,8 @@ char *Sys_FindFirst (char *path, uint musthave, uint canhave)
 	return Sys_FindNext (musthave, canhave);
 }
 
-char *Sys_FindNext (uint musthave, uint canhave)
+char *
+Sys_FindNext(uint musthave, uint canhave)
 {
 	int i;
 
@@ -298,7 +310,8 @@ char *Sys_FindNext (uint musthave, uint canhave)
 	return nil;
 }
 
-void Sys_FindClose (void)
+void
+Sys_FindClose(void)
 {
 	if(dirs != nil){
 		free(dirs);

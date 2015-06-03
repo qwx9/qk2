@@ -1210,32 +1210,20 @@ void R_EndRegistration (void)
 	R_FreeUnusedImages ();
 }
 
-
-//=============================================================================
-
-/*
-================
-Mod_Free
-================
-*/
-void Mod_Free (model_t *mod)
+void
+Mod_Free(model_t *mod)
 {
-	Hunk_Free (mod->extradata);
-	memset (mod, 0, sizeof(*mod));
+	Hunk_Free(mod->extradata);
+	memset(mod, 0, sizeof *mod);
 }
 
-/*
-================
-Mod_FreeAll
-================
-*/
-void Mod_FreeAll (void)
+void
+Mod_FreeAll(void)
 {
-	int		i;
+	int i;
 
-	for (i=0 ; i<mod_numknown ; i++)
-	{
-		if (mod_known[i].extradatasize)
-			Mod_Free (&mod_known[i]);
+	for(i=0; i<mod_numknown; i++){
+		if(mod_known[i].extradatasize)
+			Mod_Free(&mod_known[i]);
 	}
 }

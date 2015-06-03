@@ -21,8 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#define	PARANOID			// speed sapping error checking
 
-#pragma pack off
-
 //=============================================================================
 typedef struct
 {
@@ -256,17 +254,6 @@ extern	cvar_t	*cl_anglespeedkey;
 extern	cvar_t	*cl_shownet;
 extern	cvar_t	*cl_showmiss;
 extern	cvar_t	*cl_showclamp;
-
-extern	cvar_t	*lookspring;
-extern	cvar_t	*lookstrafe;
-extern	cvar_t	*sensitivity;
-
-extern	cvar_t	*m_pitch;
-extern	cvar_t	*m_yaw;
-extern	cvar_t	*m_forward;
-extern	cvar_t	*m_side;
-
-extern	cvar_t	*freelook;
 
 extern	cvar_t	*cl_lightlevel;	// FIXME HACK
 
@@ -566,5 +553,3 @@ void x86_TimerStop( void );
 void x86_TimerInit( unsigned long smallest, unsigned longest );
 unsigned long *x86_TimerGetHistogram( void );
 #endif
-
-#pragma pack on

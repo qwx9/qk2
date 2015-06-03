@@ -24,8 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include "../q_shared.h"
 
-cvar_t	*freelook;
-
 cvar_t	*adr0;
 cvar_t	*adr1;
 cvar_t	*adr2;
@@ -62,15 +60,6 @@ cvar_t	*cl_showclamp;
 
 cvar_t	*cl_paused;
 cvar_t	*cl_timedemo;
-
-cvar_t	*lookspring;
-cvar_t	*lookstrafe;
-cvar_t	*sensitivity;
-
-cvar_t	*m_pitch;
-cvar_t	*m_yaw;
-cvar_t	*m_forward;
-cvar_t	*m_side;
 
 cvar_t	*cl_lightlevel;
 
@@ -304,36 +293,30 @@ void Cmd_ForwardToServer (void)
 	}
 }
 
-void CL_Setenv_f( void )
+void
+CL_Setenv_f(void)
 {
 	int i, l = 0, argc;
-	char name[1024], val[1024] = {0}, *env;
+	char name[1024], val[1024], *env;
 
 	argc = Cmd_Argc();
 
-	if (argc > 2)
-	{
+	if(argc > 2){
 		strncpy(name, Cmd_Argv(1), sizeof name);
-		for (i = 2; i < argc; i++)
-		{
-			strncpy (val+l, Cmd_Argv(i), sizeof name - l - 2);
-			strcat (val, " ");
-			l = strlen (val);
+		for(i = 2; i < argc; i++){
+			strncpy(val+l, Cmd_Argv(i), sizeof(name) - l - 2);
+			val[sizeof(val)-2] = 0;
+			strcat(val, " ");
+			l = strlen(val);
 		}
-		putenv (name, val);
-	}
-	else if (argc == 2)
-	{
-		env = getenv (Cmd_Argv(1));
-		if (env)
-		{
-			Com_Printf ("%s=%s\n", Cmd_Argv(1), env);
-			free (env);
-		}
-		else
-		{
-			Com_Printf ("%s undefined\n", Cmd_Argv(1), env);
-		}
+		putenv(name, val);
+	}else if(argc == 2){
+		env = getenv(Cmd_Argv(1));
+		if(env){
+			Com_Printf("%s=%s\n", Cmd_Argv(1), env);
+			free(env);
+		}else
+			Com_Printf("%s undefined\n", Cmd_Argv(1), env);
 	}
 }
 
@@ -1064,9 +1047,9 @@ void CL_FixUpGender(void)
 		strncpy(sk, skin->string, sizeof(sk) - 1);
 		if ((p = strchr(sk, '/')) != NULL)
 			*p = 0;
-		if (Q_strcasecmp(sk, "male") == 0 || Q_strcasecmp(sk, "cyborg") == 0)
+		if (cistrcmp(sk, "male") == 0 || cistrcmp(sk, "cyborg") == 0)
 			Cvar_Set ("gender", "male");
-		else if (Q_strcasecmp(sk, "female") == 0 || Q_strcasecmp(sk, "crackhor") == 0)
+		else if (cistrcmp(sk, "female") == 0 || cistrcmp(sk, "crackhor") == 0)
 			Cvar_Set ("gender", "female");
 		else
 			Cvar_Set ("gender", "none");
@@ -1443,15 +1426,6 @@ void CL_InitLocal (void)
 	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", 0);
 
 	cl_run = Cvar_Get ("cl_run", "0", CVAR_ARCHIVE);
-	freelook = Cvar_Get( "freelook", "0", CVAR_ARCHIVE );
-	lookspring = Cvar_Get ("lookspring", "0", CVAR_ARCHIVE);
-	lookstrafe = Cvar_Get ("lookstrafe", "0", CVAR_ARCHIVE);
-	sensitivity = Cvar_Get ("sensitivity", "3", CVAR_ARCHIVE);
-
-	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE);
-	m_yaw = Cvar_Get ("m_yaw", "0.022", 0);
-	m_forward = Cvar_Get ("m_forward", "1", 0);
-	m_side = Cvar_Get ("m_side", "1", 0);
 
 	cl_shownet = Cvar_Get ("cl_shownet", "0", 0);
 	cl_showmiss = Cvar_Get ("cl_showmiss", "0", 0);
@@ -1775,7 +1749,9 @@ CL_Init
 */
 void CL_Init (void)
 {
-	if (dedicated->value)
+	IN_Init();
+
+	if(dedicated->value)
 		return;		// nothing running on the client
 
 	// all archived variables will now be loaded
@@ -1796,12 +1772,10 @@ void CL_Init (void)
 
 	CDAudio_Init ();
 	CL_InitLocal ();
-	IN_Init ();
 
 //	Cbuf_AddText ("exec autoexec.cfg\n");
 	FS_ExecAutoexec ();
 	Cbuf_Execute ();
-
 }
 
 

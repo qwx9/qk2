@@ -55,7 +55,7 @@ static void SP_FixCoopSpots (edict_t *self)
 		VectorSubtract(self->s.origin, spot->s.origin, d);
 		if (VectorLength(d) < 384)
 		{
-			if ((!self->targetname) || stricmp(self->targetname, spot->targetname) != 0)
+			if ((!self->targetname) || cistrcmp(self->targetname, spot->targetname) != 0)
 			{
 //				gi.dprintf("FixCoopSpots changed %s at %s targetname from %s to %s\n", self->classname, vtos(self->s.origin), self->targetname, spot->targetname);
 				self->targetname = spot->targetname;
@@ -73,7 +73,7 @@ static void SP_CreateCoopSpots (edict_t *self)
 {
 	edict_t	*spot;
 
-	if(stricmp(level.mapname, "security") == 0)
+	if(cistrcmp(level.mapname, "security") == 0)
 	{
 		spot = G_Spawn();
 		spot->classname = "info_player_coop";
@@ -111,7 +111,7 @@ void SP_info_player_start(edict_t *self)
 {
 	if (!coop->value)
 		return;
-	if(stricmp(level.mapname, "security") == 0)
+	if(cistrcmp(level.mapname, "security") == 0)
 	{
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_CreateCoopSpots;
@@ -144,20 +144,20 @@ void SP_info_player_coop(edict_t *self)
 		return;
 	}
 
-	if((stricmp(level.mapname, "jail2") == 0)   ||
-	   (stricmp(level.mapname, "jail4") == 0)   ||
-	   (stricmp(level.mapname, "mine1") == 0)   ||
-	   (stricmp(level.mapname, "mine2") == 0)   ||
-	   (stricmp(level.mapname, "mine3") == 0)   ||
-	   (stricmp(level.mapname, "mine4") == 0)   ||
-	   (stricmp(level.mapname, "lab") == 0)     ||
-	   (stricmp(level.mapname, "boss1") == 0)   ||
-	   (stricmp(level.mapname, "fact3") == 0)   ||
-	   (stricmp(level.mapname, "biggun") == 0)  ||
-	   (stricmp(level.mapname, "space") == 0)   ||
-	   (stricmp(level.mapname, "command") == 0) ||
-	   (stricmp(level.mapname, "power2") == 0) ||
-	   (stricmp(level.mapname, "strike") == 0))
+	if((cistrcmp(level.mapname, "jail2") == 0)   ||
+	   (cistrcmp(level.mapname, "jail4") == 0)   ||
+	   (cistrcmp(level.mapname, "mine1") == 0)   ||
+	   (cistrcmp(level.mapname, "mine2") == 0)   ||
+	   (cistrcmp(level.mapname, "mine3") == 0)   ||
+	   (cistrcmp(level.mapname, "mine4") == 0)   ||
+	   (cistrcmp(level.mapname, "lab") == 0)     ||
+	   (cistrcmp(level.mapname, "boss1") == 0)   ||
+	   (cistrcmp(level.mapname, "fact3") == 0)   ||
+	   (cistrcmp(level.mapname, "biggun") == 0)  ||
+	   (cistrcmp(level.mapname, "space") == 0)   ||
+	   (cistrcmp(level.mapname, "command") == 0) ||
+	   (cistrcmp(level.mapname, "power2") == 0) ||
+	   (cistrcmp(level.mapname, "strike") == 0))
 	{
 		// invoke one of our gross, ugly, disgusting hacks
 		self->think = SP_FixCoopSpots;
@@ -882,7 +882,7 @@ edict_t *SelectCoopSpawnPoint (edict_t *ent)
 		target = spot->targetname;
 		if (!target)
 			target = "";
-		if ( Q_strcasecmp(game.spawnpoint, target) == 0 )
+		if ( cistrcmp(game.spawnpoint, target) == 0 )
 		{	// this is a coop spawn point for one of the clients here
 			index--;
 			if (!index)
@@ -927,7 +927,7 @@ void	SelectSpawnPoint (edict_t *ent, vec3_t origin, vec3_t angles)
 			if (!game.spawnpoint[0] || !spot->targetname)
 				continue;
 
-			if (Q_strcasecmp(game.spawnpoint, spot->targetname) == 0)
+			if (cistrcmp(game.spawnpoint, spot->targetname) == 0)
 				break;
 		}
 

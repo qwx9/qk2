@@ -86,7 +86,7 @@ gitem_t	*FindItemByClassname (char *classname)
 	{
 		if (!it->classname)
 			continue;
-		if (!Q_strcasecmp(it->classname, classname))
+		if (!cistrcmp(it->classname, classname))
 			return it;
 	}
 
@@ -109,7 +109,7 @@ gitem_t	*FindItem (char *pickup_name)
 	{
 		if (!it->pickup_name)
 			continue;
-		if (!Q_strcasecmp(it->pickup_name, pickup_name))
+		if (!cistrcmp(it->pickup_name, pickup_name))
 			return it;
 	}
 

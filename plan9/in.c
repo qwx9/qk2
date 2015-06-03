@@ -7,22 +7,27 @@
 #include <keyboard.h>
 #include "../q_shared.h"
 
-cvar_t	*in_mouse;
-cvar_t	*in_joystick;
-cvar_t	*m_filter;
-cvar_t	*m_windowed;
-cvar_t	*sensitivity;
-cvar_t	*lookstrafe;
-cvar_t	*m_side;
-cvar_t	*m_yaw;
-cvar_t	*m_pitch;
-cvar_t	*m_forward;
-cvar_t	*freelook;
+extern int resized;		/* vid.c */
+extern Point center;
+extern Channel *fuckchan, *tchan;	/* sys.c */
 
-qboolean mouseon;
-qboolean mlooking;
-int dx, dy;
-int oldmwin;
+cvar_t *in_joystick;
+cvar_t *sensitivity;
+cvar_t *lookstrafe;
+cvar_t *lookspring;
+cvar_t *freelook;
+cvar_t *m_pitch;
+
+static cvar_t *m_filter;
+static cvar_t *m_windowed;
+static cvar_t *m_yaw;
+static cvar_t *m_side;
+static cvar_t *m_forward;
+
+static int mouseon;
+static int mlooking;
+static int dx, dy;
+static int oldmwin;
 
 typedef struct Kev Kev;
 struct Kev{
@@ -30,18 +35,35 @@ struct Kev{
 	int down;
 };
 enum{
-	Nbuf	= 64,
-	ITHGRP	= 2
+	Nbuf	= 64
 };
-Channel *kchan;
-Channel *mchan;
+static Channel *kchan, *mchan;
+static int iop = -1, pfd[2];
+static QLock killock;
 
-/* rw_9.c */
-extern int resized;
-extern Point center;
-extern refimport_t ri;
 
-void IN_Grabm(int on)
+char *
+Sys_ConsoleInput(void)
+{
+	static char buf[256];
+	int n;
+
+	if(dedicated != nil && dedicated->value && iop >= 0){
+		if(flen(pfd[1]) < 1)	/* only poll for input */
+			return nil;
+		if((n = read(pfd[1], buf, sizeof buf)) < 0)
+			sysfatal("Sys_ConsoleInput:read: %r");
+		if(n == 0){
+			iop = -1;
+			return nil;
+		}
+		return buf;
+	}
+	return nil;
+}
+
+void
+IN_Grabm(int on)
 {
 	static char nocurs[2*4+2*2*16];
 	static int fd = -1;
@@ -60,12 +82,14 @@ void IN_Grabm(int on)
 	}
 }
 
-void IN_Commands (void)
+void
+IN_Commands(void)
 {
 	/* joystick stuff */
 }
 
-void btnev (int btn, ulong msec)
+void
+btnev(int btn, ulong msec)
 {
 	static int oldb;
 	int i, b;
@@ -88,7 +112,8 @@ void btnev (int btn, ulong msec)
 	}
 }
 
-void KBD_Update (void)
+void
+KBD_Update(void)
 {
 	int r;
 	Kev ev;
@@ -111,9 +136,11 @@ void KBD_Update (void)
 		sysfatal("KBD_Update:nbrecv: %r\n");
 }
 
-void IN_Move (usercmd_t *cmd)
+void
+IN_Move(usercmd_t *cmd)
 {
-	static int mx, my, oldmx, oldmy;
+	static int oldmx, oldmy;
+	int mx, my;
 
 	if(!mouseon)
 		return;
@@ -145,32 +172,38 @@ void IN_Move (usercmd_t *cmd)
 }
 
 /* called on focus/unfocus in win32 */
-void IN_Activate (qboolean)
+void
+IN_Activate(qboolean)
 {
 }
 
 /* called every frame even if not generating commands */
-void IN_Frame (void)
+void
+IN_Frame(void)
 {
 }
 
-void IN_ForceCenterView (void)
+void
+IN_ForceCenterView(void)
 {
 	cl.viewangles[PITCH] = 0;
 }
 
-void IN_MLookDown (void)
+void
+IN_MLookDown(void)
 {
 	mlooking = true;
 }
 
-void IN_MLookUp (void)
+void
+IN_MLookUp(void)
 {
 	mlooking = false;
 	IN_CenterView();
 }
 
-int runetokey (Rune r)
+static int
+runetokey(Rune r)
 {
 	int k = 0;
 
@@ -213,18 +246,20 @@ int runetokey (Rune r)
 	return k;
 }
 
-void kproc (void *)
+static void
+kproc(void *)
 {
 	int n, k, fd;
-	char buf[128], kdown[128] = {0}, *s;
+	char buf[128], kdown[128], *s;
 	Rune r;
 	Kev ev;
 
-	if(threadsetgrp(ITHGRP) < 0)
+	if(threadsetgrp(THin) < 0)
 		sysfatal("kproc:threadsetgrp: %r");
 	if((fd = open("/dev/kbd", OREAD)) < 0)
 		sysfatal("open /dev/kbd: %r");
 
+	kdown[0] = kdown[1] = 0;
 	while((n = read(fd, buf, sizeof buf)) > 0){
 		buf[n-1] = 0;
 		switch(*buf){
@@ -266,13 +301,14 @@ void kproc (void *)
 	close(fd);
 }
 
-void mproc (void *)
+static void
+mproc(void *)
 {
 	int n, nerr = 0, fd;
 	char buf[1+5*12];
 	Mouse m;
 
-	if(threadsetgrp(ITHGRP) < 0)
+	if(threadsetgrp(THin) < 0)
 		sysfatal("mproc:threadsetgrp: %r");
 	if((fd = open("/dev/mouse", ORDWR)) < 0)
 		sysfatal("open /dev/mouse: %r");
@@ -309,10 +345,66 @@ void mproc (void *)
 	close(fd);
 }
 
-void IN_Shutdown (void)
+static void
+tproc(void *)	/* stupid select() timeout bullshit */
 {
+	int t, ms, n, r;
+
+	threadsetgrp(THin);
+
+	t = ms = 0;
+	for(;;){
+		sleep(1);
+		t++;
+
+		if((r = nbrecv(tchan, &n)) < 0)
+			sysfatal("tproc:nbrecv: %r");
+		if(r == 0){
+			if(t == ms && nbsend(fuckchan, nil) < 0)
+				sysfatal("tproc:nbsend: %r");
+			continue;
+		}
+		if(n <= 0)
+			ms = 0;
+		else{
+			ms = n;
+			t = 0;
+		}
+	}
+}
+
+static void
+iproc(void *)
+{
+	int n;
+	char s[256];
+
+	threadsetgrp(THin);
+
+	if((iop = pipe(pfd)) < 0)
+		sysfatal("iproc:pipe: %r");
+	for(;;){
+		if((n = read(0, s, sizeof s)) <= 0)
+			break;
+		s[n-1] = 0;
+		if((write(pfd[0], s, n)) != n)
+			break;
+		if(nbsend(fuckchan, nil) < 0)
+			sysfatal("iproc:nbsend: %r");
+	}
+	fprint(2, "iproc %d: %r\n", threadpid(threadid()));
+	iop = -1;
+}
+
+void
+IN_Shutdown(void)
+{
+	qlock(&killock);	/* there can be only one */
 	IN_Grabm(0);
-	threadkillgrp(ITHGRP);
+	threadkillgrp(THin);
+	iop = -1;
+	close(pfd[0]);
+	close(pfd[1]);
 	if(kchan != nil){
 		chanfree(kchan);
 		kchan = nil;
@@ -321,25 +413,35 @@ void IN_Shutdown (void)
 		chanfree(mchan);
 		mchan = nil;
 	}
+	qunlock(&killock);
 }
 
-void IN_Init (void)
+void
+IN_Init(void)
 {
-	in_mouse = ri.Cvar_Get("in_mouse", "1", CVAR_ARCHIVE);
-	in_joystick = ri.Cvar_Get("in_joystick", "0", CVAR_ARCHIVE);
-	m_windowed = ri.Cvar_Get("m_windowed", "0", CVAR_ARCHIVE);
-	m_filter = ri.Cvar_Get("m_filter", "0", 0);
-	freelook = ri.Cvar_Get("freelook", "0", 0);
-	lookstrafe = ri.Cvar_Get("lookstrafe", "0", 0);
-	sensitivity = ri.Cvar_Get("sensitivity", "3", 0);
-	m_pitch = ri.Cvar_Get("m_pitch", "0.022", 0);
-	m_yaw = ri.Cvar_Get("m_yaw", "0.022", 0);
-	m_forward = ri.Cvar_Get("m_forward", "1", 0);
-	m_side = ri.Cvar_Get("m_side", "0.8", 0);
+	if(dedicated->value){
+		if(proccreate(iproc, nil, 8192) < 0)
+			sysfatal("proccreate iproc: %r");
+		if(proccreate(tproc, nil, 8192) < 0)
+			sysfatal("proccreate tproc: %r");
+		return;
+	}
+	in_joystick = Cvar_Get("in_joystick", "0", CVAR_ARCHIVE);
+	sensitivity = Cvar_Get("sensitivity", "3", CVAR_ARCHIVE);
+	freelook = Cvar_Get("freelook", "0", CVAR_ARCHIVE);
+	lookspring = Cvar_Get("lookspring", "0", CVAR_ARCHIVE);
+	lookstrafe = Cvar_Get("lookstrafe", "0", CVAR_ARCHIVE);
+	m_pitch = Cvar_Get("m_pitch", "0.022", CVAR_ARCHIVE);
 
-	ri.Cmd_AddCommand("+mlook", IN_MLookDown);
-	ri.Cmd_AddCommand("-mlook", IN_MLookUp);
-	ri.Cmd_AddCommand("force_centerview", IN_ForceCenterView);
+	m_yaw = Cvar_Get("m_yaw", "0.022", 0);
+	m_forward = Cvar_Get("m_forward", "1", 0);
+	m_side = Cvar_Get("m_side", "0.8", 0);
+	m_windowed = Cvar_Get("m_windowed", "0", CVAR_ARCHIVE);
+	m_filter = Cvar_Get("m_filter", "0", 0);
+
+	Cmd_AddCommand("+mlook", IN_MLookDown);
+	Cmd_AddCommand("-mlook", IN_MLookUp);
+	Cmd_AddCommand("force_centerview", IN_ForceCenterView);
 
 	if((kchan = chancreate(sizeof(Kev), Nbuf)) == nil)
 		sysfatal("chancreate kchan: %r");

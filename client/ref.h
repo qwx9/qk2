@@ -220,3 +220,6 @@ typedef struct
 
 // this is the only function actually exported at the linker level
 typedef	refexport_t	(*GetRefAPI_t) (refimport_t);
+
+extern cvar_t *vid_fullscreen;
+extern cvar_t *vid_gamma;

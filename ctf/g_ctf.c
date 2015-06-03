@@ -1535,9 +1535,9 @@ void CTFTeam_f (edict_t *ent)
 		return;
 	}
 
-	if (Q_strcasecmp(t, "red") == 0)
+	if (cistrcmp(t, "red") == 0)
 		desired_team = CTF_TEAM1;
-	else if (Q_strcasecmp(t, "blue") == 0)
+	else if (cistrcmp(t, "blue") == 0)
 		desired_team = CTF_TEAM2;
 	else {
 		gi.cprintf(ent, PRINT_HIGH, "Unknown team %s.\n", t);
@@ -3128,10 +3128,10 @@ int CTFUpdateJoinMenu(edict_t *ent)
 	}
 
 	if (ctf_forcejoin->string && *ctf_forcejoin->string) {
-		if (stricmp(ctf_forcejoin->string, "red") == 0) {
+		if(!cistrcmp(ctf_forcejoin->string, "red")){
 			joinmenu[jmenu_blue].text = NULL;
 			joinmenu[jmenu_blue].SelectFunc = NULL;
-		} else if (stricmp(ctf_forcejoin->string, "blue") == 0) {
+		}else if(!cistrcmp(ctf_forcejoin->string, "blue")){
 			joinmenu[jmenu_red].text = NULL;
 			joinmenu[jmenu_red].SelectFunc = NULL;
 		}
@@ -3948,7 +3948,7 @@ void CTFWarp(edict_t *ent)
 
 	token = strtok(mlist, seps);
 	while (token != NULL) {
-		if (Q_strcasecmp(token, gi.argv(1)) == 0)
+		if (cistrcmp(token, gi.argv(1)) == 0)
 			break;
 		token = strtok(NULL, seps);
 	}

@@ -19,6 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // input.h -- external (non-keyboard) input devices
 
+extern cvar_t *in_joystick;
+extern cvar_t *lookspring;
+extern cvar_t *lookstrafe;
+extern cvar_t *sensitivity;
+extern cvar_t *freelook;
+extern cvar_t *m_pitch;
+
 void IN_Init (void);
 
 void IN_Shutdown (void);

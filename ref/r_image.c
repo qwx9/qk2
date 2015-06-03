@@ -583,35 +583,23 @@ void R_FreeUnusedImages (void)
 	}
 }
 
-
-
-/*
-===============
-R_InitImages
-===============
-*/
-void	R_InitImages (void)
+void
+R_InitImages(void)
 {
 	registration_sequence = 1;
 }
 
-/*
-===============
-R_ShutdownImages
-===============
-*/
-void	R_ShutdownImages (void)
+void
+R_ShutdownImages(void)
 {
-	int		i;
-	image_t	*image;
+	int i;
+	image_t *image;
 
-	for (i=0, image=r_images ; i<numr_images ; i++, image++)
-	{
-		if (!image->registration_sequence)
+	for(i=0, image=r_images; i<numr_images; i++, image++){
+		if(!image->registration_sequence)
 			continue;		// free texture
 		// free it
-		free (image->pixels[0]);	// the other mip levels just follow
-		memset (image, 0, sizeof(*image));
+		free(image->pixels[0]);	// the other mip levels just follow
+		memset(image, 0, sizeof *image);
 	}
 }
-

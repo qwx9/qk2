@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // q_shared.h -- included first by ALL program modules
 
-#pragma pack on		/* FIXME: amd64 workaround for structs assumed aligned to 4 bytes */
-
 //#define id386
 
 typedef unsigned char 		byte;
@@ -179,12 +177,6 @@ void Com_PageInMemory (byte *buffer, int size);
 
 //=============================================
 
-// portable case insensitive compare
-int Q_strcasecmp (char *s1, char *s2);
-int Q_strncasecmp (char *s1, char *s2, int n);
-
-//=============================================
-
 short	BigShort(short l);
 short	LittleShort(short l);
 int		BigLong (int l);
@@ -221,6 +213,7 @@ extern	int	curtime;		// time returned by last Sys_Milliseconds
 
 int		Sys_Milliseconds (void);
 void	Sys_Mkdir (char *path);
+vlong	flen(int);
 
 // large block stack allocation routines
 void	*Hunk_Begin (int maxsize);

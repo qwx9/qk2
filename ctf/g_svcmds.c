@@ -41,7 +41,7 @@ void	ServerCommand (void)
 	char	*cmd;
 
 	cmd = gi.argv(1);
-	if (Q_strcasecmp (cmd, "test") == 0)
+	if (cistrcmp (cmd, "test") == 0)
 		Svcmd_Test_f ();
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);

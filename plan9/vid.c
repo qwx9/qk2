@@ -5,20 +5,25 @@
 #include <ctype.h>
 #include "../q_shared.h"
 
-qboolean rwon;
-uchar *framebuf;
-Image *fbim;
+refexport_t re;	/* exported functions from refresh DLL */
 int resized;
 Point center;
 
 typedef ulong PIXEL;
-PIXEL st2d_8to24table[256];
-int shiftmask_fl;
-int r_shift, g_shift, b_shift;
-uint r_mask, g_mask, b_mask;
+
+static int rwon;
+static uchar *framebuf;
+static Image *fbim;
+static PIXEL st2d_8to24table[256];
+static int shiftmask_fl;
+static int r_shift, g_shift, b_shift;
+static uint r_mask, g_mask, b_mask;
+
+refexport_t GetRefAPI(refimport_t);
 
 
-void shiftmask_init (void)
+static void
+shiftmask_init(void)
 {
 	uint x;
 
@@ -34,7 +39,8 @@ void shiftmask_init (void)
 	shiftmask_fl = 1;
 }
 
-PIXEL rgb24 (int r, int g, int b)
+static PIXEL
+rgb24(int r, int g, int b)
 {
 	PIXEL p = 0;
 
@@ -62,7 +68,8 @@ PIXEL rgb24 (int r, int g, int b)
 	return p;
 }
 
-void st3_fixup (void)
+static void
+st3_fixup(void)
 {
 	int x, y;
 	uchar *src;
@@ -90,7 +97,8 @@ void st3_fixup (void)
 	}
 }
 
-void resetfb (void)
+static void
+resetfb(void)
 {
 	vid.width = Dx(screen->r);
 	vid.height = Dy(screen->r);
@@ -112,19 +120,21 @@ void resetfb (void)
 	sw_mode->modified = true;	/* make ref_soft refresh its shit */
 }
 
-int SWimp_Init (void */*hInstance*/, void */*wndProc*/)
+int
+SWimp_Init(void *, void *)
 {
 	srand(getpid());
 
 	if(initdraw(nil, nil, "quake2") < 0)
 		sysfatal("VID_Init:initdraw: %r\n");
 	resetfb();
-	rwon = true;
-	return true;
+	rwon = 1;
+	return 1;
 }
 
 /* copy backbuffer to front buffer */
-void SWimp_EndFrame (void)
+void
+SWimp_EndFrame(void)
 {
 	if(resized){		/* skip frame if window resizes */
 		resized = 0;
@@ -139,13 +149,15 @@ void SWimp_EndFrame (void)
 	flushimage(display, 1);
 }
 
-rserr_t SWimp_SetMode (int */*pwidth*/, int */*pheight*/, int /*mode*/, qboolean /*fullscreen*/)
+rserr_t
+SWimp_SetMode(int */*pwidth*/, int */*pheight*/, int /*mode*/, qboolean /*fullscreen*/)
 {
 	return rserr_ok;
 }
 
 /* nil palette == use existing; palette is expected to be in padded 4-byte xRGB format */
-void SWimp_SetPalette (uchar *palette)
+void
+SWimp_SetPalette(uchar *palette)
 {
 	int i;
 
@@ -157,7 +169,8 @@ void SWimp_SetPalette (uchar *palette)
 		st2d_8to24table[i] = rgb24(palette[i*4], palette[i*4+1], palette[i*4+2]);
 }
 
-void SWimp_Shutdown (void)
+void
+SWimp_Shutdown(void)
 {
 	if(!rwon)
 		return;
@@ -165,9 +178,72 @@ void SWimp_Shutdown (void)
 		free(framebuf);
 	if(fbim != nil)
 		freeimage(fbim);
-	rwon = false;
+	rwon = 0;
 }
 
-void SWimp_AppActivate (qboolean /*active*/)
+void
+SWimp_AppActivate(qboolean /*active*/)
 {
+}
+
+void
+VID_Printf(int print_level, char *fmt, ...)
+{
+	va_list argptr;
+	char msg[4096];
+	
+	va_start(argptr, fmt);
+	vsprintf(msg, fmt, argptr);
+	va_end(argptr);
+	if(print_level == PRINT_ALL)
+		Com_Printf("%s", msg);
+	else
+		Com_DPrintf("%s", msg);
+}
+
+void
+VID_Error(int err_level, char *fmt, ...)
+{
+	va_list argptr;
+	char msg[4096];
+	
+	va_start(argptr, fmt);
+	vsprintf(msg, fmt, argptr);
+	va_end(argptr);
+	Com_Error(err_level, "%s", msg);
+}
+
+void
+VID_CheckChanges(void)
+{
+}
+
+void
+VID_Shutdown(void)
+{
+	R_Shutdown();
+}
+
+void
+VID_Init(void)
+{
+	refimport_t ri;
+
+	ri.Cmd_AddCommand = Cmd_AddCommand;
+	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
+	ri.Cmd_Argc = Cmd_Argc;
+	ri.Cmd_Argv = Cmd_Argv;
+	ri.Cmd_ExecuteText = Cbuf_ExecuteText;
+	ri.Con_Printf = VID_Printf;
+	ri.Sys_Error = VID_Error;
+	ri.FS_LoadFile = FS_LoadFile;
+	ri.FS_FreeFile = FS_FreeFile;
+	ri.FS_Gamedir = FS_Gamedir;
+	ri.Cvar_Get = Cvar_Get;
+	ri.Cvar_Set = Cvar_Set;
+	ri.Cvar_SetValue = Cvar_SetValue;
+	ri.Vid_MenuInit = VID_MenuInit;
+
+	re = GetRefAPI(ri);
+	re.Init(nil, nil);
 }

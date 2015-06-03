@@ -1579,12 +1579,3 @@ void Qcommon_Frame (int msec)
 			all, sv, gm, cl, rf);
 	}	
 }
-
-/*
-=================
-Qcommon_Shutdown
-=================
-*/
-void Qcommon_Shutdown (void)
-{
-}

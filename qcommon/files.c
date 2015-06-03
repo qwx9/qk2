@@ -236,7 +236,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 		// look through all the pak file elements
 			pak = search->pack;
 			for (i=0 ; i<pak->numfiles ; i++)
-				if (!Q_strcasecmp (pak->files[i].name, filename))
+				if (!cistrcmp (pak->files[i].name, filename))
 				{	// found it!
 					file_from_pak = 1;
 					Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);
@@ -309,7 +309,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 
 	pak = search->pack;
 	for (i=0 ; i<pak->numfiles ; i++)
-		if (!Q_strcasecmp (pak->files[i].name, filename))
+		if (!cistrcmp (pak->files[i].name, filename))
 		{	// found it!
 			file_from_pak = 1;
 			Com_DPrintf ("PackFile: %s : %s\n",pak->filename, filename);

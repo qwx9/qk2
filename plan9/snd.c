@@ -4,41 +4,44 @@
 #include <thread.h>
 #include "../q_shared.h"
 
-int sndon;
+static cvar_t *sndbits;
+static cvar_t *sndspeed;
+static cvar_t *sndchannels;
+static cvar_t *snddev;
 
+static int afd, sndon, wpos;
 enum{
 	Nbuf	= 32
 };
-int audio_fd;
-int wpos;
-int stid = -1;
-Channel *schan;
-
-cvar_t *sndbits;
-cvar_t *sndspeed;
-cvar_t *sndchannels;
-cvar_t *snddevice;
+static Channel *schan;
+static QLock sndlock;
 
 
-void sproc (void *)
+static void
+sproc(void *)
 {
 	int n;
+
+	threadsetgrp(THsnd);
 
 	for(;;){
 		if(recv(schan, nil) < 0){
 			fprint(2, "sproc:recv %r\n");
 			break;
 		}
-		if((n = write(audio_fd, dma.buffer, dma.samplebits/8 * dma.samples)) < 0){
+		if((n = write(afd, dma.buffer, dma.samplebits/8 * dma.samples)) < 0){
 			fprint(2, "sproc:write %r\n");
 			break;
 		}
+		qlock(&sndlock);
 		wpos += n;
+		qunlock(&sndlock);
 	}
-	stid = -1;
+	fprint(2, "sproc %d: %r\n", threadpid(threadid()));
 }
 
-qboolean SNDDMA_Init(void)
+qboolean
+SNDDMA_Init(void)
 {
 	if(sndon)
 		return false;
@@ -46,14 +49,14 @@ qboolean SNDDMA_Init(void)
 	if(COM_CheckParm("-nosound"))
 		return false;
 
-	if(!snddevice){
+	if(snddev == nil){
 		sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
 		sndspeed = Cvar_Get("sndspeed", "44100", CVAR_ARCHIVE);
 		sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
-		snddevice = Cvar_Get("snddevice", "/dev/audio", CVAR_ARCHIVE);
+		snddev = Cvar_Get("snddev", "/dev/audio", CVAR_ARCHIVE);
 	}
 
-	if((audio_fd = open(snddevice->string, OWRITE)) < 0){
+	if((afd = open(snddev->string, OWRITE)) < 0){
 		fprint(2, "SNDDMA_Init:open %r\n");
 		return false;
 	}
@@ -73,42 +76,45 @@ qboolean SNDDMA_Init(void)
 		sysfatal("SNDDMA_Init:mallocz: %r\n");
 	dma.samplepos = 0;
 	sndon = 1;
+	wpos = 0;
 
 	schan = chancreate(sizeof(int), Nbuf);
-	if((stid = proccreate(sproc, nil, 8192)) < 0){
-		stid = -1;
+	if(proccreate(sproc, nil, 8192) < 0){
 		SNDDMA_Shutdown();
 		sysfatal("SNDDMA_Init:proccreate: %r\n");
 	}
 	return true;
 }
 
-int SNDDMA_GetDMAPos(void)
+int
+SNDDMA_GetDMAPos(void)
 {
 	if(!sndon)
 		return 0;
+	qlock(&sndlock);
 	dma.samplepos = wpos / (dma.samplebits/8);
+	qunlock(&sndlock);
 	return dma.samplepos;
 }
 
-void SNDDMA_Shutdown(void)
+void
+SNDDMA_Shutdown(void)
 {
 	if(!sndon)
 		return;
-	if(stid != -1){
-		threadkill(stid);
-		stid = -1;
-	}
+
+	threadkillgrp(THsnd);
+	close(afd);
 	if(schan != nil){
 		chanfree(schan);
 		schan = nil;
 	}
 	free(dma.buffer);
-	close(audio_fd);
 	sndon = 0;
 }
 
-void SNDDMA_Submit(void)
+void
+SNDDMA_Submit(void)
 {
 	if(nbsend(schan, nil) < 0){
 		fprint(2, "SNDDMA_Submit:nbsend: %r\n");
@@ -116,6 +122,7 @@ void SNDDMA_Submit(void)
 	}
 }
 
-void SNDDMA_BeginPainting (void)
+void
+SNDDMA_BeginPainting(void)
 {
 }

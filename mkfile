@@ -48,7 +48,6 @@ OFILES=\
 	plan9/menu.$O\
 	plan9/misc.$O\
 	plan9/snd.$O\
-	plan9/so.$O\
 	plan9/sys.$O\
 	plan9/udp.$O\
 	plan9/vid.$O\

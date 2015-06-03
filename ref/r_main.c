@@ -241,38 +241,38 @@ void R_ImageList_f( void );
 
 void R_Register (void)
 {
-	sw_aliasstats = ri.Cvar_Get ("sw_polymodelstats", "0", 0);
-	sw_allow_modex = ri.Cvar_Get( "sw_allow_modex", "1", CVAR_ARCHIVE );
-	sw_clearcolor = ri.Cvar_Get ("sw_clearcolor", "2", 0);
-	sw_drawflat = ri.Cvar_Get ("sw_drawflat", "0", 0);
-	sw_draworder = ri.Cvar_Get ("sw_draworder", "0", 0);
-	sw_maxedges = ri.Cvar_Get ("sw_maxedges", STRINGER(MAXSTACKSURFACES), 0);
-	sw_maxsurfs = ri.Cvar_Get ("sw_maxsurfs", "0", 0);
-	sw_mipcap = ri.Cvar_Get ("sw_mipcap", "0", 0);
-	sw_mipscale = ri.Cvar_Get ("sw_mipscale", "1", 0);
-	sw_reportedgeout = ri.Cvar_Get ("sw_reportedgeout", "0", 0);
-	sw_reportsurfout = ri.Cvar_Get ("sw_reportsurfout", "0", 0);
-	sw_stipplealpha = ri.Cvar_Get( "sw_stipplealpha", "0", CVAR_ARCHIVE );
-	sw_surfcacheoverride = ri.Cvar_Get ("sw_surfcacheoverride", "0", 0);
-	sw_waterwarp = ri.Cvar_Get ("sw_waterwarp", "1", 0);
-	sw_mode = ri.Cvar_Get( "sw_mode", "0", CVAR_ARCHIVE );
+	sw_aliasstats = Cvar_Get("sw_polymodelstats", "0", 0);
+	sw_allow_modex = Cvar_Get("sw_allow_modex", "1", CVAR_ARCHIVE);
+	sw_clearcolor = Cvar_Get("sw_clearcolor", "2", 0);
+	sw_drawflat = Cvar_Get("sw_drawflat", "0", 0);
+	sw_draworder = Cvar_Get("sw_draworder", "0", 0);
+	sw_maxedges = Cvar_Get("sw_maxedges", STRINGER(MAXSTACKSURFACES), 0);
+	sw_maxsurfs = Cvar_Get("sw_maxsurfs", "0", 0);
+	sw_mipcap = Cvar_Get("sw_mipcap", "0", 0);
+	sw_mipscale = Cvar_Get("sw_mipscale", "1", 0);
+	sw_reportedgeout = Cvar_Get("sw_reportedgeout", "0", 0);
+	sw_reportsurfout = Cvar_Get("sw_reportsurfout", "0", 0);
+	sw_stipplealpha = Cvar_Get("sw_stipplealpha", "0", CVAR_ARCHIVE);
+	sw_surfcacheoverride = Cvar_Get("sw_surfcacheoverride", "0", 0);
+	sw_waterwarp = Cvar_Get ("sw_waterwarp", "1", 0);
+	sw_mode = Cvar_Get("sw_mode", "0", CVAR_ARCHIVE);
 
-	r_lefthand = ri.Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
-	r_speeds = ri.Cvar_Get ("r_speeds", "0", 0);
-	r_fullbright = ri.Cvar_Get ("r_fullbright", "0", 0);
-	r_drawentities = ri.Cvar_Get ("r_drawentities", "1", 0);
-	r_drawworld = ri.Cvar_Get ("r_drawworld", "1", 0);
-	r_dspeeds = ri.Cvar_Get ("r_dspeeds", "0", 0);
-	r_lightlevel = ri.Cvar_Get ("r_lightlevel", "0", 0);
-	r_lerpmodels = ri.Cvar_Get( "r_lerpmodels", "1", 0 );
-	r_novis = ri.Cvar_Get( "r_novis", "0", 0 );
+	r_lefthand = Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
+	r_speeds = Cvar_Get("r_speeds", "0", 0);
+	r_fullbright = Cvar_Get("r_fullbright", "0", 0);
+	r_drawentities = Cvar_Get("r_drawentities", "1", 0);
+	r_drawworld = Cvar_Get("r_drawworld", "1", 0);
+	r_dspeeds = Cvar_Get("r_dspeeds", "0", 0);
+	r_lightlevel = Cvar_Get("r_lightlevel", "0", 0);
+	r_lerpmodels = Cvar_Get("r_lerpmodels", "1", 0);
+	r_novis = Cvar_Get("r_novis", "0", 0);
 
-	vid_fullscreen = ri.Cvar_Get( "vid_fullscreen", "0", CVAR_ARCHIVE );
-	vid_gamma = ri.Cvar_Get( "vid_gamma", "1.0", CVAR_ARCHIVE );
+	vid_fullscreen = Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
+	vid_gamma = Cvar_Get("vid_gamma", "1", CVAR_ARCHIVE);
 
-	ri.Cmd_AddCommand ("modellist", Mod_Modellist_f);
-	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
-	ri.Cmd_AddCommand( "imagelist", R_ImageList_f );
+	Cmd_AddCommand("modellist", Mod_Modellist_f);
+	Cmd_AddCommand("screenshot", R_ScreenShot_f);
+	Cmd_AddCommand("imagelist", R_ImageList_f);
 
 	sw_mode->modified = true; // force us to do mode specific stuff later
 	vid_gamma->modified = true; // force us to rebuild the gamma table later
@@ -282,11 +282,12 @@ void R_Register (void)
 //PGM
 }
 
-void R_UnRegister (void)
+void
+R_UnRegister(void)
 {
-	ri.Cmd_RemoveCommand( "screenshot" );
-	ri.Cmd_RemoveCommand ("modellist");
-	ri.Cmd_RemoveCommand( "imagelist" );
+	Cmd_RemoveCommand("screenshot");
+	Cmd_RemoveCommand("modellist");
+	Cmd_RemoveCommand("imagelist");
 }
 
 /*
@@ -327,36 +328,25 @@ qboolean R_Init( void *hInstance, void *wndProc )
 	return true;
 }
 
-/*
-===============
-R_Shutdown
-===============
-*/
-void R_Shutdown (void)
+void
+R_Shutdown(void)
 {
-	// free z buffer
-	if (d_pzbuffer)
-	{
-		free (d_pzbuffer);
-		d_pzbuffer = NULL;
+	if(d_pzbuffer){
+		free(d_pzbuffer);
+		d_pzbuffer = nil;
 	}
-	// free surface cache
-	if (sc_base)
-	{
-		D_FlushCaches ();
-		free (sc_base);
-		sc_base = NULL;
+	if(sc_base){
+		D_FlushCaches();
+		free(sc_base);
+		sc_base = nil;
 	}
-
-	// free colormap
-	if (vid.colormap)
-	{
-		free (vid.colormap);
-		vid.colormap = NULL;
+	if(vid.colormap){
+		free(vid.colormap);
+		vid.colormap = nil;
 	}
-	R_UnRegister ();
-	Mod_FreeAll ();
-	R_ShutdownImages ();
+	R_UnRegister();
+	Mod_FreeAll();
+	R_ShutdownImages();
 
 	SWimp_Shutdown();
 }

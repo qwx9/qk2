@@ -1,28 +1,35 @@
 qk2 - (9) quake 2
 =================
-	- game data dirs are stored in $home/lib/quake2/, e.g. $home/lib/quake2/dicks/
-	- 386 and amd64 only
-
+	- installation
+		. mk install
+		. mkdir -p $home/lib/quake2/baseq2
+		. dircp /n/quake2cd/baseq2 $home/lib/quake2/baseq2
+	- game dir for gamemode "dicks" is stored in $home/lib/quake2/dicks/
+	- tested on 386 and amd64 only
 
 horrors
 -------
-	- #pragma pack on set globally!!!
-	- rendering glitches and fault reads on resolutions not originally supported
-	  (4:3 and SXGA)
+	- rendering glitches and fault reads on resolutions not originally
+	  supported (anything other than 4:3)
 	- edict_t definitions merged without much looking
-	- q_sh9: stupid posixish glob stuff
-	- net_udp mostly horrid
+	- plan9/misc.c: stupid posixish glob stuff
+	- plan9/udp.c mostly horrid
 	- portme: cd_9
 	- garbled stdout (Sys_ConsoleOutput): \r instead of \n
-	- dedicated 1: input not working (Sys_ConsoleInput)
-	- race between mproc and IN_Commands
 	- cinematic palette is fucked up if you resize during playback
-	- sound only works thanks to shitty workarounds
-	- bad/unsafe rename() implementation
+	- sound only (sortof) works thanks to shitty workarounds
 	- ctf is untouched, so are rogue, xatrix
 
+differences with linux/x11 quake2
+---------------------------------
+	- mouse wheel up and down recognized and useable (but parsing is ugly)
+	- mouse buttons have (correct) plan9 names
+	- arbitrary resolutions up to 4096x4096 allowed (ref/r_local.h) and
+	  resize by dragging window edges
+	- no dynamic linking → "modules" are statically linked
 
 legal
 -----
 Quake 2, hence qk2, is licensed under the GPLv2. See COPYING for details.
-All of the Q2 data files remain copyrighted and licensed under the original terms.
+All of the Q2 data files remain copyrighted and licensed under the original
+terms.

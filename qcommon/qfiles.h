@@ -33,6 +33,8 @@ The .pak files are just a linear collapse of a directory tree
 
 #define IDPAKHEADER		(('K'<<24)+('C'<<16)+('A'<<8)+'P')
 
+#pragma pack on
+
 typedef struct
 {
 	char	name[56];
@@ -474,3 +476,5 @@ typedef struct
 	int		numareaportals;
 	int		firstareaportal;
 } darea_t;
+
+#pragma pack off

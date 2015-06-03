@@ -213,7 +213,7 @@ void EndDMLevel (void)
 		f = NULL;
 		t = strtok(s, seps);
 		while (t != NULL) {
-			if (Q_strcasecmp(t, level.mapname) == 0) {
+			if (cistrcmp(t, level.mapname) == 0) {
 				// it's in the list, go to the next one
 				t = strtok(NULL, seps);
 				if (t == NULL) { // end of list, go to first one

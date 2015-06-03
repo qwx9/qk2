@@ -192,7 +192,8 @@ void CL_RegisterSounds (void)
 	S_EndRegistration ();
 }
 
-void rename (char *old, char *new)	/* FIXME: unsafe impl. */
+static void
+rename(char *old, char *new)
 {
 	char *p;
 	Dir d;
@@ -456,7 +457,7 @@ void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 
 		// if we don't have the skin and the model wasn't male,
 		// see if the male has it (this is for CTF's skins)
- 		if (!ci->skin && Q_strcasecmp(model_name, "male"))
+ 		if (!ci->skin && cistrcmp(model_name, "male"))
 		{
 			// change model to male
 			strcpy(model_name, "male");

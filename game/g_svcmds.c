@@ -286,15 +286,15 @@ void	ServerCommand (void)
 	char	*cmd;
 
 	cmd = gi.argv(1);
-	if (Q_strcasecmp (cmd, "test") == 0)
+	if (cistrcmp (cmd, "test") == 0)
 		Svcmd_Test_f ();
-	else if (Q_strcasecmp (cmd, "addip") == 0)
+	else if (cistrcmp (cmd, "addip") == 0)
 		SVCmd_AddIP_f ();
-	else if (Q_strcasecmp (cmd, "removeip") == 0)
+	else if (cistrcmp (cmd, "removeip") == 0)
 		SVCmd_RemoveIP_f ();
-	else if (Q_strcasecmp (cmd, "listip") == 0)
+	else if (cistrcmp (cmd, "listip") == 0)
 		SVCmd_ListIP_f ();
-	else if (Q_strcasecmp (cmd, "writeip") == 0)
+	else if (cistrcmp (cmd, "writeip") == 0)
 		SVCmd_WriteIP_f ();
 	else
 		gi.cprintf (NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
