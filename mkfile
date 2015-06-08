@@ -46,7 +46,6 @@ OFILES=\
 	plan9/cd.$O\
 	plan9/in.$O\
 	plan9/menu.$O\
-	plan9/misc.$O\
 	plan9/snd.$O\
 	plan9/sys.$O\
 	plan9/udp.$O\

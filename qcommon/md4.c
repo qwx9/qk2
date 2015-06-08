@@ -1,5 +1,3 @@
-/* GLOBAL.H - RSAREF types and constants */
-
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
