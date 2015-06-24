@@ -216,22 +216,6 @@ void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4])
 				in1[2][2] * in2[2][3] + in1[2][3];
 }
 
-
-//============================================================================
-
-
-float Q_fabs (float f)
-{
-	/*
-	if (f >= 0)
-		return f;
-	return -f;
-	*/
-	int tmp = * ( int * ) &f;
-	tmp &= 0x7FFFFFFF;
-	return * ( float * ) &tmp;
-}
-
 /*
 ===============
 LerpAngle
@@ -508,17 +492,6 @@ void VectorScale (vec3_t in, vec_t scale, vec3_t out)
 	out[1] = in[1]*scale;
 	out[2] = in[2]*scale;
 }
-
-
-int Q_log2(int val)
-{
-	int answer=0;
-	while (val>>=1)
-		answer++;
-	return answer;
-}
-
-
 
 //====================================================================================
 
