@@ -1,7 +1,8 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 #include "m_actor.h"
 
 #define	MAX_ACTOR_NAMES		8

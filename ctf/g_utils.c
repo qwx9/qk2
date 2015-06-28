@@ -1,8 +1,9 @@
+#include <u.h>
+#include <libc.h>
 // g_utils.c -- misc utility functions for game module
 
 #include "../dat.h"
 #include "../fns.h"
-#include "g_local.h"
 
 
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)

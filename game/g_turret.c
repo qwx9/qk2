@@ -1,7 +1,8 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 
 
 void AnglesNormalize(vec3_t vec)

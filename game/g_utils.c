@@ -3,7 +3,8 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 
 
 void G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)

@@ -1,6 +1,7 @@
+#include <u.h>
+#include <libc.h>
 #include "../dat.h"
 #include "../fns.h"
-#include "g_local.h"
 
 qboolean FindTarget (edict_t *self);
 extern cvar_t	*maxclients;

@@ -1,8 +1,9 @@
+#include <u.h>
+#include <libc.h>
 // m_move.c -- monster movement
 
 #include "../dat.h"
 #include "../fns.h"
-#include "g_local.h"
 
 #define	STEPSIZE	18
 

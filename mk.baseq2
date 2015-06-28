@@ -1,3 +1,5 @@
+TARG=quake2
+
 GMOFILES=\
 	game/g_ai.$O\
 	game/p_client.$O\
@@ -49,7 +51,6 @@ GMOFILES=\
 	game/q_shared.$O\
 
 GMHFILES=\
-	game/g_local.h\
 	game/game.h\
 	game/m_actor.h\
 	game/m_berserk.h\

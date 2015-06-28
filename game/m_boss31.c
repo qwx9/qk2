@@ -3,7 +3,8 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 #include "m_boss31.h"
 
 extern SP_monster_makron (edict_t *self);

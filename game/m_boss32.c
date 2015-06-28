@@ -3,7 +3,8 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 #include "m_boss32.h"
 
 qboolean visible (edict_t *self, edict_t *other);

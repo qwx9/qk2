@@ -1,6 +1,7 @@
+#include <u.h>
+#include <libc.h>
 #include "../dat.h"
 #include "../fns.h"
-#include "g_local.h"
 
 field_t fields[] = {
 	{"classname", FOFS(classname), F_LSTRING},

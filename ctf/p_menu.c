@@ -1,6 +1,7 @@
+#include <u.h>
+#include <libc.h>
 #include "../dat.h"
 #include "../fns.h"
-#include "g_local.h"
 
 // Note that the pmenu entries are duplicated
 // this is so that a static set of pmenu entries can be used

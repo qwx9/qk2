@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -249,7 +251,7 @@ float	anglemod(float a)
 
 
 // this is the slow, general version
-int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, cplane_t *p)
 {
 	int		i;
 	float	dist1, dist2;
@@ -287,7 +289,7 @@ BoxOnPlaneSide
 Returns 1, 2, or 1 + 2
 ==================
 */
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, cplane_t *p)
 {
 	float	dist1, dist2;
 	int		sides;

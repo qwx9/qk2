@@ -1,6 +1,7 @@
+#include <u.h>
+#include <libc.h>
 #include "../dat.h"
 #include "../fns.h"
-#include "g_local.h"
 
 
 /*QUAKED func_group (0 0 0) ?

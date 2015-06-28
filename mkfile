@@ -1,95 +1,79 @@
 </$objtype/mkfile
 
 BIN=$home/bin/$objtype
-TARG=quake2
 
 # change this to build/load a different game "dll"
 <mk.baseq2
 
 OFILES=\
-	client/cl_cin.$O\
-	client/cl_ents.$O\
-	client/cl_fx.$O\
-	client/cl_newfx.$O\
-	client/cl_input.$O\
-	client/cl_inv.$O\
-	client/cl_main.$O\
-	client/cl_parse.$O\
-	client/cl_pred.$O\
-	client/cl_tent.$O\
-	client/cl_scrn.$O\
-	client/cl_view.$O\
-	client/console.$O\
-	client/keys.$O\
-	client/menu.$O\
-	client/snd_dma.$O\
-	client/snd_mem.$O\
-	client/snd_mix.$O\
-	client/qmenu.$O\
-	server/sv_ccmds.$O\
-	server/sv_ents.$O\
-	server/sv_game.$O\
-	server/sv_init.$O\
-	server/sv_main.$O\
-	server/sv_send.$O\
-	server/sv_user.$O\
-	server/sv_world.$O\
-	qcommon/cmd.$O\
-	qcommon/cmodel.$O\
-	qcommon/common.$O\
-	qcommon/crc.$O\
-	qcommon/cvar.$O\
-	qcommon/files.$O\
-	qcommon/md4.$O\
-	qcommon/net_chan.$O\
-	qcommon/pmove.$O\
-	plan9/cd.$O\
-	plan9/in.$O\
-	plan9/menu.$O\
-	plan9/snd.$O\
-	plan9/sys.$O\
-	plan9/udp.$O\
-	plan9/vid.$O\
-	ref/r_aclip.$O\
-	ref/r_alias.$O\
-	ref/r_bsp.$O\
-	ref/r_draw.$O\
-	ref/r_edge.$O\
-	ref/r_image.$O\
-	ref/r_light.$O\
-	ref/r_main.$O\
-	ref/r_misc.$O\
-	ref/r_model.$O\
-	ref/r_part.$O\
-	ref/r_poly.$O\
-	ref/r_polyse.$O\
-	ref/r_rast.$O\
-	ref/r_scan.$O\
-	ref/r_sprite.$O\
-	ref/r_surf.$O\
+	cl_cin.$O\
+	cl_ents.$O\
+	cl_fx.$O\
+	cl_newfx.$O\
+	cl_input.$O\
+	cl_inv.$O\
+	cl_main.$O\
+	cl_parse.$O\
+	cl_pred.$O\
+	cl_tent.$O\
+	cl_scrn.$O\
+	cl_view.$O\
+	console.$O\
+	keys.$O\
+	menu.$O\
+	snd_dma.$O\
+	snd_mem.$O\
+	snd_mix.$O\
+	qmenu.$O\
+	sv_ccmds.$O\
+	sv_ents.$O\
+	sv_game.$O\
+	sv_init.$O\
+	sv_main.$O\
+	sv_send.$O\
+	sv_user.$O\
+	sv_world.$O\
+	cmd.$O\
+	cmodel.$O\
+	common.$O\
+	crc.$O\
+	cvar.$O\
+	files.$O\
+	md4.$O\
+	net_chan.$O\
+	pmove.$O\
+	cd.$O\
+	in.$O\
+	snd.$O\
+	sys.$O\
+	udp.$O\
+	vid.$O\
+	vmenu.$O\
+	r_aclip.$O\
+	r_alias.$O\
+	r_bsp.$O\
+	r_draw.$O\
+	r_edge.$O\
+	r_image.$O\
+	r_light.$O\
+	r_main.$O\
+	r_misc.$O\
+	r_model.$O\
+	r_part.$O\
+	r_poly.$O\
+	r_polyse.$O\
+	r_rast.$O\
+	r_scan.$O\
+	r_sprite.$O\
+	r_surf.$O\
 	$GMOFILES\
 
 HFILES=\
+	adivtab.h\
 	anorms.h\
-	q_shared.h\
-	client/cdaudio.h\
-	client/client.h\
-	client/console.h\
-	client/input.h\
-	client/keys.h\
-	client/qmenu.h\
-	client/ref.h\
-	client/screen.h\
-	client/snd_loc.h\
-	client/sound.h\
-	client/vid.h\
-	server/server.h\
-	qcommon/crc.h\
-	qcommon/qcommon.h\
-	qcommon/qfiles.h\
-	ref/adivtab.h\
-	ref/r_local.h\
-	ref/rand1k.h\
+	dat.h\
+	fns.h\
+	rand1k.h\
 	$GMHFILES\
 
 # FIXME

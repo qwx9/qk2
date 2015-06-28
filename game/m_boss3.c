@@ -1,7 +1,8 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
-#include "../q_shared.h"
+#include "../dat.h"
+#include "../fns.h"
 #include "m_boss32.h"
 
 void Use_Boss3 (edict_t *ent, edict_t */*other*/, edict_t */*activator*/)
