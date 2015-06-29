@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 #include "m_player.h"
@@ -213,10 +214,10 @@ static edict_t *loc_findradius (edict_t *from, vec3_t org, float rad)
 	{
 		if (!from->inuse)
 			continue;
-#if 0
+/*
 		if (from->solid == SOLID_NOT)
 			continue;
-#endif
+*/
 		for (j=0 ; j<3 ; j++)
 			eorg[j] = org[j] - (from->s.origin[j] + (from->mins[j] + from->maxs[j])*0.5);
 		if (VectorLength(eorg) > rad)
@@ -500,13 +501,13 @@ Calculate the bonuses for flag defense, flag carrier defense, etc.
 Note that bonuses are not cumaltive.  You get one, they are in importance
 order.
 */
-void CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
+void CTFFragBonuses(edict_t *targ, edict_t *, edict_t *attacker)
 {
 	int i;
 	edict_t *ent;
 	gitem_t *flag_item, *enemy_flag_item;
 	int otherteam;
-	edict_t *flag, *carrier;
+	edict_t *flag, *carrier = nil;
 	char *c;
 	vec3_t v1, v2;
 
@@ -625,7 +626,7 @@ void CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 		return;
 	}
 
-	if (carrier && carrier != attacker) {
+	if (carrier != nil && carrier != attacker) {
 		VectorSubtract(targ->s.origin, carrier->s.origin, v1);
 		VectorSubtract(attacker->s.origin, carrier->s.origin, v1);
 
@@ -856,13 +857,13 @@ void CTFDeadDropFlag(edict_t *self)
 	}
 }
 
-qboolean CTFDrop_Flag(edict_t *ent, gitem_t *item)
+void
+CTFDrop_Flag(edict_t *ent, gitem_t *)
 {
 	if (rand() & 1) 
 		gi.cprintf(ent, PRINT_HIGH, "Only lusers drop flags.\n");
 	else
 		gi.cprintf(ent, PRINT_HIGH, "Winners don't drop flags.\n");
-	return false;
 }
 
 static void CTFFlagThink(edict_t *ent)
@@ -1141,14 +1142,14 @@ void SetCTFStats(edict_t *ent)
 /*QUAKED info_player_team1 (1 0 0) (-16 -16 -24) (16 16 32)
 potential team1 spawning position for ctf games
 */
-void SP_info_player_team1(edict_t *self)
+void SP_info_player_team1(edict_t *)
 {
 }
 
 /*QUAKED info_player_team2 (0 0 1) (-16 -16 -24) (16 16 32)
 potential team2 spawning position for ctf games
 */
-void SP_info_player_team2(edict_t *self)
+void SP_info_player_team2(edict_t *)
 {
 }
 
@@ -1250,7 +1251,7 @@ void CTFGrappleDrawCable(edict_t *self)
 	if (distance < 64)
 		return;
 
-#if 0
+/*
 	if (distance > 256)
 		return;
 
@@ -1268,7 +1269,7 @@ void CTFGrappleDrawCable(edict_t *self)
 		CTFResetGrapple(self);
 		return;
 	}
-#endif
+*/
 
 	// adjust start for beam origin being in middle of a segment
 //	VectorMA (start, 8, f, start);
@@ -1278,18 +1279,17 @@ void CTFGrappleDrawCable(edict_t *self)
 //	end[2] = self->absmin[2] + self->size[2] / 2;
 
 	gi.WriteByte (svc_temp_entity);
-#if 1 //def USE_GRAPPLE_CABLE
 	gi.WriteByte (TE_GRAPPLE_CABLE);
 	gi.WriteShort (self->owner - g_edicts);
 	gi.WritePosition (self->owner->s.origin);
 	gi.WritePosition (end);
 	gi.WritePosition (offset);
-#else
+/* ! USE_GRAPPLE_CABLE
 	gi.WriteByte (TE_MEDIC_CABLE_ATTACK);
 	gi.WriteShort (self - g_edicts);
 	gi.WritePosition (end);
 	gi.WritePosition (start);
-#endif
+*/
 	gi.multicast (self->s.origin, MULTICAST_PVS);
 }
 
@@ -1435,13 +1435,13 @@ void CTFGrappleFire (edict_t *ent, vec3_t g_offset, int damage, int effect)
 	gi.sound (ent, CHAN_RELIABLE+CHAN_WEAPON, gi.soundindex("weapons/grapple/grfire.wav"), volume, ATTN_NORM, 0);
 	CTFFireGrapple (ent, start, forward, damage, CTF_GRAPPLE_SPEED, effect);
 
-#if 0
+/*
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
 	gi.WriteByte (MZ_BLASTER);
 	gi.multicast (ent->s.origin, MULTICAST_PVS);
-#endif
+*/
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 }
@@ -1569,7 +1569,7 @@ void CTFTeam_f (edict_t *ent)
 CTFScoreboardMessage
 ==================
 */
-void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
+void CTFScoreboardMessage (edict_t *, edict_t *)
 {
 	char	entry[1024];
 	char	string[1400];
@@ -1620,7 +1620,6 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 	// print level name and exit rules
 	// add the clients in sorted order
 	*string = 0;
-	len = 0;
 
 	// team one
 	sprintf(string, "if 24 xv 8 yv 8 pic 24 endif "
@@ -1638,23 +1637,22 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 		if (i >= total[0] && i >= total[1])
 			break; // we're done
 
-#if 0 //ndef NEW_SCORE
+/* //ndef NEW_SCORE
 		// set up y
 		sprintf(entry, "yv %d ", 42 + i * 8);
 		if (maxsize - len > strlen(entry)) {
 			strcat(string, entry);
 			len = strlen(string);
 		}
-#else
+*/
 		*entry = 0;
-#endif
 
 		// left side
 		if (i < total[0]) {
 			cl = &game.clients[sorted[0][i]];
 			cl_ent = g_edicts + 1 + sorted[0][i];
 
-#if 0 //ndef NEW_SCORE
+/* //ndef NEW_SCORE
 			sprintf(entry+strlen(entry),
 			"xv 0 %s \"%3d %3d %-12.12s\" ",
 			(cl_ent == ent) ? "string2" : "string",
@@ -1664,7 +1662,7 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 
 			if (cl_ent->client->pers.inventory[ITEM_INDEX(flag2_item)])
 				strcat(entry, "xv 56 picn sbfctf2 ");
-#else
+*/
 			sprintf(entry+strlen(entry),
 				"ctf 0 %d %d %d %d ",
 				42 + i * 8,
@@ -1675,7 +1673,6 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 			if (cl_ent->client->pers.inventory[ITEM_INDEX(flag2_item)])
 				sprintf(entry + strlen(entry), "xv 56 yv %d picn sbfctf2 ",
 					42 + i * 8);
-#endif
 
 			if (maxsize - len > strlen(entry)) {
 				strcat(string, entry);
@@ -1689,7 +1686,7 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 			cl = &game.clients[sorted[1][i]];
 			cl_ent = g_edicts + 1 + sorted[1][i];
 
-#if 0 //ndef NEW_SCORE
+/* //ndef NEW_SCORE
 			sprintf(entry+strlen(entry),
 			"xv 160 %s \"%3d %3d %-12.12s\" ",
 			(cl_ent == ent) ? "string2" : "string",
@@ -1699,9 +1696,7 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 
 			if (cl_ent->client->pers.inventory[ITEM_INDEX(flag1_item)])
 				strcat(entry, "xv 216 picn sbfctf1 ");
-
-#else
-
+*/
 			sprintf(entry+strlen(entry),
 				"ctf 160 %d %d %d %d ",
 				42 + i * 8,
@@ -1712,7 +1707,6 @@ void CTFScoreboardMessage (edict_t *ent, edict_t *killer)
 			if (cl_ent->client->pers.inventory[ITEM_INDEX(flag1_item)])
 				sprintf(entry + strlen(entry), "xv 216 yv %d picn sbfctf1 ",
 					42 + i * 8);
-#endif
 			if (maxsize - len > strlen(entry)) {
 				strcat(string, entry);
 				len = strlen(string);
@@ -2633,7 +2627,6 @@ void CTFStartMatch(void)
 {
 	int i;
 	edict_t *ent;
-	int ghost = 0;
 
 	ctfgame.match = MATCH_GAME;
 	ctfgame.matchtime = level.time + matchtime->value * 60;
@@ -2946,12 +2939,12 @@ pmenu_t creditsmenu[] = {
 	{ "Return to Main Menu",			PMENU_ALIGN_LEFT, CTFReturnToMain }
 };
 
-static const int jmenu_level = 2;
-static const int jmenu_match = 3;
-static const int jmenu_red = 5;
-static const int jmenu_blue = 7;
-static const int jmenu_chase = 9;
-static const int jmenu_reqmatch = 11;
+static int jmenu_level = 2;
+static int jmenu_match = 3;
+static int jmenu_red = 5;
+static int jmenu_blue = 7;
+static int jmenu_chase = 9;
+static int jmenu_reqmatch = 11;
 
 pmenu_t joinmenu[] = {
 	{ "*Quake II",			PMENU_ALIGN_CENTER, NULL },
@@ -2971,7 +2964,7 @@ pmenu_t joinmenu[] = {
 	{ "ENTER to select",	PMENU_ALIGN_LEFT, NULL },
 	{ "ESC to Exit Menu",	PMENU_ALIGN_LEFT, NULL },
 	{ "(TAB to Return)",	PMENU_ALIGN_LEFT, NULL },
-	{ "v" CTF_STRING_VERSION,	PMENU_ALIGN_RIGHT, NULL },
+	{ "v" CTF_VERSION,	PMENU_ALIGN_RIGHT, NULL },
 };
 
 pmenu_t nochasemenu[] = {
@@ -3021,17 +3014,17 @@ void CTFJoinTeam(edict_t *ent, int desired_team)
 	}
 }
 
-void CTFJoinTeam1(edict_t *ent, pmenuhnd_t *p)
+void CTFJoinTeam1(edict_t *ent, pmenuhnd_t *)
 {
 	CTFJoinTeam(ent, CTF_TEAM1);
 }
 
-void CTFJoinTeam2(edict_t *ent, pmenuhnd_t *p)
+void CTFJoinTeam2(edict_t *ent, pmenuhnd_t *)
 {
 	CTFJoinTeam(ent, CTF_TEAM2);
 }
 
-void CTFChaseCam(edict_t *ent, pmenuhnd_t *p)
+void CTFChaseCam(edict_t *ent, pmenuhnd_t *)
 {
 	int i;
 	edict_t *e;
@@ -3058,13 +3051,13 @@ void CTFChaseCam(edict_t *ent, pmenuhnd_t *p)
 	PMenu_Open(ent, nochasemenu, -1, sizeof(nochasemenu) / sizeof(pmenu_t), NULL);
 }
 
-void CTFReturnToMain(edict_t *ent, pmenuhnd_t *p)
+void CTFReturnToMain(edict_t *ent, pmenuhnd_t *)
 {
 	PMenu_Close(ent);
 	CTFOpenJoinMenu(ent);
 }
 
-void CTFRequestMatch(edict_t *ent, pmenuhnd_t *p)
+void CTFRequestMatch(edict_t *ent, pmenuhnd_t *)
 {
 	char text[1024];
 
@@ -3077,7 +3070,7 @@ void CTFRequestMatch(edict_t *ent, pmenuhnd_t *p)
 
 void DeathmatchScoreboard (edict_t *ent);
 
-void CTFShowScores(edict_t *ent, pmenu_t *p)
+void CTFShowScores(edict_t *ent, pmenu_t *)
 {
 	PMenu_Close(ent);
 
@@ -3194,7 +3187,7 @@ void CTFOpenJoinMenu(edict_t *ent)
 	PMenu_Open(ent, joinmenu, team, sizeof(joinmenu) / sizeof(pmenu_t), NULL);
 }
 
-void CTFCredits(edict_t *ent, pmenuhnd_t *p)
+void CTFCredits(edict_t *ent, pmenuhnd_t *)
 {
 	PMenu_Close(ent);
 	PMenu_Open(ent, creditsmenu, -1, sizeof(creditsmenu) / sizeof(pmenu_t), NULL);
@@ -3344,7 +3337,7 @@ qboolean CTFCheckRules(void)
  * just here to help old map conversions
  *--------------------------------------------------------------------------*/
 
-static void old_teleporter_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+static void old_teleporter_touch (edict_t *self, edict_t *other, cplane_t *, csurface_t *)
 {
 	edict_t		*dest;
 	int			i;
@@ -3552,10 +3545,8 @@ void CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 	CTFOpenAdminMenu(ent);
 }
 
-void CTFAdmin_SettingsCancel(edict_t *ent, pmenuhnd_t *p)
+void CTFAdmin_SettingsCancel(edict_t *ent, pmenuhnd_t *)
 {
-	admin_settings_t *settings = p->arg;
-
 	PMenu_Close(ent);
 	CTFOpenAdminMenu(ent);
 }
@@ -3669,7 +3660,6 @@ void CTFAdmin_UpdateSettings(edict_t *ent, pmenuhnd_t *setmenu)
 
 	sprintf(text, "Match Lock:      %s", settings->matchlock ? "Yes" : "No");
 	PMenu_UpdateEntry(setmenu->entries + i, text, PMENU_ALIGN_LEFT, CTFAdmin_ChangeMatchLock);
-	i++;
 
 	PMenu_Update(ent);
 }
@@ -3690,7 +3680,7 @@ pmenu_t def_setmenu[] = {
 	{ "Cancel",			PMENU_ALIGN_LEFT, CTFAdmin_SettingsCancel }
 };
 
-void CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *p)
+void CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *)
 {
 	admin_settings_t *settings;
 	pmenuhnd_t *menu;
@@ -3712,7 +3702,7 @@ void CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, menu);
 }
 
-void CTFAdmin_MatchSet(edict_t *ent, pmenuhnd_t *p)
+void CTFAdmin_MatchSet(edict_t *ent, pmenuhnd_t *)
 {
 	PMenu_Close(ent);
 
@@ -3728,7 +3718,7 @@ void CTFAdmin_MatchSet(edict_t *ent, pmenuhnd_t *p)
 	}
 }
 
-void CTFAdmin_MatchMode(edict_t *ent, pmenuhnd_t *p)
+void CTFAdmin_MatchMode(edict_t *ent, pmenuhnd_t *)
 {
 	PMenu_Close(ent);
 
@@ -3740,7 +3730,7 @@ void CTFAdmin_MatchMode(edict_t *ent, pmenuhnd_t *p)
 	}
 }
 
-void CTFAdmin_Cancel(edict_t *ent, pmenuhnd_t *p)
+void CTFAdmin_Cancel(edict_t *ent, pmenuhnd_t *)
 {
 	PMenu_Close(ent);
 }
@@ -3918,7 +3908,7 @@ void CTFWarp(edict_t *ent)
 {
 	char text[1024];
 	char *mlist, *token;
-	static const char *seps = " \t\n\r";
+	static char *seps = " \t\n\r";
 
 	if (gi.argc() < 2) {
 		gi.cprintf(ent, PRINT_HIGH, "Where do you want to warp to?\n");

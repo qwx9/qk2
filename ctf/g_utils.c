@@ -1,7 +1,6 @@
 #include <u.h>
 #include <libc.h>
-// g_utils.c -- misc utility functions for game module
-
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 

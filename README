@@ -1,32 +1,115 @@
 qk2 - (9) quake 2
 =================
-	- installation
-		. mk install
-		. mkdir -p $home/lib/quake2/baseq2
-		. dircp /n/quake2cd/baseq2 $home/lib/quake2/baseq2
-	- game dir for gamemode "dicks" is stored in $home/lib/quake2/dicks/
-	- tested on 386 and amd64 only
+port of linux/x11 quake2 to plan9front. tested on amd64 and 386 only.
+currently lacks music and has a breaker bug with non 4:3 resolutions.
+performance-wise, it works fairly well on VESA with lower resolutions, e.g.
+800x600. on my machines.
 
-horrors
--------
-	- rendering glitches and fault reads on resolutions not originally
-	  supported (anything other than 4:3)
-	- edict_t definitions merged without much looking
-	- plan9/misc.c: stupid posixish glob stuff
-	- plan9/udp.c mostly horrid
-	- portme: cd_9
-	- garbled stdout (Sys_ConsoleOutput): \r instead of \n
-	- cinematic palette is fucked up if you resize during playback
-	- sound only (sortof) works thanks to shitty workarounds
-	- ctf is untouched, so are rogue, xatrix
+
+installation
+------------
+besides building and installation, qk2 needs the data from its retail cd. those
+are to be installed in $home/lib/quake2/baseq2. in a complete install, that
+directory will contain pak^(0 1 2)^.pak, as well as the players and video
+directories. neither players (for single play) nor video are mandatory. all
+filenames should be lowercased.
+
+% mk install
+% mkdir -p $home/lib/quake2/baseq2/^(players video)
+% cd /n/quake2cd/baseq2/
+% cp *.pak $home/lib/quake2/baseq2/
+% for(i in (players video)){ dircp $i $home/lib/quake2/baseq2/$i }
+
+
+quake2 mods
+-----------
+quake2 mods are C code built as shared libraries (called "game modules"). here,
+the code will have to be ported to plan9, adapted to qk2, then built and loaded
+against it. this repo contains the code for the official ctf mod; how to build
+and use it is explained below.
+for the rest of this file, let $mod the name of a mod. the data for the mod is
+to be stored in $home/lib/quake2/$mod/.
+
+
+installing a mod
+----------------
+in general, to build a mod, the only things that need to be altered are the
+contents of game/, mkfile, and adding a mk.$mod file. game/ contains $mod's
+source code for its game module (assuming the rest is implemented by qk2).
+mk.$mod contains TARG (for installation), and a list of object files to
+compile, and of headers (cf. mk.ctf for an example). mkfile includes the
+mk.$mod to build everything in one step. for example, to install ctf (and its
+data files from the cd):
+
+% bind -bc ctf game
+% ed mkfile	# output elided
+,s/<mk.baseq2/<mk.ctf/
+w
+q
+% mk install	# copies $OS.out to $home/lib/$objtype/q2ctf
+% mk clean
+% unmount game
+% mkdir $home/lib/quake2/ctf
+% dircp /n/quake2cd/ctf $home/lib/quake2/ctf
+
+ctf can then be started with e.g.:
+
+% q2ctf +set game ctf +set ctf 1
+
+
+porting a mod
+-------------
+in the case you wish to play a mod which has not been ported, and have nothing
+better to do, you will need to port it yourself. fwiw, ctf and crbot-1.0 took
+me about 4-5 hours each (not including debugging). note that all of this
+assumes the mod only alters code for the game module (game/). if that's not
+the case, no standard operational procedure exists.
+
+having obtained the $mod's source code, you can use game/*.[ch] as reference
+for your porting efforts. one thing specific to qk2 is how header files are
+handled: most common headers, including game/q_shared.h, were merged into dat.h
+and fns.h. game/[gp]*.h were merged into game/game.h. game/game.h is
+unfortunately included in dat.h, as some required structure definitions vary
+from mod to mod. as such, a mod is required to have $mod/game.h, which defines
+anything necessary for common code to work.
+
+you'll also need to write mk.$mod (cf. mod installation instructions above).
+
+
+todo/bugs
+---------
+- rendering glitches and fault reads on resolutions not originally supported
+  (anything other than 4:3)
+- edict_t definitions merged without much looking
+- sys.c: stupid posixish glob stuff
+- udp.c mostly horrid; need to rewrite networking stuff to use plan9 semantics
+- portme: cdaudio
+- garbled stdout (Sys_ConsoleOutput): \r instead of \n
+- cinematic palette is fucked up if you resize during playback
+- sound only (sortof) works thanks to shitty workarounds; in particular, sound
+  buffer seems to be overwritten as its being written to /dev/audio
+- multiplayer menu bugs: memory leaks and bugged map list
+- compliling with -DPARANOID reveals hidden truths
+- video menu doesn't make sense anymore; options menu includes deprecated crap
+- (bjnh) clean up code more, plan9 C style everywhere
+- (bjnh) better performance, use asm from original release
+- (bjnh) redesign everything to be super cool
+
 
 differences with linux/x11 quake2
 ---------------------------------
-	- mouse wheel up and down recognized and useable (but parsing is ugly)
-	- mouse buttons have (correct) plan9 names
-	- arbitrary resolutions up to 4096x4096 allowed (ref/r_local.h) and
-	  resize by dragging window edges
-	- no dynamic linking → "modules" are statically linked
+- mouse wheel up and down recognized and useable (but parsing is ugly)
+- mouse buttons have (correct) plan9 names
+- arbitrary resolutions up to 4096x4096 allowed (dat.h) and resize by dragging
+  window edges; no fullscreen
+- no dynamic linking → "modules" are statically linked
+- merged headers: dat.h,fns.h,game/game.h
+- m_windowed cvar and IN_Grabm() for mouse grabbing
+- ungrabs mouse when menu or console are opened
+- removed some useless sys cvars
+- mproc stuff for not letting mouse escape too often whenever the use swipes it
+  probably sucks
+
 
 legal
 -----

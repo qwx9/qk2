@@ -1,7 +1,8 @@
-#include <u.h>
-#include <libc.h>
 // m_move.c -- monster movement
 
+#include <u.h>
+#include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 

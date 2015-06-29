@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -584,11 +585,11 @@ void SV_Physics_Pusher (edict_t *ent)
 		// otherwise, just stay in place until the obstacle is gone
 		if (part->blocked)
 			part->blocked (part, obstacle);
-#if 0
+/*
 		// if the pushed entity went away and the pusher is still there
 		if (!obstacle->inuse && part->inuse)
 			goto retry;
-#endif
+*/
 	}
 	else
 	{

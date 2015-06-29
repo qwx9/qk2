@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 #include "m_player.h"
@@ -720,7 +721,8 @@ void Cmd_PutAway_f (edict_t *ent)
 }
 
 
-int PlayerSort (void const *a, void const *b)
+int
+PlayerSort(void *a, void *b)
 {
 	int		anum, bnum;
 

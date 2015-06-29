@@ -548,7 +548,7 @@ enum{
 	MOD_TRIGGER_HURT = 31,
 	MOD_HIT = 32,
 	MOD_TARGET_BLASTER = 33,
-	MOD_FRIENDLY_FIRE = 1<<31
+	MOD_FRIENDLY_FIRE = 1<<27
 };
 extern int meansOfDeath;
 

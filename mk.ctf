@@ -5,7 +5,7 @@ GMOFILES=\
 	game/g_chase.$O\
 	game/g_cmds.$O\
 	game/g_combat.$O\
-	game/g_game.$O\
+	game/g_ctf.$O\
 	game/g_func.$O\
 	game/g_items.$O\
 	game/g_main.$O\
@@ -27,6 +27,7 @@ GMOFILES=\
 	game/p_view.$O\
 	game/p_weapon.$O\
 	game/q_shared.$O\
+	game/m_flash.$O\
 
 GMHFILES=\
 	game/game.h\

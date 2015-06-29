@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -10,7 +11,7 @@ Used to group brushes together just for editor convenience.
 
 //=====================================================
 
-void Use_Areaportal (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Areaportal (edict_t *ent, edict_t *, edict_t *)
 {
 	ent->count ^= 1;		// toggle state
 //	gi.dprintf ("portalstate: %i = %i\n", ent->style, ent->count);
@@ -41,7 +42,7 @@ void VelocityForDamage (int damage, vec3_t v)
 {
 	v[0] = 100.0 * crandom();
 	v[1] = 100.0 * crandom();
-	v[2] = 200.0 + 100.0 * random();
+	v[2] = 200.0 + 100.0 * qrandom();
 
 	if (damage < 50)
 		VectorScale (v, 0.7, v);
@@ -79,11 +80,11 @@ void gib_think (edict_t *self)
 	if (self->s.frame == 10)
 	{
 		self->think = G_FreeEdict;
-		self->nextthink = level.time + 8 + random()*10;
+		self->nextthink = level.time + 8 + qrandom()*10;
 	}
 }
 
-void gib_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void gib_touch (edict_t *self, edict_t *, cplane_t *plane, csurface_t *)
 {
 	vec3_t	normal_angles, right;
 
@@ -109,7 +110,7 @@ void gib_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 	}
 }
 
-void gib_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void gib_die (edict_t *self, edict_t *, edict_t *, int, vec3_t)
 {
 	G_FreeEdict (self);
 }
@@ -152,12 +153,12 @@ void ThrowGib (edict_t *self, char *gibname, int damage, int type)
 	VelocityForDamage (damage, vd);
 	VectorMA (self->velocity, vscale, vd, gib->velocity);
 	ClipGibVelocity (gib);
-	gib->avelocity[0] = random()*600;
-	gib->avelocity[1] = random()*600;
-	gib->avelocity[2] = random()*600;
+	gib->avelocity[0] = qrandom()*600;
+	gib->avelocity[1] = qrandom()*600;
+	gib->avelocity[2] = qrandom()*600;
 
 	gib->think = G_FreeEdict;
-	gib->nextthink = level.time + 10 + random()*10;
+	gib->nextthink = level.time + 10 + qrandom()*10;
 
 	gi.linkentity (gib);
 }
@@ -202,7 +203,7 @@ void ThrowHead (edict_t *self, char *gibname, int damage, int type)
 	self->avelocity[YAW] = crandom()*600;
 
 	self->think = G_FreeEdict;
-	self->nextthink = level.time + 10 + random()*10;
+	self->nextthink = level.time + 10 + qrandom()*10;
 
 	gi.linkentity (self);
 }
@@ -255,7 +256,7 @@ void ThrowClientHead (edict_t *self, int damage)
 debris
 =================
 */
-void debris_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void debris_die (edict_t *self, edict_t *, edict_t *, int, vec3_t)
 {
 	G_FreeEdict (self);
 }
@@ -274,11 +275,11 @@ void ThrowDebris (edict_t *self, char *modelname, float speed, vec3_t origin)
 	VectorMA (self->velocity, speed, v, chunk->velocity);
 	chunk->movetype = MOVETYPE_BOUNCE;
 	chunk->solid = SOLID_NOT;
-	chunk->avelocity[0] = random()*600;
-	chunk->avelocity[1] = random()*600;
-	chunk->avelocity[2] = random()*600;
+	chunk->avelocity[0] = qrandom()*600;
+	chunk->avelocity[1] = qrandom()*600;
+	chunk->avelocity[2] = qrandom()*600;
 	chunk->think = G_FreeEdict;
-	chunk->nextthink = level.time + 5 + random()*5;
+	chunk->nextthink = level.time + 5 + qrandom()*5;
 	chunk->s.frame = 0;
 	chunk->flags = 0;
 	chunk->classname = "debris";
@@ -337,7 +338,7 @@ Pathtarget: gets used when an entity that has
 	this path_corner targeted touches it
 */
 
-void path_corner_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void path_corner_touch (edict_t *self, edict_t *other, cplane_t *, csurface_t *)
 {
 	vec3_t		v;
 	edict_t		*next;
@@ -416,7 +417,7 @@ Makes this the target of a monster and it will head here
 when first activated before going after the activator.  If
 hold is selected, it will stay here.
 */
-void point_combat_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void point_combat_touch (edict_t *self, edict_t *other, cplane_t *, csurface_t *)
 {
 	edict_t	*activator;
 
@@ -553,7 +554,7 @@ Default _cone value is 10 (used to set size of light for spotlights)
 
 #define START_OFF	1
 
-static void light_use (edict_t *self, edict_t *other, edict_t *activator)
+static void light_use (edict_t *self, edict_t *, edict_t *)
 {
 	if (self->spawnflags & START_OFF)
 	{
@@ -601,7 +602,7 @@ START_ON		only valid for TRIGGER_SPAWN walls
 				the wall will initially be present
 */
 
-void func_wall_use (edict_t *self, edict_t *other, edict_t *activator)
+void func_wall_use (edict_t *self, edict_t *, edict_t *)
 {
 	if (self->solid == SOLID_NOT)
 	{
@@ -673,7 +674,7 @@ void SP_func_wall (edict_t *self)
 This is solid bmodel that will fall if it's support it removed.
 */
 
-void func_object_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void func_object_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *)
 {
 	// only squash thing we fall on top of
 	if (!plane)
@@ -691,7 +692,7 @@ void func_object_release (edict_t *self)
 	self->touch = func_object_touch;
 }
 
-void func_object_use (edict_t *self, edict_t *other, edict_t *activator)
+void func_object_use (edict_t *self, edict_t *, edict_t *)
 {
 	self->solid = SOLID_BSP;
 	self->svflags &= ~SVF_NOCLIENT;
@@ -753,7 +754,7 @@ mass defaults to 75.  This determines how much debris is emitted when
 it explodes.  You get one large chunk per 100 of mass (up to 8) and
 one small chunk per 25 of mass (up to 16).  So 800 gives the most.
 */
-void func_explosive_explode (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void func_explosive_explode (edict_t *self, edict_t *inflictor, edict_t *attacker, int, vec3_t)
 {
 	vec3_t	origin;
 	vec3_t	chunkorigin;
@@ -817,12 +818,12 @@ void func_explosive_explode (edict_t *self, edict_t *inflictor, edict_t *attacke
 		G_FreeEdict (self);
 }
 
-void func_explosive_use(edict_t *self, edict_t *other, edict_t *activator)
+void func_explosive_use(edict_t *self, edict_t *other, edict_t *)
 {
 	func_explosive_explode (self, self, other, self->health, vec3_origin);
 }
 
-void func_explosive_spawn (edict_t *self, edict_t *other, edict_t *activator)
+void func_explosive_spawn (edict_t *self, edict_t *, edict_t *)
 {
 	self->solid = SOLID_BSP;
 	self->svflags &= ~SVF_NOCLIENT;
@@ -881,7 +882,7 @@ Large exploding box.  You can override its mass (100),
 health (80), and dmg (150).
 */
 
-void barrel_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void barrel_touch (edict_t *self, edict_t *other, cplane_t *, csurface_t *)
 
 {
 	float	ratio;
@@ -974,7 +975,7 @@ void barrel_explode (edict_t *self)
 		BecomeExplosion1 (self);
 }
 
-void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void barrel_delay (edict_t *self, edict_t *, edict_t *attacker, int, vec3_t)
 {
 	self->takedamage = DAMAGE_NO;
 	self->nextthink = level.time + 2 * FRAMETIME;
@@ -1029,7 +1030,7 @@ void SP_misc_explobox (edict_t *self)
 /*QUAKED misc_blackhole (1 .5 0) (-8 -8 -8) (8 8 8)
 */
 
-void misc_blackhole_use (edict_t *ent, edict_t *other, edict_t *activator)
+void misc_blackhole_use (edict_t *ent, edict_t *, edict_t *)
 {
 	/*
 	gi.WriteByte (svc_temp_entity);
@@ -1165,7 +1166,7 @@ void commander_body_think (edict_t *self)
 		gi.sound (self, CHAN_BODY, gi.soundindex ("tank/thud.wav"), 1, ATTN_NORM, 0);
 }
 
-void commander_body_use (edict_t *self, edict_t *other, edict_t *activator)
+void commander_body_use (edict_t *self, edict_t *, edict_t *)
 {
 	self->think = commander_body_think;
 	self->nextthink = level.time + FRAMETIME;
@@ -1225,7 +1226,7 @@ void SP_misc_banner (edict_t *ent)
 /*QUAKED misc_deadsoldier (1 .5 0) (-16 -16 0) (16 16 16) ON_BACK ON_STOMACH BACK_DECAP FETAL_POS SIT_DECAP IMPALED
 This is the dead player model. Comes in 6 exciting different poses!
 */
-void misc_deadsoldier_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void misc_deadsoldier_die (edict_t *self, edict_t *, edict_t *, int damage, vec3_t)
 {
 	int		n;
 
@@ -1338,7 +1339,7 @@ void SP_misc_bigviper (edict_t *ent)
 /*QUAKED misc_viper_bomb (1 0 0) (-8 -8 -8) (8 8 8)
 "dmg"	how much boom should the bomb make?
 */
-void misc_viper_bomb_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void misc_viper_bomb_touch (edict_t *self, edict_t *, cplane_t *, csurface_t *)
 {
 	G_UseTargets (self, self->activator);
 
@@ -1366,7 +1367,7 @@ void misc_viper_bomb_prethink (edict_t *self)
 	self->s.angles[2] = diff + 10;
 }
 
-void misc_viper_bomb_use (edict_t *self, edict_t *other, edict_t *activator)
+void misc_viper_bomb_use (edict_t *self, edict_t *, edict_t *activator)
 {
 	edict_t	*viper;
 
@@ -1460,7 +1461,7 @@ void misc_satellite_dish_think (edict_t *self)
 		self->nextthink = level.time + FRAMETIME;
 }
 
-void misc_satellite_dish_use (edict_t *self, edict_t *other, edict_t *activator)
+void misc_satellite_dish_use (edict_t *self, edict_t *, edict_t *)
 {
 	self->s.frame = 0;
 	self->think = misc_satellite_dish_think;
@@ -1514,9 +1515,9 @@ void SP_misc_gib_arm (edict_t *ent)
 	ent->movetype = MOVETYPE_TOSS;
 	ent->svflags |= SVF_MONSTER;
 	ent->deadflag = DEAD_DEAD;
-	ent->avelocity[0] = random()*200;
-	ent->avelocity[1] = random()*200;
-	ent->avelocity[2] = random()*200;
+	ent->avelocity[0] = qrandom()*200;
+	ent->avelocity[1] = qrandom()*200;
+	ent->avelocity[2] = qrandom()*200;
 	ent->think = G_FreeEdict;
 	ent->nextthink = level.time + 30;
 	gi.linkentity (ent);
@@ -1535,9 +1536,9 @@ void SP_misc_gib_leg (edict_t *ent)
 	ent->movetype = MOVETYPE_TOSS;
 	ent->svflags |= SVF_MONSTER;
 	ent->deadflag = DEAD_DEAD;
-	ent->avelocity[0] = random()*200;
-	ent->avelocity[1] = random()*200;
-	ent->avelocity[2] = random()*200;
+	ent->avelocity[0] = qrandom()*200;
+	ent->avelocity[1] = qrandom()*200;
+	ent->avelocity[2] = qrandom()*200;
 	ent->think = G_FreeEdict;
 	ent->nextthink = level.time + 30;
 	gi.linkentity (ent);
@@ -1556,9 +1557,9 @@ void SP_misc_gib_head (edict_t *ent)
 	ent->movetype = MOVETYPE_TOSS;
 	ent->svflags |= SVF_MONSTER;
 	ent->deadflag = DEAD_DEAD;
-	ent->avelocity[0] = random()*200;
-	ent->avelocity[1] = random()*200;
-	ent->avelocity[2] = random()*200;
+	ent->avelocity[0] = qrandom()*200;
+	ent->avelocity[1] = qrandom()*200;
+	ent->avelocity[2] = qrandom()*200;
 	ent->think = G_FreeEdict;
 	ent->nextthink = level.time + 30;
 	gi.linkentity (ent);
@@ -1585,7 +1586,7 @@ void SP_target_character (edict_t *self)
 /*QUAKED target_string (0 0 1) (-8 -8 -8) (8 8 8)
 */
 
-void target_string_use (edict_t *self, edict_t *other, edict_t *activator)
+void target_string_use (edict_t *self, edict_t *, edict_t *)
 {
 	edict_t *e;
 	int		n, l;
@@ -1685,6 +1686,8 @@ static void func_clock_format_countdown (edict_t *self)
 
 void func_clock_think (edict_t *self)
 {
+	Tm *t;
+
 	if (!self->enemy)
 	{
 		self->enemy = G_Find (NULL, FOFS(targetname), self->target);
@@ -1704,12 +1707,8 @@ void func_clock_think (edict_t *self)
 	}
 	else
 	{
-		struct tm	*ltime;
-		time_t		gmtime;
-
-		time(&gmtime);
-		ltime = localtime(&gmtime);
-		Com_sprintf (self->message, CLOCK_MESSAGE_SIZE, "%2i:%2i:%2i", ltime->tm_hour, ltime->tm_min, ltime->tm_sec);
+		t = localtime(time(nil));
+		Com_sprintf (self->message, CLOCK_MESSAGE_SIZE, "%2d:%2d:%2d", t->hour, t->min, t->sec);
 		if (self->message[3] == ' ')
 			self->message[3] = '0';
 		if (self->message[6] == ' ')
@@ -1748,7 +1747,7 @@ void func_clock_think (edict_t *self)
 	self->nextthink = level.time + 1;
 }
 
-void func_clock_use (edict_t *self, edict_t *other, edict_t *activator)
+void func_clock_use (edict_t *self, edict_t *, edict_t *activator)
 {
 	if (!(self->spawnflags & 8))
 		self->use = NULL;
@@ -1775,7 +1774,7 @@ void SP_func_clock (edict_t *self)
 	}
 
 	if ((self->spawnflags & 1) && (!self->count))
-		self->count = 60*60;;
+		self->count = 60*60;
 
 	func_clock_reset (self);
 
@@ -1791,7 +1790,7 @@ void SP_func_clock (edict_t *self)
 
 //=================================================================================
 
-void teleporter_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void teleporter_touch (edict_t *self, edict_t *other, cplane_t *, csurface_t *)
 {
 	edict_t		*dest;
 	int			i;

@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -76,7 +77,7 @@ void PMenu_Close(edict_t *ent)
 }
 
 // only use on pmenu's that have been called with PMenu_Open
-void PMenu_UpdateEntry(pmenu_t *entry, const char *text, int align, SelectFunc_t SelectFunc)
+void PMenu_UpdateEntry(pmenu_t *entry, char *text, int align, SelectFunc_t SelectFunc)
 {
 	if (entry->text)
 		free(entry->text);

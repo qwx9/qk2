@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 #include "m_player.h"
@@ -51,7 +52,7 @@ static void SP_FixCoopSpots (edict_t *self)
 // some maps don't have any coop spots at all, so we need to create them
 // where they should have been
 
-static void SP_CreateCoopSpots (edict_t *self)
+static void SP_CreateCoopSpots (edict_t *)
 {
 	edict_t	*spot;
 
@@ -152,7 +153,7 @@ void SP_info_player_coop(edict_t *self)
 The deathmatch intermission point will be at one of these
 Use 'angles' instead of 'angle', so you can set pitch or roll as well as yaw.  'pitch yaw roll'
 */
-void SP_info_player_intermission(void)
+void SP_info_player_intermission(edict_t *)
 {
 }
 
@@ -160,7 +161,7 @@ void SP_info_player_intermission(void)
 //=======================================================================
 
 
-void player_pain (edict_t *self, edict_t *other, float kick, int damage)
+void player_pain (edict_t *, edict_t *, float, int)
 {
 	// player pain is handled at the end of the frame in P_DamageFeedback
 }
@@ -180,7 +181,7 @@ qboolean IsFemale (edict_t *ent)
 }
 
 
-void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
+void ClientObituary (edict_t *self, edict_t *, edict_t *attacker)
 {
 	int			mod;
 	char		*message;
@@ -438,11 +439,11 @@ void LookAtKiller (edict_t *self, edict_t *inflictor, edict_t *attacker)
 {
 	vec3_t		dir;
 
-	if (attacker && attacker != world && attacker != self)
+	if (attacker && attacker != WORLD && attacker != self)
 	{
 		VectorSubtract (attacker->s.origin, self->s.origin, dir);
 	}
-	else if (inflictor && inflictor != world && inflictor != self)
+	else if (inflictor && inflictor != WORLD && inflictor != self)
 	{
 		VectorSubtract (inflictor->s.origin, self->s.origin, dir);
 	}
@@ -470,7 +471,7 @@ void LookAtKiller (edict_t *self, edict_t *inflictor, edict_t *attacker)
 player_die
 ==================
 */
-void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t)
 {
 	int		n;
 
@@ -843,16 +844,14 @@ edict_t *SelectDeathmatchSpawnPoint (void)
 edict_t *SelectCoopSpawnPoint (edict_t *ent)
 {
 	int		index;
-	edict_t	*spot = NULL;
+	edict_t	*spot = nil;
 	char	*target;
 
 	index = ent->client - game.clients;
 
 	// player 0 starts in normal player spawn point
 	if (!index)
-		return NULL;
-
-	spot = NULL;
+		return nil;
 
 	// assume there are four coop spots at each spawnpoint
 	while (1)
@@ -871,9 +870,6 @@ edict_t *SelectCoopSpawnPoint (edict_t *ent)
 				return spot;		// this is it
 		}
 	}
-
-
-	return spot;
 }
 
 
@@ -945,7 +941,7 @@ void InitBodyQue (void)
 	}
 }
 
-void body_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void body_die (edict_t *self, edict_t *, edict_t *, int damage, vec3_t)
 {
 	int	n;
 
@@ -1359,7 +1355,7 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 	char	*value;
 
 	// check to see if they are on the banned IP list
-	value = Info_ValueForKey (userinfo, "ip");
+	//value = Info_ValueForKey (userinfo, "ip");
 
 	// check for a password
 	value = Info_ValueForKey (userinfo, "password");

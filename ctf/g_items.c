@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -705,7 +706,7 @@ int PowerArmorType (edict_t *ent)
 	return POWER_ARMOR_NONE;
 }
 
-void Use_PowerArmor (edict_t *ent, gitem_t *item)
+void Use_PowerArmor (edict_t *ent, gitem_t *)
 {
 	int		index;
 
@@ -761,7 +762,7 @@ void Drop_PowerArmor (edict_t *ent, gitem_t *item)
 Touch_Item
 ===============
 */
-void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+void Touch_Item (edict_t *ent, edict_t *other, cplane_t *, csurface_t *)
 {
 	qboolean	taken;
 
@@ -895,7 +896,7 @@ edict_t *Drop_Item (edict_t *ent, gitem_t *item)
 	return dropped;
 }
 
-void Use_Item (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Item (edict_t *ent, edict_t *, edict_t *)
 {
 	ent->svflags &= ~SVF_NOCLIENT;
 	ent->use = NULL;
@@ -1589,10 +1590,9 @@ always owned, never in the world
 /* precache */ "sprites/s_bfg1.sp2 sprites/s_bfg2.sp2 sprites/s_bfg3.sp2 weapons/bfg__f1y.wav weapons/bfg__l1a.wav weapons/bfg__x1b.wav weapons/bfg_hum.wav"
 	},
 
-#if 0
-//ZOID
 /*QUAKED weapon_laser (.3 .3 1) (-16 -16 -16) (16 16 16)
 */
+/*
 	{
 		"weapon_laser",
 		Pickup_Weapon,
@@ -1602,8 +1602,8 @@ always owned, never in the world
 		"misc/w_pkup.wav",
 		"models/weapons/g_laser/tris.md2", EF_ROTATE,
 		"models/weapons/v_laser/tris.md2",
-/* icon */		"w_bfg",
-/* pickup */	"Flashlight Laser",
+			"w_bfg",
+		"Flashlight Laser",
 		0,
 		1,
 		"Cells",
@@ -1611,9 +1611,9 @@ always owned, never in the world
 		0,
 		NULL,
 		0,
-/* precache */ ""
+		""
 	},
-#endif
+*/
 
 	//
 	// AMMO ITEMS

@@ -1679,7 +1679,7 @@ void func_clock_think (edict_t *self)
 	else
 	{
 		t = localtime(time(nil));
-		Com_sprintf (self->message, CLOCK_MESSAGE_SIZE, "%2i:%2i:%2i", t->hour, t->min, t->sec);
+		Com_sprintf (self->message, CLOCK_MESSAGE_SIZE, "%2d:%2d:%2d", t->hour, t->min, t->sec);
 		if (self->message[3] == ' ')
 			self->message[3] = '0';
 		if (self->message[6] == ' ')

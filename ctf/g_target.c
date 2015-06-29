@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -7,7 +8,7 @@
 Fire an origin based temp entity event to the clients.
 "style"		type byte
 */
-void Use_Target_Tent (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Target_Tent (edict_t *ent, edict_t *, edict_t *)
 {
 	gi.WriteByte (svc_temp_entity);
 	gi.WriteByte (ent->style);
@@ -39,7 +40,7 @@ Normal sounds play each time the target is used.  The reliable flag can be set f
 Looped sounds are allways atten 3 / vol 1, and the use function toggles it on/off.
 Multiple identical looping sounds will just increase volume without any speed cost.
 */
-void Use_Target_Speaker (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Target_Speaker (edict_t *ent, edict_t *, edict_t *)
 {
 	int		chan;
 
@@ -99,7 +100,7 @@ void SP_target_speaker (edict_t *ent)
 
 //==========================================================
 
-void Use_Target_Help (edict_t *ent, edict_t *other, edict_t *activator)
+void Use_Target_Help (edict_t *ent, edict_t *, edict_t *)
 {
 	if (ent->spawnflags & 1)
 		strncpy (game.helpmessage1, ent->message, sizeof(game.helpmessage2)-1);
@@ -135,7 +136,7 @@ void SP_target_help(edict_t *ent)
 Counts a secret found.
 These are single use targets.
 */
-void use_target_secret (edict_t *ent, edict_t *other, edict_t *activator)
+void use_target_secret (edict_t *ent, edict_t *, edict_t *activator)
 {
 	gi.sound (ent, CHAN_VOICE, ent->noise_index, 1, ATTN_NORM, 0);
 
@@ -170,7 +171,7 @@ void SP_target_secret (edict_t *ent)
 Counts a goal completed.
 These are single use targets.
 */
-void use_target_goal (edict_t *ent, edict_t *other, edict_t *activator)
+void use_target_goal (edict_t *ent, edict_t *, edict_t *activator)
 {
 	gi.sound (ent, CHAN_VOICE, ent->noise_index, 1, ATTN_NORM, 0);
 
@@ -225,7 +226,7 @@ void target_explosion_explode (edict_t *self)
 	self->delay = save;
 }
 
-void use_target_explosion (edict_t *self, edict_t *other, edict_t *activator)
+void use_target_explosion (edict_t *self, edict_t *, edict_t *activator)
 {
 	self->activator = activator;
 
@@ -263,7 +264,7 @@ void use_target_changelevel (edict_t *self, edict_t *other, edict_t *activator)
 	}
 
 	// if noexit, do a ton of damage to other
-	if (deathmatch->value && !( (int)dmflags->value & DF_ALLOW_EXIT) && other != world)
+	if (deathmatch->value && !( (int)dmflags->value & DF_ALLOW_EXIT) && other != WORLD)
 	{
 		T_Damage (other, self, self, vec3_origin, other->s.origin, vec3_origin, 10 * other->max_health, 1000, 0, MOD_EXIT);
 		return;
@@ -319,7 +320,7 @@ Set "sounds" to one of the following:
 		useful for lava/sparks
 */
 
-void use_target_splash (edict_t *self, edict_t *other, edict_t *activator)
+void use_target_splash (edict_t *self, edict_t *, edict_t *activator)
 {
 	gi.WriteByte (svc_temp_entity);
 	gi.WriteByte (TE_SPLASH);
@@ -361,7 +362,7 @@ For gibs:
 */
 void ED_CallSpawn (edict_t *ent);
 
-void use_target_spawner (edict_t *self, edict_t *other, edict_t *activator)
+void use_target_spawner (edict_t *self, edict_t *, edict_t *)
 {
 	edict_t	*ent;
 
@@ -397,8 +398,9 @@ dmg		default is 15
 speed	default is 1000
 */
 
-void use_target_blaster (edict_t *self, edict_t *other, edict_t *activator)
+void use_target_blaster (edict_t *self, edict_t *, edict_t *)
 {
+/*
 	int effect;
 
 	if (self->spawnflags & 2)
@@ -407,7 +409,7 @@ void use_target_blaster (edict_t *self, edict_t *other, edict_t *activator)
 		effect = EF_HYPERBLASTER;
 	else
 		effect = EF_BLASTER;
-
+*/
 	fire_blaster (self, self->s.origin, self->movedir, self->dmg, self->speed, EF_BLASTER, MOD_TARGET_BLASTER);
 	gi.sound (self, CHAN_VOICE, self->noise_index, 1, ATTN_NORM, 0);
 }
@@ -432,7 +434,7 @@ void SP_target_blaster (edict_t *self)
 /*QUAKED target_crosslevel_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
 Once this trigger is touched/used, any trigger_crosslevel_target with the same trigger number is automatically used when a level is started within the same unit.  It is OK to check multiple triggers.  Message, delay, target, and killtarget also work.
 */
-void trigger_crosslevel_trigger_use (edict_t *self, edict_t *other, edict_t *activator)
+void trigger_crosslevel_trigger_use (edict_t *self, edict_t *, edict_t *)
 {
 	game.serverflags |= self->spawnflags;
 	G_FreeEdict (self);
@@ -557,7 +559,7 @@ void target_laser_off (edict_t *self)
 	self->nextthink = 0;
 }
 
-void target_laser_use (edict_t *self, edict_t *other, edict_t *activator)
+void target_laser_use (edict_t *self, edict_t *, edict_t *activator)
 {
 	self->activator = activator;
 	if (self->spawnflags & 1)
@@ -660,7 +662,7 @@ void target_lightramp_think (edict_t *self)
 	}
 }
 
-void target_lightramp_use (edict_t *self, edict_t *other, edict_t *activator)
+void target_lightramp_use (edict_t *self, edict_t *, edict_t *)
 {
 	if (!self->enemy)
 	{
@@ -766,7 +768,7 @@ void target_earthquake_think (edict_t *self)
 		self->nextthink = level.time + FRAMETIME;
 }
 
-void target_earthquake_use (edict_t *self, edict_t *other, edict_t *activator)
+void target_earthquake_use (edict_t *self, edict_t *, edict_t *activator)
 {
 	self->timestamp = level.time + self->count;
 	self->nextthink = level.time + FRAMETIME;

@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -175,7 +176,7 @@ void EndDMLevel (void)
 {
 	edict_t		*ent;
 	char *s, *t, *f;
-	static const char *seps = " ,\n\r";
+	static char *seps = " ,\n\r";
 
 	// stay on same level flag
 	if ((int)dmflags->value & DF_SAME_LEVEL)

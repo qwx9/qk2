@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -125,11 +126,11 @@ void ai_stand (edict_t *self, float dist)
 		if (self->monsterinfo.idle_time)
 		{
 			self->monsterinfo.idle (self);
-			self->monsterinfo.idle_time = level.time + 15 + random() * 15;
+			self->monsterinfo.idle_time = level.time + 15 + qrandom() * 15;
 		}
 		else
 		{
-			self->monsterinfo.idle_time = level.time + random() * 15;
+			self->monsterinfo.idle_time = level.time + qrandom() * 15;
 		}
 	}
 }
@@ -155,11 +156,11 @@ void ai_walk (edict_t *self, float dist)
 		if (self->monsterinfo.idle_time)
 		{
 			self->monsterinfo.search (self);
-			self->monsterinfo.idle_time = level.time + 15 + random() * 15;
+			self->monsterinfo.idle_time = level.time + 15 + qrandom() * 15;
 		}
 		else
 		{
-			self->monsterinfo.idle_time = level.time + random() * 15;
+			self->monsterinfo.idle_time = level.time + qrandom() * 15;
 		}
 	}
 }
@@ -656,16 +657,16 @@ qboolean M_CheckAttack (edict_t *self)
 	else if (skill->value >= 2)
 		chance *= 2;
 
-	if (random () < chance)
+	if (qrandom () < chance)
 	{
 		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + 2*random();
+		self->monsterinfo.attack_finished = level.time + 2*qrandom();
 		return true;
 	}
 
 	if (self->flags & FL_FLY)
 	{
-		if (random() < 0.3)
+		if (qrandom() < 0.3)
 			self->monsterinfo.attack_state = AS_SLIDING;
 		else
 			self->monsterinfo.attack_state = AS_STRAIGHT;
@@ -750,7 +751,7 @@ Decides if we're going to attack or do something else
 used by ai_run and ai_stand
 =============
 */
-qboolean ai_checkattack (edict_t *self, float dist)
+qboolean ai_checkattack (edict_t *self, float)
 {
 	vec3_t		temp;
 	qboolean	hesDeadJim;

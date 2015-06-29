@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "../dat.h"
 #include "../fns.h"
 
@@ -72,7 +73,7 @@ void monster_fire_railgun (edict_t *self, vec3_t start, vec3_t aimdir, int damag
 	gi.multicast (start, MULTICAST_PVS);
 }
 
-void monster_fire_bfg (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, int kick, float damage_radius, int flashtype)
+void monster_fire_bfg (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, int, float damage_radius, int flashtype)
 {
 	fire_bfg (self, start, aimdir, damage, speed, damage_radius);
 
@@ -109,11 +110,11 @@ void M_FlyCheck (edict_t *self)
 	if (self->waterlevel)
 		return;
 
-	if (random() > 0.5)
+	if (qrandom() > 0.5)
 		return;
 
 	self->think = M_FliesOn;
-	self->nextthink = level.time + 5 + 10 * random();
+	self->nextthink = level.time + 5 + 10 * qrandom();
 }
 
 void AttackFinished (edict_t *self, float time)
@@ -218,7 +219,7 @@ void M_WorldEffects (edict_t *ent)
 					dmg = 2 + 2 * floor(level.time - ent->air_finished);
 					if (dmg > 15)
 						dmg = 15;
-					T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
+					T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
 					ent->pain_debounce_time = level.time + 1;
 				}
 			}
@@ -236,7 +237,7 @@ void M_WorldEffects (edict_t *ent)
 					dmg = 2 + 2 * floor(level.time - ent->air_finished);
 					if (dmg > 15)
 						dmg = 15;
-					T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
+					T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, dmg, 0, DAMAGE_NO_ARMOR, MOD_WATER);
 					ent->pain_debounce_time = level.time + 1;
 				}
 			}
@@ -258,7 +259,7 @@ void M_WorldEffects (edict_t *ent)
 		if (ent->damage_debounce_time < level.time)
 		{
 			ent->damage_debounce_time = level.time + 0.2;
-			T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, 10*ent->waterlevel, 0, 0, MOD_LAVA);
+			T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, 10*ent->waterlevel, 0, 0, MOD_LAVA);
 		}
 	}
 	if ((ent->watertype & CONTENTS_SLIME) && !(ent->flags & FL_IMMUNE_SLIME))
@@ -266,7 +267,7 @@ void M_WorldEffects (edict_t *ent)
 		if (ent->damage_debounce_time < level.time)
 		{
 			ent->damage_debounce_time = level.time + 1;
-			T_Damage (ent, world, world, vec3_origin, ent->s.origin, vec3_origin, 4*ent->waterlevel, 0, 0, MOD_SLIME);
+			T_Damage (ent, WORLD, WORLD, vec3_origin, ent->s.origin, vec3_origin, 4*ent->waterlevel, 0, 0, MOD_SLIME);
 		}
 	}
 	
@@ -275,7 +276,7 @@ void M_WorldEffects (edict_t *ent)
 		if (!(ent->svflags & SVF_DEADMONSTER))
 		{
 			if (ent->watertype & CONTENTS_LAVA)
-				if (random() <= 0.5)
+				if (qrandom() <= 0.5)
 					gi.sound (ent, CHAN_BODY, gi.soundindex("player/lava1.wav"), 1, ATTN_NORM, 0);
 				else
 					gi.sound (ent, CHAN_BODY, gi.soundindex("player/lava2.wav"), 1, ATTN_NORM, 0);
@@ -421,7 +422,7 @@ monster_use
 Using a monster makes it angry at the current activator
 ================
 */
-void monster_use (edict_t *self, edict_t *other, edict_t *activator)
+void monster_use (edict_t *self, edict_t *, edict_t *activator)
 {
 	if (self->enemy)
 		return;
@@ -464,7 +465,7 @@ void monster_triggered_spawn (edict_t *self)
 	}
 }
 
-void monster_triggered_spawn_use (edict_t *self, edict_t *other, edict_t *activator)
+void monster_triggered_spawn_use (edict_t *self, edict_t *, edict_t *activator)
 {
 	// we have a one frame delay here so we don't telefrag the guy who activated us
 	self->think = monster_triggered_spawn;
