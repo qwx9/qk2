@@ -46,9 +46,10 @@ int	FS_LoadFile(char *, void **);
 void	FS_Read(void *, int, FILE *);
 void	FS_FreeFile(void *);
 void	FS_CreatePath(char *);
+char**	FS_ListFiles(char *, int *, int);
 
-char*	Sys_FindFirst(char *, uint, uint);
-char*	Sys_FindNext(uint, uint);
+char*	Sys_FindFirst(char *, int);
+char*	Sys_FindNext(int);
 void	Sys_FindClose(void);
 int	Sys_Milliseconds(void);
 void	Sys_Mkdir(char *);

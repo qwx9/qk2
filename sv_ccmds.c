@@ -150,19 +150,17 @@ void SV_WipeSavegame (char *savename)
 	remove (name);
 
 	Com_sprintf (name, sizeof(name), "%s/save/%s/*.sav", FS_Gamedir (), savename);
-	s = Sys_FindFirst( name, 0, 0 );
-	while (s)
-	{
-		remove (s);
-		s = Sys_FindNext( 0, 0 );
+	s = Sys_FindFirst(name, 0);
+	while(s != nil){
+		remove(s);
+		s = Sys_FindNext(0);
 	}
 	Sys_FindClose ();
 	Com_sprintf (name, sizeof(name), "%s/save/%s/*.sv2", FS_Gamedir (), savename);
-	s = Sys_FindFirst(name, 0, 0 );
-	while (s)
-	{
+	s = Sys_FindFirst(name, 0);
+	while(s != nil){
 		remove (s);
-		s = Sys_FindNext( 0, 0 );
+		s = Sys_FindNext(0);
 	}
 	Sys_FindClose ();
 }
@@ -232,9 +230,8 @@ void SV_CopySaveGame (char *src, char *dst)
 	Com_sprintf (name, sizeof(name), "%s/save/%s/", FS_Gamedir(), src);
 	len = strlen(name);
 	Com_sprintf (name, sizeof(name), "%s/save/%s/*.sav", FS_Gamedir(), src);
-	found = Sys_FindFirst(name, 0, 0 );
-	while (found)
-	{
+	found = Sys_FindFirst(name, 0);
+	while(found != nil){
 		strcpy (name+len, found+len);
 
 		Com_sprintf (name2, sizeof(name2), "%s/save/%s/%s", FS_Gamedir(), dst, found+len);
@@ -247,7 +244,7 @@ void SV_CopySaveGame (char *src, char *dst)
 		strcpy (name2+l-3, "sv2");
 		CopyFile (name, name2);
 
-		found = Sys_FindNext( 0, 0 );
+		found = Sys_FindNext(0);
 	}
 	Sys_FindClose ();
 }

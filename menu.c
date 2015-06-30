@@ -2415,6 +2415,20 @@ void RulesChangeFunc ( void * )
 //=====
 }
 
+static void
+freemaps(void)
+{
+	int i;
+
+	if(mapnames != nil){
+		for(i = 0; i < nummaps; i++)
+			free(mapnames[i]);
+		free(mapnames);
+	}
+	mapnames = nil;
+	nummaps = 0;
+}
+
 void StartServerActionFunc( void * )
 {
 	char	startmap[1024];
@@ -2513,6 +2527,8 @@ void StartServer_MenuInit( void )
 	int i;
 	FILE *fp;
 
+	freemaps();
+
 	/*
 	** load the list of map names
 	*/
@@ -2524,13 +2540,9 @@ void StartServer_MenuInit( void )
 	}
 	else
 	{
-#ifdef _WIN32
-		length = filelength( fileno( fp  ) );
-#else
 		fseek(fp, 0, SEEK_END);
 		length = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
-#endif
 		buffer = malloc( length );
 		fread( buffer, length, 1, fp );
 	}
@@ -2698,18 +2710,7 @@ void StartServer_MenuDraw(void)
 char *StartServer_MenuKey( int key )
 {
 	if ( key == K_ESCAPE )
-	{
-		if ( mapnames )
-		{
-			int i;
-
-			for ( i = 0; i < nummaps; i++ )
-				free( mapnames[i] );
-			free( mapnames );
-		}
-		mapnames = 0;
-		nummaps = 0;
-	}
+		freemaps();
 
 	return Default_MenuKey( &s_startserver_menu, key );
 }
@@ -3425,28 +3426,22 @@ static qboolean PlayerConfig_ScanDirectories( void )
 	char findname[1024];
 	char scratch[1024];
 	int ndirs = 0, npms;
-	char **dirnames = NULL;
-	char *path = NULL;
+	char **dirnames = nil;
+	char *path = nil;
 	int i;
-
-	extern char **FS_ListFiles( char *, int *, unsigned, unsigned );
 
 	s_numplayermodels = 0;
 
-	/*
-	** get a list of directories
-	*/
-	do 
-	{
-		if ( ( path = FS_NextPath( path ) ) == NULL)
+	/* get a list of directories */
+	do{
+		if((path = FS_NextPath(path)) == nil)
 			break;
-		Com_sprintf( findname, sizeof(findname), "%s/players/*.*", path );
-
-		if ( ( dirnames = FS_ListFiles( findname, &ndirs, SFF_SUBDIR, 0 ) ) != 0 )
+		snprint(findname, sizeof findname, "%s/players/*.*", path);
+		if((dirnames = FS_ListFiles(findname, &ndirs, DMDIR)) != nil)
 			break;
-	} while ( path );
+	}while(path != nil);
 
-	if ( !dirnames )
+	if(dirnames == nil)
 		return false;
 
 	/*
@@ -3469,11 +3464,10 @@ static qboolean PlayerConfig_ScanDirectories( void )
 			continue;
 
 		// verify the existence of tris.md2
-		strcpy( scratch, dirnames[i] );
-		strcat( scratch, "/tris.md2" );
-		if ( !Sys_FindFirst( scratch, 0, SFF_SUBDIR ) )
-		{
-			free( dirnames[i] );
+		strcpy(scratch, dirnames[i]);
+		strcat(scratch, "/tris.md2");
+		if(Sys_FindFirst(scratch, 0) == nil){
+			free(dirnames[i]);
 			dirnames[i] = 0;
 			Sys_FindClose();
 			continue;
@@ -3481,13 +3475,10 @@ static qboolean PlayerConfig_ScanDirectories( void )
 		Sys_FindClose();
 
 		// verify the existence of at least one pcx skin
-		strcpy( scratch, dirnames[i] );
-		strcat( scratch, "/*.pcx" );
-		pcxnames = FS_ListFiles( scratch, &npcxfiles, 0, SFF_SUBDIR);
-
-		if ( !pcxnames )
-		{
-			free( dirnames[i] );
+		strcpy(scratch, dirnames[i]);
+		strcat(scratch, "/*.pcx");
+		if((pcxnames = FS_ListFiles(scratch, &npcxfiles, 0)) == nil){
+			free(dirnames[i]);
 			dirnames[i] = 0;
 			continue;
 		}

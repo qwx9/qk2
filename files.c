@@ -47,16 +47,6 @@ cvar_t	*fs_basedir;
 cvar_t	*fs_cddir;
 cvar_t	*fs_gamedirvar;
 
-typedef struct filelink_s
-{
-	struct filelink_s	*next;
-	char	*from;
-	int		fromlength;
-	char	*to;
-} filelink_t;
-
-filelink_t	*fs_links;
-
 typedef struct searchpath_s
 {
 	char	filename[MAX_OSPATH];
@@ -187,25 +177,8 @@ int FS_FOpenFile (char *filename, FILE **file)
 	char			netpath[MAX_OSPATH];
 	pack_t			*pak;
 	int				i;
-	filelink_t		*link;
 
 	file_from_pak = 0;
-
-	// check for links first
-	for (link = fs_links ; link ; link=link->next)
-	{
-		if (!strncmp (filename, link->from, link->fromlength))
-		{
-			Com_sprintf (netpath, sizeof(netpath), "%s%s",link->to, filename+link->fromlength);
-			*file = fopen (netpath, "rb");
-			if (*file)
-			{		
-				Com_DPrintf ("link file: %s\n",netpath);
-				return FS_filelength (*file);
-			}
-			return -1;
-		}
-	}
 
 //
 // search through the path, one element at a time
@@ -535,26 +508,18 @@ char *FS_Gamedir (void)
 	return fs_gamedir;
 }
 
-/*
-=============
-FS_ExecAutoexec
-=============
-*/
-void FS_ExecAutoexec (void)
+void
+FS_ExecAutoexec(void)
 {
-	char *dir;
-	char name [MAX_QPATH];
+	char buf[MAX_QPATH], *d;
 
-	dir = Cvar_VariableString("gamedir");
-	if (*dir)
-		Com_sprintf(name, sizeof(name), "%s/%s/autoexec.cfg", fs_basedir->string, dir); 
-	else
-		Com_sprintf(name, sizeof(name), "%s/%s/autoexec.cfg", fs_basedir->string, BASEDIRNAME); 
-	if (Sys_FindFirst(name, 0, SFF_SUBDIR))
-		Cbuf_AddText ("exec autoexec.cfg\n");
+	d = Cvar_VariableString("gamedir");
+	snprint(buf, sizeof buf, "%s/%s/autoexec.cfg", fs_basedir->string, *d ? d : BASEDIRNAME);
+
+	if(Sys_FindFirst(buf, 0) != nil)
+		Cbuf_AddText("exec autoexec.cfg\n");
 	Sys_FindClose();
 }
-
 
 /*
 ================
@@ -612,73 +577,23 @@ void FS_SetGamedir (char *dir)
 	}
 }
 
-
-/*
-================
-FS_Link_f
-
-Creates a filelink_t
-================
-*/
-void FS_Link_f (void)
-{
-	filelink_t	*l, **prev;
-
-	if (Cmd_Argc() != 3)
-	{
-		Com_Printf ("USAGE: link <from> <to>\n");
-		return;
-	}
-
-	// see if the link already exists
-	prev = &fs_links;
-	for (l=fs_links ; l ; l=l->next)
-	{
-		if (!strcmp (l->from, Cmd_Argv(1)))
-		{
-			Z_Free (l->to);
-			if (!strlen(Cmd_Argv(2)))
-			{	// delete it
-				*prev = l->next;
-				Z_Free (l->from);
-				Z_Free (l);
-				return;
-			}
-			l->to = CopyString (Cmd_Argv(2));
-			return;
-		}
-		prev = &l->next;
-	}
-
-	// create a new link
-	l = Z_Malloc(sizeof(*l));
-	l->next = fs_links;
-	fs_links = l;
-	l->from = CopyString(Cmd_Argv(1));
-	l->fromlength = strlen(l->from);
-	l->to = CopyString(Cmd_Argv(2));
-}
-
-/*
-** FS_ListFiles
-*/
-char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned canthave )
+char **
+FS_ListFiles(char *findname, int *numfiles, int f)
 {
 	char *s;
 	int nfiles = 0;
 	char **list;
 
-	s = Sys_FindFirst( findname, musthave, canthave );
-	while ( s )
-	{
-		if ( s[strlen(s)-1] != '.' )
+	s = Sys_FindFirst(findname, f);
+	while(s != nil){
+		if(s[strlen(s)-1] != '.')
 			nfiles++;
-		s = Sys_FindNext( musthave, canthave );
+		s = Sys_FindNext(f);
 	}
-	Sys_FindClose ();
+	Sys_FindClose();
 
-	if ( !nfiles )
-		return NULL;
+	if(!nfiles)
+		return nil;
 
 	nfiles++; // add space for a guard
 	*numfiles = nfiles;
@@ -686,7 +601,7 @@ char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned 
 	list = malloc( sizeof( char * ) * nfiles );
 	memset( list, 0, sizeof( char * ) * nfiles );
 
-	s = Sys_FindFirst( findname, musthave, canthave );
+	s = Sys_FindFirst(findname, f);
 	nfiles = 0;
 	while ( s )
 	{
@@ -695,132 +610,38 @@ char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned 
 			list[nfiles] = strdup( s );
 			nfiles++;
 		}
-		s = Sys_FindNext( musthave, canthave );
+		s = Sys_FindNext(f);
 	}
 	Sys_FindClose ();
 
 	return list;
 }
 
-/*
-** FS_Dir_f
-*/
-void FS_Dir_f( void )
+/* for enumerating all dirs in the search path */
+char *
+FS_NextPath(char *prevpath)
 {
-	char	*path = NULL;
-	char	findname[1024];
-	char	wildcard[1024] = "*.*";
-	char	**dirnames;
-	int		ndirs;
+	searchpath_t *s;
+	char *prev;
 
-	if ( Cmd_Argc() != 1 )
-	{
-		strcpy( wildcard, Cmd_Argv( 1 ) );
-	}
-
-	while ( ( path = FS_NextPath( path ) ) != NULL )
-	{
-		char *tmp = findname;
-
-		Com_sprintf( findname, sizeof(findname), "%s/%s", path, wildcard );
-
-		while ( *tmp != 0 )
-		{
-			if ( *tmp == '\\' ) 
-				*tmp = '/';
-			tmp++;
-		}
-		Com_Printf( "Directory of %s\n", findname );
-		Com_Printf( "----\n" );
-
-		if ( ( dirnames = FS_ListFiles( findname, &ndirs, 0, 0 ) ) != 0 )
-		{
-			int i;
-
-			for ( i = 0; i < ndirs-1; i++ )
-			{
-				if ( strrchr( dirnames[i], '/' ) )
-					Com_Printf( "%s\n", strrchr( dirnames[i], '/' ) + 1 );
-				else
-					Com_Printf( "%s\n", dirnames[i] );
-
-				free( dirnames[i] );
-			}
-			free( dirnames );
-		}
-		Com_Printf( "\n" );
-	};
-}
-
-/*
-============
-FS_Path_f
-
-============
-*/
-void FS_Path_f (void)
-{
-	searchpath_t	*s;
-	filelink_t		*l;
-
-	Com_Printf ("Current search path:\n");
-	for (s=fs_searchpaths ; s ; s=s->next)
-	{
-		if (s == fs_base_searchpaths)
-			Com_Printf ("----------\n");
-		if (s->pack)
-			Com_Printf ("%s (%i files)\n", s->pack->filename, s->pack->numfiles);
-		else
-			Com_Printf ("%s\n", s->filename);
-	}
-
-	Com_Printf ("\nLinks:\n");
-	for (l=fs_links ; l ; l=l->next)
-		Com_Printf ("%s : %s\n", l->from, l->to);
-}
-
-/*
-================
-FS_NextPath
-
-Allows enumerating all of the directories in the search path
-================
-*/
-char *FS_NextPath (char *prevpath)
-{
-	searchpath_t	*s;
-	char			*prev;
-
-	if (!prevpath)
+	if(prevpath == nil)
 		return fs_gamedir;
 
 	prev = fs_gamedir;
-	for (s=fs_searchpaths ; s ; s=s->next)
-	{
-		if (s->pack)
+	for(s = fs_searchpaths; s != nil; s = s->next){
+		if(s->pack != nil)
 			continue;
-		if (prevpath == prev)
+		if(prevpath == prev)
 			return s->filename;
 		prev = s->filename;
 	}
-
-	return NULL;
+	return nil;
 }
 
-
-/*
-================
-FS_InitFilesystem
-================
-*/
 void FS_InitFilesystem (void)
 {
 	static char homedir[1024];
 	char *home;
-
-	Cmd_AddCommand ("path", FS_Path_f);
-	Cmd_AddCommand ("link", FS_Link_f);
-	Cmd_AddCommand ("dir", FS_Dir_f );
 
 	//
 	// basedir <path>
@@ -855,6 +676,3 @@ void FS_InitFilesystem (void)
 	if (fs_gamedirvar->string[0])
 		FS_SetGamedir (fs_gamedirvar->string);
 }
-
-
-

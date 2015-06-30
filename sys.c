@@ -227,18 +227,8 @@ Hunk_Free(void *base)
 		free(base);
 }
 
-static qboolean
-CompareAttributes(ulong m, uint musthave, uint canthave)
-{
-	if(m & DMDIR && canthave & SFF_SUBDIR)
-		return false;
-	if(musthave & SFF_SUBDIR && ~m & DMDIR)
-		return false;
-	return true;
-}
-
 char *
-Sys_FindFirst(char *path, uint musthave, uint canhave)
+Sys_FindFirst(char *path, int f)
 {
 	char *p;
 	int fd;
@@ -273,24 +263,22 @@ Sys_FindFirst(char *path, uint musthave, uint canhave)
 	}
 
 	di = 0;
-	return Sys_FindNext(musthave, canhave);
+	return Sys_FindNext(f);
 }
 
+/* if f is DMDIR, only retain directories; otherwise always exclude them */
 char *
-Sys_FindNext(uint musthave, uint canhave)
+Sys_FindNext(int f)
 {
 	int i;
 
 	if(dirs == nil)
 		Sys_Error("Sys_FindNext without open\n");
-
 	while(di < dirn){
 		i = di++;
-		if(glob_match(findpattern, dirs[i].name)){
-			if(CompareAttributes(dirs[i].mode, musthave, canhave)){
-				snprintf(findpath, sizeof findpath, "%s/%s", findbase, dirs[i].name);
-				return findpath;
-			}
+		if(!(f ^ dirs[i].mode & DMDIR) && glob_match(findpattern, dirs[i].name)){
+			snprint(findpath, sizeof findpath, "%s/%s", findbase, dirs[i].name);
+			return findpath;
 		}
 	}
 	return nil;

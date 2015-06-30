@@ -200,10 +200,6 @@ extern vec3_t vec3_origin;
 extern int curtime;	// current time in ms, from Sys_Milliseconds()
 
 enum{
-	SFF_SUBDIR = 1<<3
-};
-
-enum{
 	CVAR_ARCHIVE = 1<<0,	// save to vars.rc
 	CVAR_USERINFO = 1<<1,	// add to userinfo on change
 	CVAR_SERVERINFO = 1<<2,	// add to serverinfo on change
