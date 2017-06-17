@@ -113,7 +113,7 @@ resetfb(void)
 	}
 	if((framebuf = malloc(sizeof *framebuf * vid.width * vid.height * screen->depth/8)) == nil)
 		sysfatal("resetfb:malloc: %r");
-	if((fbim = allocimage(display, Rect(0, 0, vid.width, vid.height), screen->chan, 1, DNofill)) == nil)
+	if((fbim = allocimage(display, Rect(0, 0, vid.width, vid.height), XRGB32, 0, 0)) == nil)
 		sysfatal("resetfb: %r");
 	vid.buffer = framebuf;
 	vid.rowbytes = vid.width * screen->depth/8;
