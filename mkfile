@@ -19,6 +19,7 @@ OFILES=\
 	cl_scrn.$O\
 	cl_view.$O\
 	console.$O\
+	fs.$O\
 	keys.$O\
 	menu.$O\
 	snd_dma.$O\

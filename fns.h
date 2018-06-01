@@ -1,3 +1,5 @@
+int	mkdir(char*);
+
 void	Qcommon_Init(int, char **);
 void	Qcommon_Frame(int);
 void	Z_Free(void *);
@@ -52,7 +54,6 @@ char*	Sys_FindFirst(char *, int);
 char*	Sys_FindNext(int);
 void	Sys_FindClose(void);
 int	Sys_Milliseconds(void);
-void	Sys_Mkdir(char *);
 void	Sys_Init(void);
 void	Sys_AppActivate(void);
 void	Sys_UnloadGame(void);

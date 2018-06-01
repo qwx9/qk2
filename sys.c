@@ -327,17 +327,6 @@ Sys_Milliseconds(void)
 	return curtime;
 }
 
-void
-Sys_Mkdir(char *path)
-{
-	int d;
-
-	if((d = create(path, OREAD, DMDIR|0777)) < 0)
-		fprint(2, "Sys_Mkdir:create: %r\n");
-	else
-		close(d);
-}
-
 vlong
 flen(int fd)
 {
@@ -348,18 +337,6 @@ flen(int fd)
 		return -1;
 	}
 	return *((vlong *)(bs+2+2+4+1+4+8+4+4+4));	/* length[8] */
-}
-
-int
-Sys_FileTime(char *path)
-{
-	uchar sb[1024];
-
-	if(stat(path, sb, sizeof sb) < 0){
-		fprint(2, "Sys_FileTime:stat: %r\n");
-		return -1;
-	}
-	return *((int *)(sb+25));
 }
 
 void
