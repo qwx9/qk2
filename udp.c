@@ -104,6 +104,28 @@ NET_BaseAdrToString(netadr_t a)
 	return s;
 }
 
+static void
+getip(char *a, int len)
+{
+	int fd, n;
+	char buf[128], *f[3];
+
+	if((fd = open("/net/cs", ORDWR)) < 0)
+		sysfatal("open: %r");
+	snprint(buf, sizeof buf, "udp!%s!0", a);
+	n = strlen(buf);
+	if(write(fd, buf, n) != n)
+		sysfatal("translating %s: %r", a);
+	seek(fd, 0, 0);
+	if((n = read(fd, buf, sizeof(buf)-1)) <= 0)
+		sysfatal("reading cs tables: %r");
+	buf[n] = 0;
+	close(fd);
+	if(getfields(buf, f, 3, 1, " !") < 2)
+		sysfatal("bad cs entry %s", buf);
+	strncpy(a, f[1], len);
+}
+
 /*
 =============
 NET_StringToAdr
@@ -120,7 +142,6 @@ NET_StringToAdr(char *addr, netadr_t *a)	/* assumes IPv4 */
 {
 	int i;
 	char s[256], *p, *pp;
-	Ndbtuple *t, *nt;
 
 	if(!strcmp(addr, "localhost")){
 		memset(a, 0, sizeof *a);
@@ -137,17 +158,7 @@ NET_StringToAdr(char *addr, netadr_t *a)	/* assumes IPv4 */
 		a->port = BigShort(atoi(p));
 	}
 
-	if((t = dnsquery(nil, s, "ip")) == nil){
-		fprint(2, "NET_StringToAdr:dnsquery %s: %r\n", s);
-		return 0;
-	}
-
-	for(nt = t; nt != nil; nt = nt->entry)
-		if(!strcmp(nt->attr, "ip")){
-			strncpy(s, nt->val, sizeof(s)-1);
-			break;
-		}
-	ndbfree(t);
+	getip(s, sizeof(s)-1);
 
 	/* FIXMEGASHIT */
 	for(i = 0, pp = s; i < IPv4addrlen; i++){
@@ -296,12 +307,11 @@ dproc(void *me)
 		if((n = read(fd, m.buf, sizeof m.buf)) <= 0)
 			break;
 		m.n = n;
-		if(send(c, &m) < 0)
-			sysfatal("uproc:send: %r");
-		if(nbsend(fuckchan, nil) < 0)
-			sysfatal("uproc:nbsend; %r");
+		if(send(c, &m) < 0 || nbsend(fuckchan, nil) < 0){
+			fprint(2, "dproc: %r");
+			break;
+		}
 	}
-	fprint(2, "dproc %d: %r\n", threadpid(threadid()));
 	cndel(me);
 }
 
@@ -322,7 +332,7 @@ uproc(void *c)
 		fd = cldfd;
 	for(;;){
 		if((n = read(fd, udpbuf, sizeof udpbuf)) <= 0)
-			sysfatal("uproc:read: %r");
+			break;
 		memcpy(&h, udpbuf, Hdrsz);
 
 		memcpy(u, h.raddr, IPaddrlen);
@@ -341,10 +351,10 @@ uproc(void *c)
 			m.n = n - Hdrsz;
 			memcpy(m.buf, udpbuf+Hdrsz, m.n);
 		}
-		if(send(c, &m) < 0)
-			sysfatal("uproc:send: %r");
-		if(nbsend(fuckchan, nil) < 0)
-			sysfatal("uproc:nbsend: %r");
+		if(send(c, &m) < 0 || nbsend(fuckchan, nil) < 0){
+			fprint(2, "uproc: %r");
+			break;
+		}
 	}
 }
 
@@ -434,7 +444,7 @@ NET_SendPacket(netsrc_t src, int length, void *data, netadr_t to)
 			p = cnins(fd, addr, u, nil, src);
 			qunlock(&cnlock);
 
-			if(proccreate(dproc, p, 8196) < 0)
+			if(proccreate(dproc, p, 8192) < 0)
 				sysfatal("NET_SendPacket:proccreate: %r");
 		}
 		if(write(fd, data, length) != length)
@@ -507,7 +517,7 @@ void
 NET_Config(qboolean multiplayer)
 {
 	if(!multiplayer){	/* shut down existing udp connections */
-		threadkillgrp(THnet);
+		threadintgrp(THnet);
 		cnnuke();
 		if(udpchan != nil){
 			chanfree(udpchan);
