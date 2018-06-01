@@ -1,0 +1,15 @@
+# list of maps to cycle through
+#  use "map_cycle 1" to turn it on
+#   or "map_cycle 2" to use them in random order
+q2dm1
+gotcha
+unrdm1
+bldstorm
+ledges
+millennium
+q2dm1
+q2dm3
+q2dm4
+q2dm5
+q2dm7
+q2dm8

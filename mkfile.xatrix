@@ -1,6 +1,6 @@
 </$objtype/mkfile
 
-GAME=ctf
+GAME=xatrix
 TARG=q2$GAME
 LIB=$GAME/$GAME.$O.a
 

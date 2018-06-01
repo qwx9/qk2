@@ -1,0 +1,39 @@
+</$objtype/mkfile
+
+LIB=crbot.$O.a
+
+OFILES=\
+	cr_main.$O\
+	cr_menu.$O\
+	g_ai.$O\
+	g_chase.$O\
+	g_cmds.$O\
+	g_combat.$O\
+	g_ctf.$O\
+	g_func.$O\
+	g_items.$O\
+	g_main.$O\
+	g_misc.$O\
+	g_monster.$O\
+	g_phys.$O\
+	g_save.$O\
+	g_spawn.$O\
+	g_svcmds.$O\
+	g_target.$O\
+	g_trigger.$O\
+	g_utils.$O\
+	g_weapon.$O\
+	m_flash.$O\
+	m_move.$O\
+	p_client.$O\
+	p_hud.$O\
+	p_menu.$O\
+	p_trail.$O\
+	p_view.$O\
+	p_weapon.$O\
+	q_shared.$O\
+
+HFILES=\
+	game.h\
+
+</sys/src/cmd/mklib

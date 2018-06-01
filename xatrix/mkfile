@@ -1,0 +1,87 @@
+</$objtype/mkfile
+
+LIB=xatrix.$O.a
+
+OFILES=\
+	g_ai.$O\
+	g_chase.$O\
+	g_cmds.$O\
+	g_combat.$O\
+	g_func.$O\
+	g_items.$O\
+	g_main.$O\
+	g_misc.$O\
+	g_monster.$O\
+	g_phys.$O\
+	g_save.$O\
+	g_spawn.$O\
+	g_svcmds.$O\
+	g_target.$O\
+	g_trigger.$O\
+	g_turret.$O\
+	g_utils.$O\
+	g_weapon.$O\
+	m_actor.$O\
+	m_berserk.$O\
+	m_boss2.$O\
+	m_boss3.$O\
+	m_boss31.$O\
+	m_boss32.$O\
+	m_boss5.$O\
+	m_brain.$O\
+	m_chick.$O\
+	m_fixbot.$O\
+	m_flash.$O\
+	m_flipper.$O\
+	m_float.$O\
+	m_flyer.$O\
+	m_gekk.$O\
+	m_gladb.$O\
+	m_gladiator.$O\
+	m_gunner.$O\
+	m_hover.$O\
+	m_infantry.$O\
+	m_insane.$O\
+	m_medic.$O\
+	m_move.$O\
+	m_mutant.$O\
+	m_parasite.$O\
+	m_soldier.$O\
+	m_supertank.$O\
+	m_tank.$O\
+	p_client.$O\
+	p_hud.$O\
+	p_trail.$O\
+	p_view.$O\
+	p_weapon.$O\
+	q_shared.$O\
+
+HFILES=\
+	game.h\
+	m_actor.h\
+	m_berserk.h\
+	m_boss2.h\
+	m_boss31.h\
+	m_boss32.h\
+	m_brain.h\
+	m_chick.h\
+	m_fixbot.h\
+	m_flipper.h\
+	m_float.h\
+	m_flyer.h\
+	m_gekk.h\
+	m_gladiator.h\
+	m_gunner.h\
+	m_hover.h\
+	m_infantry.h\
+	m_insane.h\
+	m_medic.h\
+	m_mutant.h\
+	m_parasite.h\
+	m_player.h\
+	m_rider.h\
+	m_soldier.h\
+	m_supertank.h\
+	m_tank.h\
+
+</sys/src/cmd/mklib

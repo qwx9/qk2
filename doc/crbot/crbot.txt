@@ -1,0 +1,308 @@
+Updated by Grieve (Marc Kerschbaumer) and DUB (Peter Chiochetti) 2003/2004
+
+  - Several code cleanups (pure C code now)
+
+  - vweapon bug fixed, if vweapons are missing the default weapon
+     is drawn instead of the "diamond"
+
+  - bot now affected by trigger_push, will use jumppads sometimes.
+
+  - Ingame menu in Linux fixed.
+
+  - Linux makefile added; and updated project files for Visual Studio 6 and LCC win32.
+
+
+=======================================================================================
+
+
+Name of Mod : The CRBot, for Quake II
+File Name   : crbot114.zip
+Version     : 1.14
+Date        : April 23, 1998
+Author      : Mike Malakhov
+E-mail      : crbot@planetquake.com
+              ww@pobox.com
+Web Site    : http://planetquake.com/crbot
+              http://www.pobox.com/~ww/bot.html
+Build time  : >210 hours
+Source code : 180 Kb
+
+CREDITS:
+--------
+Quake2, source code for .dll -- ID Software, http://www.idsoftware.com/
+ThreeWave CTF, source code   -- Zoid, ftp://ftp.idsoftware.com/idstuff/quake2/ctf/
+VWep, Viewable Weapons Patch -- Hentai, http://www.telefragged.com/tsunami/
+
+
+AUTHOR INFO
+-----------
+My name's Mike Malakhov, you can get more info about me 
+on my homepage at http://www.pobox.com/~ww/
+
+
+TYPE OF MOD 
+-----------
+DLL        : YES
+CTF support: YES
+Ingame menu: YES
+Sound      : NO
+Maps       : NO
+Graphics   : NO
+
+
+FORMAT
+------
+It was compiled using Visual C++ v5.0. 
+You MUST install patch v3.13 (or later) for Quake2 to play this 
+version of CRbot!
+
+
+INSTALLATION
+------------
+Unzip this file with subdirectories in your Quake2 dir. For example, if your 
+Quake2 directory is d:\quake2\ after unzipping you will get d:\quake2\crbot\ 
+subdirectory. Then copy your standard shortcut for running Quake2 into a new 
+one and then add 
+ +set game "crbot" +set deathmatch 1
+to the command line.
+
+If you want to play CTF, add "+set ctf 1", otherwise use "+set ctf 0".
+And don't forget to copy PAK0.PAK from CTF into CRbot subdirectory.
+
+
+COMMANDS
+--------
+
+sv addbots <skill> <amount> -- to spawn several bots; <skill> could be a number
+                          from 1(easy) to 10(most advanced), or could be a 
+                          range like this: <min_skill>..<max_skill>
+                          that'll allow you to create random set of bots with 
+                          different skills; example:  addbots 3..6 5
+                          it'll create 5 bots with random skills from 3 to 6;
+                          skill 0 has special meaning -- bot with this skill 
+                          level will be adjusting his abilities dynamically
+                          to match player's skills;
+
+sv addbot "<name>" <skill> "<model name>" "<skin name>" <team_no>
+              -- add a bot, where <skill> is a number from 1(low) to
+                 10(most advanced); 0 is special "adjusting" skill level; 
+                 you can repeat this command to add more bots; you can also 
+                 use this command in .CFG files (see BOTS.CFG for example 
+                 how to do this) to create predefined set of bots by typing 
+                 "exec bots.cfg" in console window; 
+
+sv killbot <name> -- remove bot with name <name> from the game permanently;
+
+bot_team # -- (# is a number from 0 to 9) you can assign next created bot to 
+              specified team; bots from the same team don't attack each other 
+              unless they'll accidentally hurt each other;
+              team 0 has special meaning, all bots in that team fight for 
+              themselves (default team).
+
+cmd join_team #  -- put yourself into the team number # together with bots;
+
+bot_skin <name>  -- default is "male/viper"; as bot_team command this one 
+                    presets the skin for all bots created afterwards;
+
+bot_model <name> -- default is "male";
+
+no_tech 1/0      -- disable/enable CTF style techs in normal deathmatch game;
+
+no_hook 1/0      -- disable/enable grappling hook in normal deathmatch game;
+
+cmd save_nodemap -- save path nodes structure into external file;
+
+
+Note: All commands with "sv" prefix will be effective only if 
+      typed on server;
+      All 'bot_' vars will be saved in config.cfg.
+
+
+For example, if you want to start the game with 8 bots, two female ones in one 
+team with skill 3, three males in another team with skills between 3 and 7, 
+three individual bots with skills 6, 8 and 10 and names, and assign distinctive 
+skins to every team and to individual bots, you have to type in console window:
+
+ bot_model "female"
+ bot_skin "female/voodoo"
+ bot_team 1
+ addbots 3 2
+
+ bot_model "male"
+ bot_skin "male/viper"
+ bot_team 2
+ addbots 3..7 3
+
+ cmd addbot scout           6   "male"    "male/flak"     0
+ cmd addbot bitch           8   "female"  "female/venus"  0
+ cmd addbot "ultimate bot"  10  "male"    "male/sniper"   0
+
+
+CTF SUPPORT
+-----------
+
+If you want to play CTF, you will need to copy PAK0.PAK from CTF into CRbot 
+subdirectory, and then add "+set ctf 1" to your command line.
+Or you can change "ctf" cvar from console. Don't forget 
+to restart the map after that.
+
+Team #1 is the RED team, and team #2 is the BLUE team. So if you want to add
+bots to Red team, use "bot_team 1", or if you want them to be in Blue team,
+use "bot_team 2". If no team number assigned or it's not equal to 1 or 2, bots will 
+be evenly placed in both team.
+
+
+TEAM CONTROL
+------------
+If you are in the team (by using "cmd join_team" command) then you
+can use following commands to control your team:
+
+cmd team_help  -- summon all members of your team to your current location,
+                  will not affect bots which are engaged in melee already;
+
+cmd team_group -- this will force all bots in your team to get in tight 
+                  formation and follow you as a leader; 
+
+cmd team_free [bot name] -- dismiss named bot or whole current formation if
+                             no name specified; 
+cmd team_guard [bot name] -- order named bot to guard the area; if no name
+                             specified this assignment will be given to
+                             all visible bots in front of you;
+cmd team_patrol [bot name] -- same as team_guard but slightly more freedom
+                              for bots;
+
+MENU
+----
+
+ You can use menu system to edit different settings and to create
+bots. To access it use your "inventory" key -- which is <TAB> by default.
+To navigate menu use "[" and "]" keys ("next in inventory" and "previous in
+inventory" keys) and to select menu item use <ENTER> (or your "use inventory"
+key).
+
+
+MISC. COMMANDS
+--------------
+
+cmd bot_stats -- show information about all bots in the game;
+
+cmd team_stats -- show team scores;
+
+notarget -- this command will toggle "observer mode";
+
+view_weapons 0/1 -- toggle viewable weapons support (VWep patch); in order to be
+                    able to use it, goto http://www.telefragged.com/tsunami/
+                    download VWep patch, install it and then copy PAK2.PAK
+                    into CRbot directory;
+
+bot_chat 0/1 -- set this var to 0 if you don't want to hear anything from bots,
+                default is 1;
+
+obituary_msgs 0/1 -- deafult is 1; if it's set to 0 you will not see any
+                     "bot killed by bot", "human killed by bot", etc., messages;
+
+bot_menu 0/1 -- set var to 0 if you don't want bot menu; useful for dedicated
+                servers to prevent users from adding new bots;
+
+bot_taunt 0/1 -- set this var to 0 if you don't want taunt/flip animation,
+                 default is 1;
+
+
+EXTERNAL CONFIG FILES
+---------------------
+
+ There are four text files you can edit which contain lines bot will say 
+in different situations:
+
+DEATH.TXT -- when bot dies
+KILL.TXT  -- when bot kills somebody
+PAIN.TXT  -- when bot gets hurt by somebody
+FIGHT.TXT -- random saying during melee
+
+
+
+FREQUENTLY ASKED QUESTIONS:
+-------------------------
+
+Q: I can't run Quake2, it says "Error during initialization" or 
+   "ERROR: game is version 3, not #". What's wrong?
+A: You need to install patch v3.13 or later for your Quake2. 
+
+Q: I've installed everything as you said, but can't create any bots, game 
+   doesn't understand "addbot" or "addbots" commands. Why?
+A: Make sure you DO NOT have gamex86.dll in base Quake2 directory. It should
+   be located only in QUAKE2/BASEQ2 and/or QUAKE2/CRBOT subdirs.
+
+Q: What about Linux and Alpha port?
+A: Yes, eventually I'm going to do it. But not right now.
+
+Q1: I've done everything as you said, but can't create the bot. Why?
+Q2: You bot is great, but how do I play it?
+Q3: Where do I find Quake2 shortcut and how to add "+set game crbot" 
+    to the command line?
+A: (by Jay Fortman <chaosfox@inetarena.com>)
+    Double click on the .zip to open up your .zip program (presumably
+WinZip).  When the file names show up goto edit and "Select All" (or
+press Ctrl+A).  Press extract.  It will then ask for a location to
+extract the files to.  Enter: C:\Quake2 (where C: is the drive Q2 is
+installed on and assuming you didn't rename the directory from default
+Quake2).  The files will then be extracted to a new directory under
+Quake2 labeled CRBot automatically.  Future updates can be performed in
+the same manner--they will just overwrite the old files (and, as a
+suggestion, keep your old version in its original .zip just in case the
+new one doesn't work for you).  Now you'll need to RIGHT click (the
+mouse button) on the Taskbar at the bottom of the Desktop (that's that
+area between the Start button and clock that doesn't have
+taskbuttons--if you don't know that you don't belong on a computer).
+Select Properties.  A new window will pop up titled Taskbar
+Properties--select the Start Menu Programs tab just under the titlebar.
+Some new options come up--select the button labeled Advanced.  Assuming
+you didn't move the Q2 start menu shortcut open the plus next to
+Programs, you should now see Quake II.  Click on the Quake II folder and
+all of its contents will be displayed in the right window.  From the
+window with the Q2 contents, RIGHT click on Quake II -or- Quake II -
+Compatability Mode (whichever you prefer to use--I recommend the
+compatability mode myself).  Select the option COPY.  Now RIGHT click in
+the empty space of the same window and choose PASTE.  You should now
+have a COPY OF QUAKE II - COMPATABILITY MODE.  RIGHT click that and
+rename it whatever you like ("Quake II - CRBot" is my choice ; ).  Now
+RIGHT click it again and choose PROPERTIES.  Click on the SHORTCUT tab
+under the title bar.  In the window that pops up there should be an
+entry labeled TARGET.  Click in the text area and make sure you move the
+cursur all the way to your right (the end of the entry).  Add one space
+after the last entry and add the following:  +set game "crbot" +set
+deathmatch 1 .  So the TARGET should read something like this (where C:
+is the drive your Q2 is in and E: is your CD-rom drive):
+C:\Quake2\quake2.exe +set cddir E:\install\data +set basedir c:\QUAKE2
++set vid_ref soft +set vid_fullscreen 0 +set sw_mode 0 +set s_wavonly 1
++set game "crbot" +set deathmatch 1 .  If everything is set up just like
+that your copy of Quake II - CRBot should now be ready to run like the
+blood splattered on the wall after you were supremely gibbed.  Close all
+windows and then go through the start menu and select your CRBot
+shortcut.  BINGO!  To add bots to your working Q2 game simply follow the
+instructions posted in the README.TXT file extracted from the .zip file
+directly into your CRBot directory (may I suggest making a start menu
+shortcut for that too--it's simple, you can do it).  If you feel you
+need to peruse the contents of the readme and are in the middle of your
+Q2 game simply hold down ALT and then press TAB.  This will return you
+to windows without losing your game (most of the time--everything has
+bugs sometimes).  And that about sums it up fragies and fragmen.  I hope
+this was informative enough to help you out ;) .
+
+
+COPYRIGHT/PERMISSIONS
+----------------------
+This bot was solely created for my own use, therefore it is distributed AS IS 
+and I can not guarantee you anything, including your satisfaction. 
+I also will not take any responsibility for system crashes and/or any damage 
+or loss of data caused by bot's mod. I can however guarantee that I have not 
+intentionally added any malicious content to this application.
+This mod is in no way associated with id Software. 
+You may freely distribute this archive, as long as it remains intact.
+Commercial distribution or distribution on CDs is prohibited by ID Software's 
+End User License for Quake2 source code used in this mod.
+
+Enjoy,
+Mike Malakhov, crbot@planetquake.com
+               ww@pobox.com
+
