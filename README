@@ -14,47 +14,37 @@ directory will contain pak^(0 1 2)^.pak, as well as the players and video
 directories. neither players (for single play) nor video are mandatory. all
 filenames should be lowercased.
 
-% mk install
-% mkdir -p $home/lib/quake2/baseq2/^(players video)
-% cd /n/quake2cd/baseq2/
-% cp *.pak $home/lib/quake2/baseq2/
-% for(i in (players video)){ dircp $i $home/lib/quake2/baseq2/$i }
+; mk install
+; mkdir -p $home/lib/quake2/baseq2/^(players video)
+; cd /n/quake2cd/baseq2/
+; cp *.pak $home/lib/quake2/baseq2/
+; for(i in (players video)){ dircp $i $home/lib/quake2/baseq2/$i }
 
 
 quake2 mods
 -----------
 quake2 mods are C code built as shared libraries (called "game modules"). here,
 the code will have to be ported to plan9, adapted to qk2, then built and loaded
-against it. this repo contains the code for the official ctf mod; how to build
-and use it is explained below.
-for the rest of this file, let $mod the name of a mod. the data for the mod is
-to be stored in $home/lib/quake2/$mod/.
+against it. this repo contains the code for the official ctf mod, the two
+expansions, and a mod. for the rest of this file, let $mod the name of a mod.
+the data for the mod is to be stored in $home/lib/quake2/$mod/.
 
 
 installing a mod
 ----------------
-in general, to build a mod, the only things that need to be altered are the
-contents of game/, mkfile, and adding a mk.$mod file. game/ contains $mod's
-source code for its game module (assuming the rest is implemented by qk2).
-mk.$mod contains TARG (for installation), and a list of object files to
-compile, and of headers (cf. mk.ctf for an example). mkfile includes the
-mk.$mod to build everything in one step. for example, to install ctf (and its
-data files from the cd):
+a makefile is provided with each mod. "baseq2" is the main game.
+for example, for ctf:
 
-% bind -bc ctf game
-% ed mkfile	# output elided
-,s/<mk.baseq2/<mk.ctf/
-w
-q
-% mk install	# copies $OS.out to $home/lib/$objtype/q2ctf
-% mk clean
-% unmount game
-% mkdir $home/lib/quake2/ctf
-% dircp /n/quake2cd/ctf $home/lib/quake2/ctf
+; mkfile -f mkfile.ctf install
 
-ctf can then be started with e.g.:
+or:
 
-% q2ctf +set game ctf +set ctf 1
+; bind mkfile.ctf mkfile
+; mk install
+
+each mod is built as a library, later linked to the rest of the common code.
+
+; q2ctf +set game ctf +set ctf 1
 
 
 porting a mod
@@ -73,7 +63,7 @@ unfortunately included in dat.h, as some required structure definitions vary
 from mod to mod. as such, a mod is required to have $mod/game.h, which defines
 anything necessary for common code to work.
 
-you'll also need to write mk.$mod (cf. mod installation instructions above).
+you'll also need to write mkfiles (cf. mod installation instructions above).
 
 
 todo/bugs
@@ -83,7 +73,6 @@ todo/bugs
 - edict_t definitions merged without much looking
 - sys.c: stupid posixish glob stuff
 - udp.c mostly horrid; need to rewrite networking stuff to use plan9 semantics
-- portme: cdaudio
 - garbled stdout (Sys_ConsoleOutput): \r instead of \n
 - cinematic palette is fucked up if you resize during playback
 - sound only (sortof) works thanks to shitty workarounds; in particular, sound
