@@ -400,7 +400,7 @@ void
 croak(void *, char *note)
 {
 	if(!strncmp(note, "sys:", 4)){
-		IN_Shutdown();
+		IN_Grabm(0);
 		shutsnd();
 		NET_Shutdown();
 	}

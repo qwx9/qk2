@@ -255,14 +255,21 @@ kproc(void *)
 	Rune r;
 	Kev ev;
 
-	if(threadsetgrp(THin) < 0)
-		sysfatal("kproc:threadsetgrp: %r");
 	if((fd = open("/dev/kbd", OREAD)) < 0)
-		sysfatal("open /dev/kbd: %r");
-
-	kdown[0] = kdown[1] = 0;
-	while((n = read(fd, buf, sizeof buf)) > 0){
-		buf[n-1] = 0;
+		sysfatal("kproc: %r");
+	kdown[0] = kdown[1] = buf[0] = 0;
+	for(;;){
+		if(buf[0] != 0){
+			n = strlen(buf)+1;
+			memmove(buf, buf+n, sizeof(buf)-n);
+		}
+		if(buf[0] == 0){
+			n = read(fd, buf, sizeof(buf)-1);
+			if(n <= 0)
+				break;
+			buf[n-1] = 0;
+			buf[n] = 0;
+		}
 		switch(*buf){
 		case 'c':
 		default:
@@ -276,7 +283,7 @@ kproc(void *)
 						ev.key = k;
 						ev.down = true;
 						if(send(kchan, &ev) < 0)
-							sysfatal("kproc:nbsend: %r\n");
+							goto end;
 					}
 				}
 			}
@@ -290,7 +297,7 @@ kproc(void *)
 						ev.key = k;
 						ev.down = false;
 						if(send(kchan, &ev) < 0)
-							sysfatal("mproc:nbsend: %r\n");
+							goto end;
 					}
 				}
 			}
@@ -298,8 +305,7 @@ kproc(void *)
 		}
 		strcpy(kdown, buf);
 	}
-	fprint(2, "kproc: %r\n");
-	close(fd);
+end:;
 }
 
 static void
@@ -309,16 +315,13 @@ mproc(void *)
 	char buf[1+5*12];
 	Mouse m;
 
-	if(threadsetgrp(THin) < 0)
-		sysfatal("mproc:threadsetgrp: %r");
 	if((fd = open("/dev/mouse", ORDWR)) < 0)
-		sysfatal("open /dev/mouse: %r");
-
+		sysfatal("mproc: %r");
 	for(;;){
 		if((n = read(fd, buf, sizeof buf)) != 1+4*12){
-			fprint(2, "mproc:read: bad count %d not 49: %r\n", n);
 			if(n < 0 || ++nerr > 10)
 				break;
+			fprint(2, "mproc:read: bad count %d not 49: %r\n", n);
 			continue;
 		}
 		nerr = 0;
@@ -337,13 +340,11 @@ mproc(void *)
 			m.buttons = atoi(buf+1+2*12);
 			m.msec = atoi(buf+1+3*12);
 			if(nbsend(mchan, &m) < 0)
-				sysfatal("mproc:nbsend: %r\n");
+				goto end;
 			break;
 		}
 	}
-	fprint(2, "mproc: %r\n");
-	IN_Grabm(0);
-	close(fd);
+end:;
 }
 
 static void
@@ -380,8 +381,6 @@ iproc(void *)
 	int n;
 	char s[256];
 
-	threadsetgrp(THin);
-
 	if((iop = pipe(pfd)) < 0)
 		sysfatal("iproc:pipe: %r");
 	for(;;){
@@ -400,21 +399,12 @@ iproc(void *)
 void
 IN_Shutdown(void)
 {
-	qlock(&killock);	/* there can be only one */
 	IN_Grabm(0);
-	threadkillgrp(THin);
 	iop = -1;
 	close(pfd[0]);
 	close(pfd[1]);
-	if(kchan != nil){
-		chanfree(kchan);
-		kchan = nil;
-	}
-	if(mchan != nil){
-		chanfree(mchan);
-		mchan = nil;
-	}
-	qunlock(&killock);
+	chanfree(kchan);
+	chanfree(mchan);
 }
 
 void
