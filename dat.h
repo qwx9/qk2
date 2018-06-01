@@ -940,7 +940,7 @@ enum{
 extern int vidref_val;
 
 
-#include "game/game.h"	// ugh
+#include "game.h"	// ugh
 extern game_export_t *ge;
 
 
