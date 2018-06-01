@@ -10,120 +10,113 @@ static cvar_t *sndspeed;
 static cvar_t *sndchannels;
 static cvar_t *snddev;
 
-static int afd, sndon, wpos;
+static int afd = -1, wpos;
 enum{
-	Nbuf	= 32
+	Nbuf = 4,
 };
 static Channel *schan;
 static QLock sndlock;
-
 
 static void
 sproc(void *)
 {
 	int n;
 
-	threadsetgrp(THsnd);
-
 	for(;;){
-		if(recv(schan, nil) < 0){
-			fprint(2, "sproc:recv %r\n");
+		if(recv(schan, nil) < 0)
 			break;
-		}
-		if((n = write(afd, dma.buffer, dma.samplebits/8 * dma.samples)) < 0){
-			fprint(2, "sproc:write %r\n");
+		if((n = write(afd, dma.buffer, Nsbuf)) != Nsbuf)
 			break;
-		}
 		qlock(&sndlock);
 		wpos += n;
 		qunlock(&sndlock);
 	}
-	fprint(2, "sproc %d: %r\n", threadpid(threadid()));
-}
-
-qboolean
-SNDDMA_Init(void)
-{
-	if(sndon)
-		return false;
-
-	if(COM_CheckParm("-nosound"))
-		return false;
-
-	if(snddev == nil){
-		sndbits = Cvar_Get("sndbits", "16", CVAR_ARCHIVE);
-		sndspeed = Cvar_Get("sndspeed", "44100", CVAR_ARCHIVE);
-		sndchannels = Cvar_Get("sndchannels", "2", CVAR_ARCHIVE);
-		snddev = Cvar_Get("snddev", "/dev/audio", CVAR_ARCHIVE);
-	}
-
-	if((afd = open(snddev->string, OWRITE)) < 0){
-		fprint(2, "SNDDMA_Init:open %r\n");
-		return false;
-	}
-
-	dma.samplebits = (int)sndbits->value;
-	if(dma.samplebits != 16 && dma.samplebits != 8)
-		dma.samplebits = 16;
-	dma.speed = (int)sndspeed->value;
-	if(dma.speed != 44100)
-		dma.speed = 44100;
-	dma.channels = (int)sndchannels->value;
-	if(dma.channels < 1 || dma.channels > 2)
-		dma.channels = 2;
-	dma.samples = 8192;
-	dma.submission_chunk = 1;
-	if((dma.buffer = mallocz(dma.samplebits/8 * dma.samples, 1)) == nil)
-		sysfatal("SNDDMA_Init:mallocz: %r\n");
-	dma.samplepos = 0;
-	sndon = 1;
-	wpos = 0;
-
-	schan = chancreate(sizeof(int), Nbuf);
-	if(proccreate(sproc, nil, 8192) < 0){
-		SNDDMA_Shutdown();
-		sysfatal("SNDDMA_Init:proccreate: %r\n");
-	}
-	return true;
 }
 
 int
 SNDDMA_GetDMAPos(void)
 {
-	if(!sndon)
+	if(afd < 0)
 		return 0;
 	qlock(&sndlock);
-	dma.samplepos = wpos / (dma.samplebits/8);
+	dma.samplepos = wpos / Sampsz;
 	qunlock(&sndlock);
 	return dma.samplepos;
-}
-
-void
-SNDDMA_Shutdown(void)
-{
-	if(!sndon)
-		return;
-
-	threadkillgrp(THsnd);
-	close(afd);
-	if(schan != nil){
-		chanfree(schan);
-		schan = nil;
-	}
-	free(dma.buffer);
-	sndon = 0;
 }
 
 void
 SNDDMA_Submit(void)
 {
 	if(nbsend(schan, nil) < 0){
-		fprint(2, "SNDDMA_Submit:nbsend: %r\n");
-		SNDDMA_Shutdown();
+		fprint(2, "SNDDMA_Submit: %r\n");
+		shutsnd();
 	}
 }
 
 void
 SNDDMA_BeginPainting(void)
 {
+}
+
+void
+shutsnd(void)
+{
+	if(afd < 0)
+		return;
+	afd = -1;
+	close(afd);
+	chanfree(schan);
+	sound_started = 0;
+	num_sfx = 0;
+}
+
+void
+restartsnd(void)
+{
+	sfx_t *s;
+
+	if(afd < 0)
+		return;
+	for(s=known_sfx+num_sfx; s<known_sfx+num_sfx*2; s++){
+		if(!s->name[0])
+			continue;
+		if(s->cache)
+			Z_Free(s->cache);
+		memset(s, 0, sizeof*s);
+	}
+	num_sfx = 0;
+	soundtime = 0;
+	paintedtime = 0;
+	S_StopAllSounds();
+	CL_RegisterSounds();
+}
+
+void
+initsnd(void)
+{
+	if((afd = open("/dev/audio", OWRITE)) < 0){
+		fprint(2, "initsnd %r\n");
+		return;
+	}
+	dma.samplebits = Sampsz * 8;
+	dma.speed = Rate;
+	dma.channels = 2;
+	dma.samples = Nsamp;
+	dma.submission_chunk = 1;
+	dma.buffer = emalloc(Nsamp * Sampsz);
+	dma.samplepos = 0;
+	wpos = 0;
+	schan = chancreate(sizeof(int), Nbuf);
+	if(proccreate(sproc, nil, 8192) < 0)
+		sysfatal("proccreate: %r\n");
+	s_volume = Cvar_Get("s_volume", "0.7", CVAR_ARCHIVE);
+	s_khz = Cvar_Get("s_khz", "22", CVAR_ARCHIVE);
+	s_loadas8bit = Cvar_Get("s_loadas8bit", "0", CVAR_ARCHIVE);
+	s_mixahead = Cvar_Get("s_mixahead", "0.2", CVAR_ARCHIVE);
+	S_InitScaletable();
+	sound_started = 1;
+	num_sfx = 0;
+	soundtime = 0;
+	paintedtime = 0;
+	S_StopAllSounds();
 }

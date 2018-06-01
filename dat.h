@@ -2255,12 +2255,16 @@ extern int crosshair_height;
 extern cvar_t *s_volume;
 extern cvar_t *s_loadas8bit;
 extern cvar_t *s_khz;
-extern cvar_t *s_show;
 extern cvar_t *s_mixahead;
-extern cvar_t *s_testsound;
-extern cvar_t *s_primary;
+extern int soundtime;
+extern int sound_started, num_sfx;
+extern sfx_t known_sfx[];
 
 enum{
+	Nsamp = 4096,
+	Sampsz = 2,
+	Rate = 44100,
+	Nsbuf = Sampsz * Nsamp,
 	MAX_CHANNELS = 32,
 	MAX_RAW_SAMPLES = 8192
 };

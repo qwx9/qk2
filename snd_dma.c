@@ -1,15 +1,10 @@
-// snd_dma.c -- main control for any streaming sound output device
-
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
 #include "dat.h"
 #include "fns.h"
 
-void S_Play(void);
-void S_SoundList(void);
 void S_Update_(void);
-void S_StopAllSounds(void);
 
 
 // =======================================================================
@@ -56,125 +51,13 @@ playsound_t	s_pendingplays;
 int			s_beginofs;
 
 cvar_t		*s_volume;
-cvar_t		*s_testsound;
 cvar_t		*s_loadas8bit;
 cvar_t		*s_khz;
-cvar_t		*s_show;
 cvar_t		*s_mixahead;
-cvar_t		*s_primary;
 
 
 int		s_rawend;
 portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
-
-
-// ====================================================================
-// User-setable variables
-// ====================================================================
-
-
-void S_SoundInfo_f(void)
-{
-	if (!sound_started)
-	{
-		Com_Printf ("sound system not started\n");
-		return;
-	}
-	
-    Com_Printf("%5d stereo\n", dma.channels - 1);
-    Com_Printf("%5d samples\n", dma.samples);
-    Com_Printf("%5d samplepos\n", dma.samplepos);
-    Com_Printf("%5d samplebits\n", dma.samplebits);
-    Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
-    Com_Printf("%5d speed\n", dma.speed);
-    Com_Printf("0x%x dma buffer\n", dma.buffer);
-}
-
-
-
-/*
-================
-S_Init
-================
-*/
-void S_Init (void)
-{
-	cvar_t	*cv;
-
-	Com_Printf("\n------- sound initialization -------\n");
-
-	cv = Cvar_Get ("s_initsound", "1", 0);
-	if (!cv->value)
-		Com_Printf ("not initializing.\n");
-	else
-	{
-		s_volume = Cvar_Get ("s_volume", "0.7", CVAR_ARCHIVE);
-		s_khz = Cvar_Get ("s_khz", "11", CVAR_ARCHIVE);
-		s_loadas8bit = Cvar_Get ("s_loadas8bit", "1", CVAR_ARCHIVE);
-		s_mixahead = Cvar_Get ("s_mixahead", "0.2", CVAR_ARCHIVE);
-		s_show = Cvar_Get ("s_show", "0", 0);
-		s_testsound = Cvar_Get ("s_testsound", "0", 0);
-		s_primary = Cvar_Get ("s_primary", "0", CVAR_ARCHIVE);	// win32 specific
-
-		Cmd_AddCommand("play", S_Play);
-		Cmd_AddCommand("stopsound", S_StopAllSounds);
-		Cmd_AddCommand("soundlist", S_SoundList);
-		Cmd_AddCommand("soundinfo", S_SoundInfo_f);
-
-		if (!SNDDMA_Init())
-			return;
-
-		S_InitScaletable ();
-
-		sound_started = 1;
-		num_sfx = 0;
-
-		soundtime = 0;
-		paintedtime = 0;
-
-		Com_Printf ("sound sampling rate: %i\n", dma.speed);
-
-		S_StopAllSounds ();
-	}
-
-	Com_Printf("------------------------------------\n");
-}
-
-
-// =======================================================================
-// Shutdown sound engine
-// =======================================================================
-
-void S_Shutdown(void)
-{
-	int		i;
-	sfx_t	*sfx;
-
-	if (!sound_started)
-		return;
-
-	SNDDMA_Shutdown();
-
-	sound_started = 0;
-
-	Cmd_RemoveCommand("play");
-	Cmd_RemoveCommand("stopsound");
-	Cmd_RemoveCommand("soundlist");
-	Cmd_RemoveCommand("soundinfo");
-
-	// free all sounds
-	for (i=0, sfx=known_sfx ; i < num_sfx ; i++,sfx++)
-	{
-		if (!sfx->name[0])
-			continue;
-		if (sfx->cache)
-			Z_Free (sfx->cache);
-		memset (sfx, 0, sizeof(*sfx));
-	}
-
-	num_sfx = 0;
-}
-
 
 // =======================================================================
 // Load a sound
@@ -536,8 +419,6 @@ void S_IssuePlaysound (playsound_t *ps)
 	channel_t	*ch;
 	sfxcache_t	*sc;
 
-	if (s_show->value)
-		Com_Printf ("Issue %i\n", ps->begin);
 	// pick a channel to play on
 	ch = S_PickChannel(ps->entnum, ps->entchannel);
 	if (!ch)
@@ -994,7 +875,6 @@ Called once each time through the main loop
 void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 {
 	int			i;
-	int			total;
 	channel_t	*ch;
 
 	if (!sound_started)
@@ -1039,23 +919,6 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 
 	// add loopsounds
 	S_AddLoopSounds ();
-
-	//
-	// debugging output
-	//
-	if (s_show->value)
-	{
-		total = 0;
-		ch = channels;
-		for (i=0 ; i<MAX_CHANNELS; i++, ch++)
-			if (ch->sfx && (ch->leftvol || ch->rightvol) )
-			{
-				Com_Printf ("%3i %3i %s\n", ch->leftvol, ch->rightvol, ch->sfx->name);
-				total++;
-			}
-		
-		Com_Printf ("----(%i)---- painted: %i\n", total, paintedtime);
-	}
 
 // mix some sound
 	S_Update_();
@@ -1129,68 +992,3 @@ void S_Update_(void)
 
 	SNDDMA_Submit ();
 }
-
-/*
-===============================================================================
-
-console functions
-
-===============================================================================
-*/
-
-void S_Play(void)
-{
-	int 	i;
-	char name[256];
-	sfx_t	*sfx;
-	
-	i = 1;
-	while (i<Cmd_Argc())
-	{
-		if (!strrchr(Cmd_Argv(i), '.'))
-		{
-			strcpy(name, Cmd_Argv(i));
-			strcat(name, ".wav");
-		}
-		else
-			strcpy(name, Cmd_Argv(i));
-		sfx = S_RegisterSound(name);
-		S_StartSound(NULL, cl.playernum+1, 0, sfx, 1.0, 1.0, 0);
-		i++;
-	}
-}
-
-void S_SoundList(void)
-{
-	int		i;
-	sfx_t	*sfx;
-	sfxcache_t	*sc;
-	int		size, total;
-
-	total = 0;
-	for (sfx=known_sfx, i=0 ; i<num_sfx ; i++, sfx++)
-	{
-		if (!sfx->registration_sequence)
-			continue;
-		sc = sfx->cache;
-		if (sc)
-		{
-			size = sc->length*sc->width*(sc->stereo+1);
-			total += size;
-			if (sc->loopstart >= 0)
-				Com_Printf ("L");
-			else
-				Com_Printf (" ");
-			Com_Printf("(%2db) %6i : %s\n",sc->width*8,  size, sfx->name);
-		}
-		else
-		{
-			if (sfx->name[0] == '*')
-				Com_Printf("  placeholder : %s\n", sfx->name);
-			else
-				Com_Printf("  not loaded  : %s\n", sfx->name);
-		}
-	}
-	Com_Printf ("Total resident: %i\n", total);
-}
-

@@ -1,4 +1,8 @@
+void	shutsnd(void);
+void	restartsnd(void);
+void	initsnd(void);
 int	mkdir(char*);
+void*	emalloc(ulong);
 
 void	Qcommon_Init(int, char **);
 void	Qcommon_Frame(int);
@@ -239,7 +243,6 @@ void	CL_Disconnect(void);
 void	CL_Disconnect_f(void);
 void	CL_GetChallengePacket(void);
 void	CL_PingServers_f(void);
-void	CL_Snd_Restart_f(void);
 void	CL_RequestNextDownload(void);
 void	CL_InitInput(void);
 void	CL_SendCmd(void);

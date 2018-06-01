@@ -168,7 +168,7 @@ void SCR_StopCinematic (void)
 	if (cin.restart_sound)
 	{
 		cin.restart_sound = false;
-		CL_Snd_Restart_f ();
+		restartsnd();
 	}
 
 }
@@ -623,7 +623,7 @@ void SCR_PlayCinematic (char *arg)
 	{
 		cin.restart_sound = true;
 		Cvar_SetValue ("s_khz", cin.s_rate/1000);
-		CL_Snd_Restart_f ();
+		restartsnd();
 		Cvar_SetValue ("s_khz", old_khz);
 	}
 

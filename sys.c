@@ -385,12 +385,23 @@ Sys_Init(void)
 		sysfatal("chancreate tchan: %r");
 }
 
+void *
+emalloc(ulong n)
+{
+	void *p;
+
+	if(p = mallocz(n, 1), p == nil)
+		sysfatal("emalloc %r");
+	setmalloctag(p, getcallerpc(&n));
+	return p;
+}
+
 void
 croak(void *, char *note)
 {
 	if(!strncmp(note, "sys:", 4)){
 		IN_Shutdown();
-		SNDDMA_Shutdown();
+		shutsnd();
 		NET_Shutdown();
 	}
 	noted(NDFLT);

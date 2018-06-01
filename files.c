@@ -555,11 +555,7 @@ void FS_SetGamedir (char *dir)
 		fs_searchpaths = next;
 	}
 
-	//
-	// flush all data, so it will be forced to reload
-	//
-	if (dedicated && !dedicated->value)
-		Cbuf_AddText ("vid_restart\nsnd_restart\n");
+	restartsnd();
 
 	Com_sprintf (fs_gamedir, sizeof(fs_gamedir), "%s/%s", fs_basedir->string, dir);
 
