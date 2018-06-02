@@ -54,11 +54,6 @@ SNDDMA_Submit(void)
 }
 
 void
-SNDDMA_BeginPainting(void)
-{
-}
-
-void
 shutsnd(void)
 {
 	if(afd < 0)
@@ -82,12 +77,13 @@ restartsnd(void)
 			continue;
 		if(s->cache)
 			Z_Free(s->cache);
-		memset(s, 0, sizeof*s);
+		memset(s, 0, sizeof *s);
 	}
 	num_sfx = 0;
 	soundtime = 0;
 	paintedtime = 0;
 	S_StopAllSounds();
+	wpos = 0;
 	CL_RegisterSounds();
 }
 

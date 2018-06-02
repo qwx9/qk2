@@ -2195,7 +2195,7 @@ struct refexport_t{
 	 * filled to eliminate mip map edge errors, and pics have an implicit
 	 * "pics/" prepended to the name. (a pic name that starts with a slash
 	 * will not use the "pics/" prefix or the ".pcx" postfix) */
-	qboolean	(*Init)(void *, void *);
+	qboolean	(*Init)(void);
 	void	(*Shutdown)(void);
 	void	(*BeginRegistration)(char *);
 	model_t*	(*RegisterModel)(char *);
@@ -2215,7 +2215,6 @@ struct refexport_t{
 	void	(*CinematicSetPalette)(uchar *);
 	void	(*BeginFrame)(float);
 	void	(*EndFrame)(void);
-	void	(*AppActivate)(qboolean);
 };
 extern refexport_t re;
 

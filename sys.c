@@ -340,16 +340,6 @@ flen(int fd)
 }
 
 void
-Sys_UnloadGame(void)
-{
-}
-
-void
-Sys_AppActivate(void)
-{
-}
-
-void
 Sys_SendKeyEvents(void)
 {
 	KBD_Update();
@@ -360,11 +350,6 @@ char *
 Sys_GetClipboardData(void)
 {
 	return nil;
-}
-
-void
-Sys_CopyProtect(void)
-{
 }
 
 void
@@ -415,6 +400,7 @@ threadmain(int argc, char *argv[])
 	setfcr(getfcr() & ~(FPOVFL|FPUNFL|FPINVAL|FPZDIV));	/* assumed ignored in code */
 	notify(croak);
 
+	srand(getpid());
 	Qcommon_Init(argc, argv);
 
 	oldtime = Sys_Milliseconds();

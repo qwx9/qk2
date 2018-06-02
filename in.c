@@ -321,7 +321,7 @@ mproc(void *)
 		if((n = read(fd, buf, sizeof buf)) != 1+4*12){
 			if(n < 0 || ++nerr > 10)
 				break;
-			fprint(2, "mproc:read: bad count %d not 49: %r\n", n);
+			fprint(2, "mproc: bad count %d not 49: %r\n", n);
 			continue;
 		}
 		nerr = 0;

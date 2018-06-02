@@ -13,88 +13,39 @@ Point center;
 typedef ulong PIXEL;
 
 static int rwon;
-static uchar *framebuf;
-static Image *fbim;
-static PIXEL st2d_8to24table[256];
-static int shiftmask_fl;
-static int r_shift, g_shift, b_shift;
-static uint r_mask, g_mask, b_mask;
+static uchar *fb;
+static Image *fbi;
+static s32int fbpal[256];
 
 refexport_t GetRefAPI(refimport_t);
 
 
 static void
-shiftmask_init(void)
+drawfb(void)
 {
-	uint x;
+	uchar *s;
+	int n, we, w8, wr, *d, dy;
 
-	r_mask = 0xff0000;
-	g_mask = 0xff00;
-	b_mask = 0xff;
-	for(r_shift = -8, x = 1; x < r_mask; x <<= 1)
-		r_shift++;
-	for(g_shift = -8, x = 1; x < g_mask; x <<= 1)
-		g_shift++;
-	for(b_shift = -8, x = 1; x < b_mask; x <<= 1)
-		b_shift++;
-	shiftmask_fl = 1;
-}
-
-static PIXEL
-rgb24(int r, int g, int b)
-{
-	PIXEL p = 0;
-
-	if(shiftmask_fl == 0)
-		shiftmask_init();
-
-	if(r_shift > 0)
-		p = r<<r_shift & r_mask;
-	else if(r_shift < 0)
-        	p = r>>-r_shift & r_mask;
-	else
-		p |= r & r_mask;
-	if(g_shift > 0)
-		p |= g<<g_shift & g_mask;
-	else if(g_shift < 0)
-		p |= g>>-g_shift & g_mask;
-	else
-		p |= g & g_mask;
-	if(b_shift > 0)
-		p |= b<<b_shift & b_mask;
-	else if(b_shift < 0)
-		p |= b>>-b_shift & b_mask;
-	else
-		p |= b & b_mask;
-	return p;
-}
-
-static void
-st3_fixup(void)
-{
-	int x, y;
-	uchar *src;
-	PIXEL *dest;
-
-	for(y = 0; y < vid.height; y++){
-		src = &framebuf[y*vid.rowbytes];
-		dest = (PIXEL*)src;
-
-		/* vid.width % 8 not always 0
-		for(x = vid.width-1; x >= 0; x -= 8) {
-			dest[x  ] = st2d_8to24table[src[x  ]];
-			dest[x-1] = st2d_8to24table[src[x-1]];
-			dest[x-2] = st2d_8to24table[src[x-2]];
-			dest[x-3] = st2d_8to24table[src[x-3]];
-			dest[x-4] = st2d_8to24table[src[x-4]];
-			dest[x-5] = st2d_8to24table[src[x-5]];
-			dest[x-6] = st2d_8to24table[src[x-6]];
-			dest[x-7] = st2d_8to24table[src[x-7]];
+	we = vid.width - 1;
+	w8 = vid.width + 7 >> 3;
+	wr = vid.width % 8;
+	dy = vid.height * vid.rowbytes;
+	while((dy -= vid.rowbytes) >= 0){
+		s = fb + dy;
+		d = ((int *)s) + we;
+		s += we;
+		n = w8;
+		switch(wr){
+		case 0:	do{	*d-- = fbpal[*s--];
+		case 7:		*d-- = fbpal[*s--];
+		case 6:		*d-- = fbpal[*s--];
+		case 5:		*d-- = fbpal[*s--];
+		case 4:		*d-- = fbpal[*s--];
+		case 3:		*d-- = fbpal[*s--];
+		case 2:		*d-- = fbpal[*s--];
+		case 1:		*d-- = fbpal[*s--];
+			}while(--n > 0);
 		}
-		*/
-
-		for(x = vid.width-1; x >= 0; x--)
-			dest[x] = st2d_8to24table[src[x]];
 	}
 }
 
@@ -103,89 +54,42 @@ resetfb(void)
 {
 	vid.width = Dx(screen->r);
 	vid.height = Dy(screen->r);
-	if(framebuf != nil){
-		free(framebuf);
-		framebuf = nil;
-	}
-	if(fbim != nil){
-		freeimage(fbim);
-		fbim = nil;
-	}
-	if((framebuf = malloc(sizeof *framebuf * vid.width * vid.height * screen->depth/8)) == nil)
-		sysfatal("resetfb:malloc: %r");
-	if((fbim = allocimage(display, Rect(0, 0, vid.width, vid.height), XRGB32, 0, 0)) == nil)
-		sysfatal("resetfb: %r");
-	vid.buffer = framebuf;
-	vid.rowbytes = vid.width * screen->depth/8;
+	free(fb);
+	fb = emalloc(vid.width * vid.height * sizeof *fbpal);
+	freeimage(fbi);
+	if((fbi = allocimage(display, Rect(0, 0, vid.width, vid.height), XRGB32, 0, 0)) == nil)
+		sysfatal("allocimage: %r");
+	vid.buffer = fb;
+	vid.rowbytes = vid.width * sizeof *fbpal;
 	center = addpt(screen->r.min, Pt(vid.width/2, vid.height/2));
 	sw_mode->modified = true;	/* make ref_soft refresh its shit */
 }
 
-int
-SWimp_Init(void *, void *)
-{
-	srand(getpid());
-
-	if(initdraw(nil, nil, "quake2") < 0)
-		sysfatal("VID_Init:initdraw: %r\n");
-	resetfb();
-	rwon = 1;
-	vidref_val = VIDREF_SOFT;
-	return 1;
-}
-
-/* copy backbuffer to front buffer */
 void
-SWimp_EndFrame(void)
+flipfb(void)
 {
-	if(resized){		/* skip frame if window resizes */
+	if(resized){
 		resized = 0;
 		if(getwindow(display, Refnone) < 0)
-			sysfatal("SWimp_EndFrame:getwindow: %r\n");
+			sysfatal("getwindow: %r\n");
 		resetfb();
 		return;
 	}
-	st3_fixup();
-	loadimage(fbim, fbim->r, framebuf, vid.height * vid.rowbytes);
-	draw(screen, screen->r, fbim, nil, ZP);
+	drawfb();
+	loadimage(fbi, fbi->r, fb, vid.height * vid.rowbytes);
+	draw(screen, screen->r, fbi, nil, ZP);
 	flushimage(display, 1);
 }
 
-rserr_t
-SWimp_SetMode(int */*pwidth*/, int */*pheight*/, int /*mode*/, qboolean /*fullscreen*/)
-{
-	return rserr_ok;
-}
-
-/* nil palette == use existing; palette is expected to be in padded 4-byte xRGB format */
 void
-SWimp_SetPalette(uchar *palette)
+setpal(uchar *p)
 {
-	int i;
+	int *fp;
 
-	if(!rwon)
-		return;
-	if(!palette)
-        	palette = (uchar *)sw_state.currentpalette;
-	for(i = 0; i < 256; i++)
-		st2d_8to24table[i] = rgb24(palette[i*4], palette[i*4+1], palette[i*4+2]);
-}
-
-void
-SWimp_Shutdown(void)
-{
-	if(!rwon)
-		return;
-	if(framebuf != nil)
-		free(framebuf);
-	if(fbim != nil)
-		freeimage(fbim);
-	rwon = 0;
-}
-
-void
-SWimp_AppActivate(qboolean /*active*/)
-{
+	if(p == nil)
+        	p = (uchar *)sw_state.currentpalette;
+	for(fp=fbpal; fp<fbpal+nelem(fbpal); p+=4)
+		*fp++ = p[0] << 16 | p[1] << 8 | p[2];
 }
 
 void
@@ -216,21 +120,13 @@ VID_Error(int err_level, char *fmt, ...)
 }
 
 void
-VID_CheckChanges(void)
-{
-}
-
-void
-VID_Shutdown(void)
-{
-	R_Shutdown();
-}
-
-void
-VID_Init(void)
+initfb(void)
 {
 	refimport_t ri;
 
+	if(initdraw(nil, nil, "quake2") < 0)
+		sysfatal("VID_Init:initdraw: %r\n");
+	vidref_val = VIDREF_SOFT;
 	ri.Cmd_AddCommand = Cmd_AddCommand;
 	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
 	ri.Cmd_Argc = Cmd_Argc;
@@ -247,5 +143,6 @@ VID_Init(void)
 	ri.Vid_MenuInit = VID_MenuInit;
 
 	re = GetRefAPI(ri);
-	re.Init(nil, nil);
+	re.Init();
+	resetfb();
 }

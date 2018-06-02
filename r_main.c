@@ -277,7 +277,7 @@ R_UnRegister(void)
 R_Init
 ===============
 */
-qboolean R_Init( void *hInstance, void *wndProc )
+qboolean R_Init(void)
 {
 	R_InitImages ();
 	Mod_Init ();
@@ -300,7 +300,6 @@ qboolean R_Init( void *hInstance, void *wndProc )
 
 	R_Register ();
 	Draw_GetPalette ();
-	SWimp_Init( hInstance, wndProc );
 
 	// create the window
 	R_BeginFrame( 0 );
@@ -329,8 +328,6 @@ R_Shutdown(void)
 	R_UnRegister();
 	Mod_FreeAll();
 	R_ShutdownImages();
-
-	SWimp_Shutdown();
 }
 
 /*
@@ -923,7 +920,7 @@ void R_CalcPalette (void)
 	}
 
 	R_GammaCorrectAndSetPalette((uchar *)palette[0]);
-//	SWimp_SetPalette( palette[0] );
+//	setpal(palette[0]);
 }
 
 //=======================================================================
@@ -1071,42 +1068,10 @@ void R_BeginFrame( float /*camera_separation*/ )
 
 	while ( sw_mode->modified || vid_fullscreen->modified )
 	{
-		rserr_t err;
-
-		/*
-		** if this returns rserr_invalid_fullscreen then it set the mode but not as a
-		** fullscreen mode, e.g. 320x200 on a system that doesn't support that res
-		*/
-		if ( ( err = SWimp_SetMode( &vid.width, &vid.height, sw_mode->value, vid_fullscreen->value ) ) == rserr_ok )
-		{
-			R_InitGraphics( vid.width, vid.height );
-
-			sw_state.prev_mode = sw_mode->value;
-			vid_fullscreen->modified = false;
-			sw_mode->modified = false;
-		}
-		else
-		{
-			if ( err == rserr_invalid_mode )
-			{
-				ri.Cvar_SetValue( "sw_mode", sw_state.prev_mode );
-				ri.Con_Printf( PRINT_ALL, "ref_soft::R_BeginFrame() - could not set mode\n" );
-			}
-			else if ( err == rserr_invalid_fullscreen )
-			{
-				R_InitGraphics( vid.width, vid.height );
-
-				ri.Cvar_SetValue( "vid_fullscreen", 0);
-				ri.Con_Printf( PRINT_ALL, "ref_soft::R_BeginFrame() - fullscreen unavailable in this mode\n" );
-				sw_state.prev_mode = sw_mode->value;
-//				vid_fullscreen->modified = false;
-//				sw_mode->modified = false;
-			}
-			else
-			{
-				ri.Sys_Error( ERR_FATAL, "ref_soft::R_BeginFrame() - catastrophic mode change failure\n" );
-			}
-		}
+		R_InitGraphics(vid.width, vid.height);
+		sw_state.prev_mode = sw_mode->value;
+		vid_fullscreen->modified = false;
+		sw_mode->modified = false;
 	}
 }
 
@@ -1121,8 +1086,7 @@ R_GammaCorrectAndSetPalette(uchar *palette)
 		sw_state.currentpalette[i*4+1] = sw_state.gammatable[palette[i*4+1]];
 		sw_state.currentpalette[i*4+2] = sw_state.gammatable[palette[i*4+2]];
 	}
-
-	SWimp_SetPalette( sw_state.currentpalette );
+	setpal(sw_state.currentpalette);
 }
 
 void
@@ -1140,8 +1104,7 @@ R_CinematicSetPalette(uchar *palette)
 		for (j=0 ; j<w ; j++)
 			d[j] = 0;
 	}
-	// flush it to the screen
-	SWimp_EndFrame ();
+	flipfb();
 
 	if ( palette )
 	{
@@ -1340,9 +1303,7 @@ refexport_t GetRefAPI (refimport_t rimp)
 
 	re.CinematicSetPalette = R_CinematicSetPalette;
 	re.BeginFrame = R_BeginFrame;
-	re.EndFrame = SWimp_EndFrame;
-
-	re.AppActivate = SWimp_AppActivate;
+	re.EndFrame = flipfb;
 
 	Swap_Init ();
 

@@ -871,7 +871,6 @@ void CL_ConnectionlessPacket (void)
 			Com_Printf ("Command packet from remote host.  Ignored.\n");
 			return;
 		}
-		Sys_AppActivate ();
 		s = MSG_ReadString (&net_message);
 		Cbuf_AddText (s);
 		Cbuf_AddText ("\n");
@@ -1641,7 +1640,6 @@ void CL_Frame (int msec)
 	CL_PredictMovement ();
 
 	// allow rendering DLL change
-	VID_CheckChanges ();
 	if (!cl.refresh_prepped && cls.state == ca_active)
 		CL_PrepRefresh ();
 
@@ -1697,17 +1695,19 @@ CL_Init
 */
 void CL_Init (void)
 {
-	IN_Init();
 
-	if(dedicated->value)
+	if(dedicated->value){
+		IN_Init();
 		return;		// nothing running on the client
+	}
 
 	// all archived variables will now be loaded
 
 	Con_Init ();
 	initsnd();	
-	VID_Init ();
-	
+	initfb();
+	IN_Init();
+
 	V_Init ();
 	
 	net_message.data = net_message_buffer;
@@ -1751,5 +1751,5 @@ void CL_Shutdown(void)
 	CDAudio_Shutdown ();
 	shutsnd();
 	IN_Shutdown ();
-	VID_Shutdown();
+	R_Shutdown();
 }
