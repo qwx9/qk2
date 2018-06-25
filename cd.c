@@ -6,7 +6,8 @@
 #include "dat.h"
 #include "fns.h"
 
-static int cdread, cdloop, cdvol;
+static int cdread, cdloop;
+static double cdvol;
 static int ntrk, trk, chtrk;
 static char trtype;
 static int ctid = -1;
@@ -81,9 +82,7 @@ cproc(void *)
 		p = (short *)buf;
 		e = (short *)(buf+sizeof buf);
 		while(p < e){
-			a = *p * cdvol >> 8;
-			if(a < (short)0x8000)
-				a = 0x8000;
+			a = *p * cdvol;
 			*p++ = a;
 		}
 		if(write(afd, buf, n) != n)
@@ -151,7 +150,7 @@ CD_f(void)
 		CDAudio_Resume();
 		return;
 	}else if(cistrcmp(cmd, "info") == 0){
-		Com_Printf("track %d/%d; loop %d; vol %d\n", trk, ntrk, cdloop, cdvol);
+		Com_Printf("track %d/%d; loop %d; vol %.1f\n", trk, ntrk, cdloop, cdvol);
 		return;
 	}
 }
@@ -159,16 +158,10 @@ CD_f(void)
 void
 CDAudio_Update(void)
 {
-	int v;
-
 	if(ctid < 0)
 		return;
-	v = cdvol;
-	cdvol = ccdvol->value * 256;
-	if(v <= 0 && cdvol > 0)
-		cdread = 1;
-	else if(v > 0 && cdvol <= 0)
-		cdread = 0;
+	cdvol = ccdvol->value;
+	cdread = cdvol > 0.0;
 }
 
 int
