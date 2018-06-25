@@ -9,6 +9,7 @@
 refexport_t re;	/* exported functions from refresh DLL */
 int resized;
 Point center;
+Rectangle grabr;
 
 typedef ulong PIXEL;
 
@@ -52,6 +53,8 @@ drawfb(void)
 static void
 resetfb(void)
 {
+	Point p;
+
 	vid.width = Dx(screen->r);
 	vid.height = Dy(screen->r);
 	free(fb);
@@ -62,6 +65,8 @@ resetfb(void)
 	vid.buffer = fb;
 	vid.rowbytes = vid.width * sizeof *fbpal;
 	center = addpt(screen->r.min, Pt(vid.width/2, vid.height/2));
+	p = Pt(vid.width/4, vid.height/4);
+	grabr = Rpt(subpt(center, p), addpt(center, p));
 	sw_mode->modified = true;	/* make ref_soft refresh its shit */
 }
 

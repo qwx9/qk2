@@ -8,9 +8,10 @@
 #include "dat.h"
 #include "fns.h"
 
-extern int resized;		/* vid.c */
+extern int resized;
 extern Point center;
-extern Channel *fuckchan, *tchan;	/* sys.c */
+extern Channel *fuckchan, *tchan;
+extern Rectangle grabr;
 
 cvar_t *in_joystick;
 cvar_t *sensitivity;
@@ -25,7 +26,7 @@ static cvar_t *m_yaw;
 static cvar_t *m_side;
 static cvar_t *m_forward;
 
-static int mouseon;
+static int mouseon, fixms;
 static int mlooking;
 static int dx, dy;
 static int oldmwin;
@@ -77,6 +78,7 @@ IN_Grabm(int on)
 			return;
 		}
 		write(fd, nocurs, sizeof nocurs);
+		fixms++;
 	}else if(fd >= 0){
 		close(fd);
 		fd = -1;
@@ -102,7 +104,7 @@ btnev(int btn, ulong msec)
 		else if(~btn & b && oldb & b)
 			Key_Event(K_MOUSE1+i, false, msec);
 	}
-	oldb = btn;
+	oldb = btn & 7;
 	/* mwheelup and mwheeldn buttons are never held down */
 	for(i = 3; i < 5; i++){
 		b = 1<<i;
@@ -311,13 +313,14 @@ end:;
 static void
 mproc(void *)
 {
-	int n, nerr = 0, fd;
+	int n, nerr, fd;
 	char buf[1+5*12];
 	Mouse m;
+	Point p, o;
 
 	if((fd = open("/dev/mouse", ORDWR)) < 0)
 		sysfatal("mproc: %r");
-	for(;;){
+	for(nerr=0;;){
 		if((n = read(fd, buf, sizeof buf)) != 1+4*12){
 			if(n < 0 || ++nerr > 10)
 				break;
@@ -332,15 +335,24 @@ mproc(void *)
 		case 'm':
 			if(!mouseon)
 				break;
-
-			m.xy.x = atoi(buf+1+0*12) - center.x;
-			m.xy.y = atoi(buf+1+1*12) - center.y;
-			if(m.xy.x != 0 || m.xy.y != 0)
-				fprint(fd, "m%d %d", center.x, center.y);
+			if(fixms){
+				fixms = 0;
+				goto res;
+			}
+			p.x = atoi(buf+1+0*12);
+			p.y = atoi(buf+1+1*12);
+			m.xy.x = p.x - o.x;
+			m.xy.y = p.y - o.y;
 			m.buttons = atoi(buf+1+2*12);
 			m.msec = atoi(buf+1+3*12);
 			if(nbsend(mchan, &m) < 0)
 				goto end;
+			if(!ptinrect(p, grabr)){
+		res:
+				fprint(fd, "m%d %d", center.x, center.y);
+				p = center;
+			}
+			o = p;
 			break;
 		}
 	}
