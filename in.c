@@ -415,8 +415,10 @@ IN_Shutdown(void)
 	iop = -1;
 	close(pfd[0]);
 	close(pfd[1]);
-	chanfree(kchan);
-	chanfree(mchan);
+	if(kchan != nil)
+		chanfree(kchan);
+	if(mchan != nil)
+		chanfree(mchan);
 }
 
 void
