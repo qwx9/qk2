@@ -7,7 +7,7 @@
 #include "fns.h"
 
 refexport_t re;	/* exported functions from refresh DLL */
-int resized;
+int resized, dumpwin;
 Point center;
 Rectangle grabr;
 
@@ -50,6 +50,28 @@ drawfb(void)
 	}
 }
 
+/* only exists to allow taking tear-free screenshots ingame... */
+static int
+writebit(void)
+{
+	int n, fd;
+	char *s;
+
+	mkdir(va("%s/scrnshot", ri.FS_Gamedir()));
+	s = va("%s/scrnshot/quake.%d.bit", ri.FS_Gamedir(), time(nil));
+	if(access(s, AEXIST) != -1){
+		fprint(2, "writebit: not overwriting %s\n", s);
+		return -1;
+	}
+	if(fd = create(s, OWRITE, 0644), fd < 0)
+		return -1;
+	n = writeimage(fd, fbi, 0);
+	close(fd);
+	if(n >= 0)
+		ri.Con_Printf(PRINT_ALL, "Wrote %s\n", s);
+	return n;
+}
+
 static void
 resetfb(void)
 {
@@ -84,6 +106,11 @@ flipfb(void)
 	loadimage(fbi, fbi->r, fb, vid.height * vid.rowbytes);
 	draw(screen, screen->r, fbi, nil, ZP);
 	flushimage(display, 1);
+	if(dumpwin){
+		if(writebit() < 0)
+			ri.Con_Printf(PRINT_ALL, "Could not write screenshot\n");
+		dumpwin = 0;
+	}
 }
 
 void

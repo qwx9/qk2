@@ -2100,6 +2100,8 @@ extern void *colormap;
 extern unsigned d_8to24table[256];	// base
 extern mtexinfo_t *sky_texinfo[6];
 
+extern int dumpwin;
+
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_gamma;
 extern cvar_t *scr_viewsize;
