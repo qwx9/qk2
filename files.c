@@ -643,12 +643,7 @@ void FS_InitFilesystem (void)
 	// basedir <path>
 	// allows the game to run from outside the data tree
 	//
-	if(home = getenv("home")){
-		snprint(homedir, sizeof homedir, "%s/lib/quake2", home);
-		free(home);
-	}else
-		snprint(homedir, sizeof homedir, "/sys/lib/quake2");
-	fs_basedir = Cvar_Get ("basedir", homedir, CVAR_NOSET);
+	fs_basedir = Cvar_Get ("basedir", "/sys/games/lib/quake2", CVAR_NOSET);
 
 	//
 	// cddir <path>
@@ -663,6 +658,10 @@ void FS_InitFilesystem (void)
 	// start up with baseq2 by default
 	//
 	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
+	if((home = getenv("home")) != nil){
+		FS_AddGameDirectory(va("%s/lib/quake2/"BASEDIRNAME, home));
+		free(home);
+	}
 
 	// any set gamedirs will be freed up to here
 	fs_base_searchpaths = fs_searchpaths;

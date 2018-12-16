@@ -1,24 +1,26 @@
 qk2 - (9) quake 2
 =================
-port of linux/x11 quake2 to plan9front. tested on amd64 and 386 only.
-currently lacks music and has a breaker bug with non 4:3 resolutions.
-performance-wise, it works fairly well on VESA with lower resolutions, e.g.
-800x600. on my machines.
+port of linux/x11 quake 2 to plan9front.
+- works on amd64 and 386, broken on arm and probably other arches
+- rendering bugs on non-4:3 resolutions
 
 
 installation
 ------------
 besides building and installation, qk2 needs the data from its retail cd. those
-are to be installed in $home/lib/quake2/baseq2. in a complete install, that
-directory will contain pak^(0 1 2)^.pak, as well as the players and video
+are to be installed in /sys/games/lib/quake2/baseq2. in a complete install,
+that directory will contain pak^(0 1 2)^.pak, as well as the players and video
 directories. neither players (for single play) nor video are mandatory. all
 filenames should be lowercased.
 
 ; mk install
-; mkdir -p $home/lib/quake2/baseq2/^(players video)
+; mkdir -p /sys/games/lib/quake2/baseq2/^(players video)
 ; cd /n/quake2cd/baseq2/
-; cp *.pak $home/lib/quake2/baseq2/
-; for(i in (players video)){ dircp $i $home/lib/quake2/baseq2/$i }
+; cp *.pak /sys/games/lib/quake2/baseq2/
+; for(i in (players video)){ dircp $i /sys/games/lib/quake2/baseq2/$i }
+
+savegames, configuration files and other user data will be written under
+$home/lib/quake2/baseq2/.
 
 
 quake2 mods
@@ -27,7 +29,7 @@ quake2 mods are C code built as shared libraries (called "game modules"). here,
 the code will have to be ported to plan9, adapted to qk2, then built and loaded
 against it. this repo contains the code for the official ctf mod, the two
 expansions, and a mod. for the rest of this file, let $mod the name of a mod.
-the data for the mod is to be stored in $home/lib/quake2/$mod/.
+the data for the mod is to be stored in /sys/games/lib/quake2/$mod/.
 
 
 installing a mod
@@ -68,8 +70,8 @@ you'll also need to write mkfiles (cf. mod installation instructions above).
 
 todo/bugs
 ---------
-- rendering glitches and fault reads on resolutions not originally supported
-  (anything other than 4:3)
+- raise resolution limit above 2047x2048
+- fix underwater rendering glitches on non-4:3
 - edict_t definitions merged without much looking
 - sys.c: stupid posixish glob stuff
 - udp.c mostly horrid; need to rewrite networking stuff to use plan9 semantics
@@ -89,7 +91,7 @@ differences with linux/x11 quake2
 ---------------------------------
 - mouse wheel up and down recognized and useable (but parsing is ugly)
 - mouse buttons have (correct) plan9 names
-- arbitrary resolutions up to 4096x4096 allowed (dat.h) and resize by dragging
+- arbitrary resolutions up to 2047x2048 allowed (dat.h) and resize by dragging
   window edges; no fullscreen
 - no dynamic linking → "modules" are statically linked
 - merged headers: dat.h,fns.h,game/game.h
