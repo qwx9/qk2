@@ -25,7 +25,7 @@ qboolean		r_leftclipped, r_rightclipped;
 static qboolean	makeleftedge, makerightedge;
 qboolean		r_nearzionly;
 
-int		sintable[MAXWIDTH];
+int		sintable[MAXWIDTH+CYCLE];
 int		intsintable[nelem(sintable)];
 int		blanktable[nelem(sintable)];		// PGM
 

@@ -1980,7 +1980,7 @@ extern int cachewidth;
 extern pixel_t *cacheblock;
 extern int r_screenwidth;
 extern int r_drawnpolycount;
-extern int sintable[MAXWIDTH];
+extern int sintable[MAXWIDTH+CYCLE];
 extern int intsintable[nelem(sintable)];
 extern int blanktable[nelem(sintable)];
 extern vec3_t vup;
