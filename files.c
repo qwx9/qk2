@@ -531,6 +531,7 @@ Sets the gamedir and path to a different directory.
 void FS_SetGamedir (char *dir)
 {
 	searchpath_t	*next;
+	char *home;
 
 	if (strstr(dir, "..") || strstr(dir, "/")
 		|| strstr(dir, "\\") || strstr(dir, ":") )
@@ -570,6 +571,10 @@ void FS_SetGamedir (char *dir)
 		if (fs_cddir->string[0])
 			FS_AddGameDirectory (va("%s/%s", fs_cddir->string, dir) );
 		FS_AddGameDirectory (va("%s/%s", fs_basedir->string, dir) );
+		if((home = getenv("home")) != nil){
+			FS_AddGameDirectory(va("%s/lib/quake2/%s", home, dir));
+			free(home);
+		}
 	}
 }
 
