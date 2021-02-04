@@ -1,17 +1,19 @@
 qk2 - (9) quake 2
 =================
-port of linux/x11 quake 2 to plan9front.
-- works on amd64 and 386, broken on arm and probably other arches
-- rendering bugs on non-4:3 resolutions
+Port of linux/x11 quake 2 to plan9front.
+- Works on amd64 and 386, broken on some arm machines and probably other arches
+- Rendering bugs on non-4:3 resolutions
+
+For details, see: http://nopenopenope.net/posts/quake
 
 
-installation
+Installation
 ------------
-besides building and installation, qk2 needs the data from its retail cd. those
-are to be installed in /sys/games/lib/quake2/baseq2. in a complete install,
-that directory will contain pak^(0 1 2)^.pak, as well as the players and video
-directories. neither players (for single play) nor video are mandatory. all
-filenames should be lowercased.
+Besides building and installation, qk2 needs the data from its retail cd.
+Those are to be installed in /sys/games/lib/quake2/baseq2.  In a complete
+install, that directory will contain pak^(0 1 2)^.pak, as well as the players
+and video directories.  Neither players (for single play) nor video are
+mandatory.  All filenames should be lowercased.
 
 ; mk install
 ; mkdir -p /sys/games/lib/quake2/baseq2/^(players video)
@@ -19,23 +21,25 @@ filenames should be lowercased.
 ; cp *.pak /sys/games/lib/quake2/baseq2/
 ; for(i in (players video)){ dircp $i /sys/games/lib/quake2/baseq2/$i }
 
-savegames, configuration files and other user data will be written under
+Savegames, configuration files and other user data will be written under
 $home/lib/quake2/baseq2/.
 
+Note: to enable grabbing the mouse, set the m_windowed console variable to 1.
 
-quake2 mods
+
+Quake2 mods
 -----------
-quake2 mods are C code built as shared libraries (called "game modules"). here,
+Quake2 mods are C code built as shared libraries (called "game modules").  Here,
 the code will have to be ported to plan9, adapted to qk2, then built and loaded
-against it. this repo contains the code for the official ctf mod, the two
-expansions, and a mod. for the rest of this file, let $mod the name of a mod.
-the data for the mod is to be stored in /sys/games/lib/quake2/$mod/.
+against it.  This repo contains the code for the official ctf mod, the two
+expansions, and a mod.  For the rest of this file, let $mod the name of a mod.
+The data for the mod is to be stored in /sys/games/lib/quake2/$mod/.
 
 
-installing a mod
+Installing a mod
 ----------------
-a makefile is provided with each mod. "baseq2" is the main game.
-for example, for ctf:
+A makefile is provided with each mod. "baseq2" is the main game.
+For example, for ctf:
 
 ; mkfile -f mkfile.ctf install
 
@@ -44,31 +48,31 @@ or:
 ; bind mkfile.ctf mkfile
 ; mk install
 
-each mod is built as a library, later linked to the rest of the common code.
+Each mod is built as a library, later linked to the rest of the common code.
 
 ; q2ctf +set game ctf +set ctf 1
 
 
-porting a mod
+Porting a mod
 -------------
-in the case you wish to play a mod which has not been ported, and have nothing
-better to do, you will need to port it yourself. fwiw, ctf and crbot-1.0 took
-me about 4-5 hours each (not including debugging). note that all of this
-assumes the mod only alters code for the game module (game/). if that's not
+In the case you wish to play a mod which has not been ported, and have nothing
+better to do, you will need to port it yourself.  fwiw, ctf and crbot-1.0 took
+me about 4-5 hours each (not including debugging).  Note that all of this
+assumes the mod only alters code for the game module (game/).  If that's not
 the case, no standard operational procedure exists.
 
-having obtained the $mod's source code, you can use game/*.[ch] as reference
-for your porting efforts. one thing specific to qk2 is how header files are
+Having obtained the $mod's source code, you can use game/*.[ch] as reference
+for your porting efforts.  One thing specific to qk2 is how header files are
 handled: most common headers, including game/q_shared.h, were merged into dat.h
-and fns.h. game/[gp]*.h were merged into game/game.h. game/game.h is
+and fns.h.  game/[gp]*.h were merged into game/game.h.  game/game.h is
 unfortunately included in dat.h, as some required structure definitions vary
-from mod to mod. as such, a mod is required to have $mod/game.h, which defines
+from mod to mod.  As such, a mod is required to have $mod/game.h, which defines
 anything necessary for common code to work.
 
-you'll also need to write mkfiles (cf. mod installation instructions above).
+You'll also need to write mkfiles (cf. mod installation instructions above).
 
 
-todo/bugs
+Todo/bugs
 ---------
 - raise resolution limit above 2047x2048
 - fix underwater rendering glitches on non-4:3
@@ -87,7 +91,7 @@ todo/bugs
 - (bjnh) redesign everything to be super cool
 
 
-differences with linux/x11 quake2
+Differences with linux/x11 quake2
 ---------------------------------
 - mouse wheel up and down recognized and useable (but parsing is ugly)
 - mouse buttons have (correct) plan9 names
@@ -102,7 +106,7 @@ differences with linux/x11 quake2
   probably sucks
 
 
-legal
+Legal
 -----
 Quake 2, hence qk2, is licensed under the GPLv2. See COPYING for details.
 All of the Q2 data files remain copyrighted and licensed under the original
