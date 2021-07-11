@@ -104,26 +104,35 @@ NET_BaseAdrToString(netadr_t a)
 	return s;
 }
 
-static void
+static int
 getip(char *a, int len)
 {
 	int fd, n;
 	char buf[128], *f[3];
 
-	if((fd = open("/net/cs", ORDWR)) < 0)
-		sysfatal("open: %r");
+	if((fd = open("/net/cs", ORDWR)) < 0){
+		fprint(2, "getip: open: %r\n");
+		return -1;
+	}
 	snprint(buf, sizeof buf, "udp!%s!0", a);
 	n = strlen(buf);
-	if(write(fd, buf, n) != n)
-		sysfatal("translating %s: %r", a);
+	if(write(fd, buf, n) != n){
+		fprint(2, "getip: translating %s: %r\n", a);
+		return -1;
+	}
 	seek(fd, 0, 0);
-	if((n = read(fd, buf, sizeof(buf)-1)) <= 0)
-		sysfatal("reading cs tables: %r");
+	if((n = read(fd, buf, sizeof(buf)-1)) <= 0){
+		fprint(2, "getip: reading cs tables: %r\n");
+		return -1;
+	}
 	buf[n] = 0;
 	close(fd);
-	if(getfields(buf, f, 3, 1, " !") < 2)
-		sysfatal("bad cs entry %s", buf);
+	if(getfields(buf, f, 3, 1, " !") < 2){
+		fprint(2, "getip: bad cs entry %s", buf);
+		return -1;
+	}
 	strncpy(a, f[1], len);
+	return 0;
 }
 
 /*
@@ -158,7 +167,8 @@ NET_StringToAdr(char *addr, netadr_t *a)	/* assumes IPv4 */
 		a->port = BigShort(atoi(p));
 	}
 
-	getip(s, sizeof(s)-1);
+	if(getip(s, sizeof(s)-1) < 0)
+		return false;
 
 	/* FIXMEGASHIT */
 	for(i = 0, pp = s; i < IPv4addrlen; i++){
