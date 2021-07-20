@@ -599,6 +599,8 @@ void CL_Disconnect (void)
 
 	M_ForceMenuOff(false);
 
+	CDAudio_Stop();
+
 	cls.connect_time = 0;
 
 	SCR_StopCinematic ();

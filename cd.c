@@ -10,7 +10,7 @@ static int cdread, cdloop;
 static double cdvol;
 static int ntrk, trk, chtrk;
 static char trtype;
-static int ctid = -1;
+static int cpid = -1;
 static Reprog *pat;
 static cvar_t *ccdvol;
 
@@ -93,7 +93,7 @@ cproc(void *)
 void
 CDAudio_Play(int nt, qboolean loop)
 {
-	if(ctid < 0)
+	if(cpid < 0)
 		return;
 	nt -= 1;	/* d001 was assumed part of the track list */
 	if(nt < 1 || nt > ntrk){
@@ -103,6 +103,7 @@ CDAudio_Play(int nt, qboolean loop)
 
 	chtrk = nt;
 	cdloop = loop;
+	cdvol = ccdvol->value;
 	if(cdvol > 0)
 		cdread = 1;
 }
@@ -158,7 +159,9 @@ CD_f(void)
 void
 CDAudio_Update(void)
 {
-	if(ctid < 0)
+	if(cpid < 0)
+		return;
+	if(ccdvol->value <= 0.0 || cdread == 0)
 		return;
 	cdvol = ccdvol->value;
 	cdread = cdvol > 0.0;
@@ -167,12 +170,15 @@ CDAudio_Update(void)
 int
 CDAudio_Init(void)
 {
+	int tid;
+
 	pat = regcomp("[au][0-9][0-9][0-9]");
 	if(cdinfo() < 0)
 		return -1;
 	ccdvol = Cvar_Get("cdvol", "1", CVAR_ARCHIVE);
-	if((ctid = proccreate(cproc, nil, 16384)) < 0)
+	if((tid = proccreate(cproc, nil, 16384)) < 0)
 		sysfatal("proccreate: %r");
+	cpid = threadpid(tid);
 	Cmd_AddCommand("cd", CD_f);
 
 	Com_Printf("CD Audio Initialized\n");
@@ -182,12 +188,13 @@ CDAudio_Init(void)
 void
 CDAudio_Shutdown(void)
 {
-	if(ctid < 0)
+	if(cpid < 0)
 		return;
 
 	CDAudio_Stop();
-	postnote(PNPROC, ctid, "shutdown");
-	ctid = -1;
+	if(postnote(PNPROC, cpid, "die die die") < 0)
+		fprint(2, "CDAudio_Shutdown: postnote: %r\n");
+	cpid = -1;
 	free(pat);
 	pat = nil;
 	cdread = cdloop = 0;
