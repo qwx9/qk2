@@ -739,6 +739,7 @@ void CL_ParseFrame (void)
 		if (cls.state != ca_active)
 		{
 			cls.state = ca_active;
+			CL_SetGameInput(key_game);
 			cl.force_refdef = true;
 			cl.predicted_origin[0] = cl.frame.playerstate.pmove.origin[0]*0.125;
 			cl.predicted_origin[1] = cl.frame.playerstate.pmove.origin[1]*0.125;

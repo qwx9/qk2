@@ -2457,7 +2457,6 @@ enum{
 	K_PAUSE = 255
 };
 extern char *keybindings[256];
-extern int key_repeats[256];
 extern int anykeydown;
 extern char chat_buffer[];
 extern int chat_bufferlen;

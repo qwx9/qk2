@@ -36,7 +36,7 @@ vmapply(void *)
 {
 	Cvar_SetValue("vid_gamma", 0.8 - (gammaslide.curvalue/10.0 - 0.5) + 0.5);
 	Cvar_SetValue("vid_fullscreen", fullscrbox.curvalue);
-	M_ForceMenuOff();
+	M_ForceMenuOff(cls.state == ca_active);
 }
 
 void

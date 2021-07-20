@@ -35,6 +35,7 @@ typedef struct Kev Kev;
 struct Kev{
 	int key;
 	int down;
+	int isrep;
 };
 enum{
 	Nbuf	= 64
@@ -100,17 +101,17 @@ btnev(int btn, ulong msec)
 	for(i = 0; i < 3; i++){
 		b = 1<<i;
 		if(btn & b && ~oldb & b)
-			Key_Event(K_MOUSE1+i, true, msec);
+			Key_Event(K_MOUSE1+i, true, false, msec);
 		else if(~btn & b && oldb & b)
-			Key_Event(K_MOUSE1+i, false, msec);
+			Key_Event(K_MOUSE1+i, false, false, msec);
 	}
 	oldb = btn & 7;
 	/* mwheelup and mwheeldn buttons are never held down */
 	for(i = 3; i < 5; i++){
 		b = 1<<i;
 		if(btn & b){
-			Key_Event(K_MOUSE1+i, true, msec);
-			Key_Event(K_MOUSE1+i, false, msec);
+			Key_Event(K_MOUSE1+i, true, false, msec);
+			Key_Event(K_MOUSE1+i, false, false, msec);
 		}
 	}
 }
@@ -127,7 +128,7 @@ KBD_Update(void)
 		IN_Grabm(m_windowed->value);
 	}
 	while((r = nbrecv(kchan, &ev)) > 0)
-		Key_Event(ev.key, ev.down, Sys_Milliseconds());
+		Key_Event(ev.key, ev.down, ev.isrep, Sys_Milliseconds());
 	if(r < 0)
 		sysfatal("KBD_Update:nbrecv: %r\n");
 	while((r = nbrecv(mchan, &m)) > 0){
@@ -253,62 +254,64 @@ runetokey(Rune r)
 static void
 kproc(void *)
 {
-	int n, k, fd;
-	char buf[128], kdown[128], *s;
+	int n, k, fd, rep;
+	char buf[128], kdown[128], *s, *p;
 	Rune r;
-	Kev ev;
+	Kev ev, evc;
 
 	if((fd = open("/dev/kbd", OREAD)) < 0)
 		sysfatal("kproc: %r");
-	kdown[0] = kdown[1] = buf[0] = 0;
+	memset(buf, 0, sizeof buf);
+	memset(kdown, 0, sizeof kdown);
+	evc.key = K_ENTER;
+	evc.down = true;
+	evc.isrep = true;
+	ev.isrep = false;
+	rep = 0;
 	for(;;){
 		if(buf[0] != 0){
 			n = strlen(buf)+1;
 			memmove(buf, buf+n, sizeof(buf)-n);
 		}
 		if(buf[0] == 0){
-			n = read(fd, buf, sizeof(buf)-1);
-			if(n <= 0)
+			if((n = read(fd, buf, sizeof(buf)-1)) <= 0)
 				break;
 			buf[n-1] = 0;
 			buf[n] = 0;
 		}
-		switch(*buf){
+		switch(buf[0]){
 		case 'c':
+			if(rep++ > 0 && send(kchan, &evc) < 0)
+				threadexits(nil);
 		default:
 			continue;
 		case 'k':
+			ev.down = true;
 			s = buf+1;
-			while(*s){
-				s += chartorune(&r, s);
-				if(utfrune(kdown+1, r) == nil){
-					if(k = runetokey(r)){
-						ev.key = k;
-						ev.down = true;
-						if(send(kchan, &ev) < 0)
-							goto end;
-					}
-				}
-			}
+			p = kdown+1;
 			break;
 		case 'K':
+			ev.down = false;
 			s = kdown+1;
-			while(*s){
-				s += chartorune(&r, s);
-				if(utfrune(buf+1, r) == nil){
-					if(k = runetokey(r)){
-						ev.key = k;
-						ev.down = false;
-						if(send(kchan, &ev) < 0)
-							goto end;
-					}
+			p = buf+1;
+			break;
+		}
+		while(*s != 0){
+			s += chartorune(&r, s);
+			if(utfrune(p, r) == nil){
+				if((k = runetokey(r)) == 0)
+					continue;
+				ev.key = k;
+				if(send(kchan, &ev) < 0)
+					threadexits(nil);
+				if(ev.down){
+					evc.key = k;
+					rep = 0;
 				}
 			}
-			break;
 		}
 		strcpy(kdown, buf);
 	}
-end:;
 }
 
 static void

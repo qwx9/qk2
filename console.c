@@ -65,23 +65,7 @@ void Con_ToggleConsole_f (void)
 
 	Key_ClearTyping ();
 	Con_ClearNotify ();
-
-	if (cls.key_dest == key_console)
-	{
-		M_ForceMenuOff ();
-		Cvar_Set ("paused", "0");
-		IN_Grabm (1);
-	}
-	else
-	{
-		M_ForceMenuOff ();
-		cls.key_dest = key_console;	
-
-		if (Cvar_VariableValue ("maxclients") == 1 
-			&& Com_ServerState ())
-			Cvar_Set ("paused", "1");
-		IN_Grabm (0);
-	}
+	M_ForceMenuOff(cls.key_dest == key_console && cls.state == ca_active);
 }
 
 /*
@@ -96,10 +80,7 @@ void Con_ToggleChat_f (void)
 	if (cls.key_dest == key_console)
 	{
 		if (cls.state == ca_active)
-		{
-			M_ForceMenuOff ();
-			cls.key_dest = key_game;
-		}
+			M_ForceMenuOff(true);
 	}
 	else
 		cls.key_dest = key_console;

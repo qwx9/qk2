@@ -76,6 +76,23 @@ extern	cvar_t *allow_download_maps;
 
 //======================================================================
 
+void
+CL_SetGameInput(k)
+{
+	switch(cls.key_dest = k){
+	case key_game:
+		IN_Grabm(1);
+		if(Cvar_VariableValue("maxclients") == 1 && Com_ServerState())
+			Cvar_Set("paused", "0");
+		break;
+	default:
+		IN_Grabm(0);
+		if(Cvar_VariableValue("maxclients") == 1 && Com_ServerState())
+			Cvar_Set("paused", "1");
+		break;
+	}
+}
+
 
 /*
 ====================
@@ -580,7 +597,7 @@ void CL_Disconnect (void)
 	VectorClear (cl.refdef.blend);
 	re.CinematicSetPalette(NULL);
 
-	M_ForceMenuOff ();
+	M_ForceMenuOff(false);
 
 	cls.connect_time = 0;
 

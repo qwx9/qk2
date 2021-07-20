@@ -20,12 +20,10 @@ int	anykeydown;
 int		edit_line=0;
 int		history_line=0;
 
-int		key_waiting;
 char	*keybindings[256];
 qboolean	consolekeys[256];	// if true, can't be rebound while in console
 qboolean	menubound[256];	// if true, can't be rebound while in menu
 int		keyshift[256];		// key to map to if shift held down in console
-int		key_repeats[256];	// if > 1, it is autorepeating
 qboolean	keydown[256];
 
 typedef struct
@@ -722,38 +720,38 @@ Called by the system between frames for both key up and key down events
 Should NOT be called during an interrupt!
 ===================
 */
-void Key_Event (int key, qboolean down, unsigned time)
+void Key_Event (int key, qboolean down, qboolean isrep, unsigned time)
 {
 	char	*kb;
 	char	cmd[1024];
 
-	// hack for modal presses
-	if (key_waiting == -1)
-	{
-		if (down)
-			key_waiting = key;
-		return;
-	}
-
 	// update auto-repeat status
 	if (down)
 	{
-		key_repeats[key]++;
-		if (key != K_BACKSPACE 
-			&& key != K_PAUSE 
-			&& key != K_PGUP 
-			&& key != K_KP_PGUP 
-			&& key != K_PGDN
-			&& key != K_KP_PGDN
-			&& key_repeats[key] > 1)
-			return;	// ignore most autorepeats
-			
+		if(isrep){
+			/* no autorepeat for anything ingame */
+			if(cls.key_dest == key_game)
+				return;
+			/* ignore hardcoded specially-handled keys */
+			switch(key){
+			case K_ESCAPE:
+			case '`':
+			case '~':
+			case K_ENTER:
+			case K_KP_ENTER:
+			case K_INS:		/* paste clipboard data */
+			case K_KP_INS:
+			case K_END:		/* jump to end */
+			case K_KP_END:
+			case K_TAB:		/* autocomplete */
+				return;
+			}
+			/* cons still sending repeats but key state has been cleared */
+			if(!keydown[key])
+				return;
+		}
 		if (key >= 200 && !keybindings[key])
 			Com_Printf ("%s is unbound, hit F4 to set.\n", Key_KeynumToString (key) );
-	}
-	else
-	{
-		key_repeats[key] = 0;
 	}
 
 	if (key == K_SHIFT)
@@ -803,15 +801,11 @@ void Key_Event (int key, qboolean down, unsigned time)
 
 	// track if any key is down for BUTTON_ANY
 	keydown[key] = down;
-	if (down)
-	{
-		if (key_repeats[key] == 1)
-			anykeydown++;
-	}
-	else
-	{
+	if(down && !isrep)
+		anykeydown++;
+	else{
 		anykeydown--;
-		if (anykeydown < 0)
+		if(anykeydown < 0)
 			anykeydown = 0;
 	}
 
@@ -899,30 +893,12 @@ void Key_ClearStates (void)
 {
 	int		i;
 
-	anykeydown = false;
+	anykeydown = 0;
 
 	for (i=0 ; i<256 ; i++)
 	{
-		if ( keydown[i] || key_repeats[i] )
-			Key_Event( i, false, 0 );
-		keydown[i] = 0;
-		key_repeats[i] = 0;
+		if(keydown[i])
+			Key_Event(i, false, false, 0);
+		keydown[i] = false;
 	}
 }
-
-
-/*
-===================
-Key_GetKey
-===================
-*/
-int Key_GetKey (void)
-{
-	key_waiting = -1;
-
-	while (key_waiting == -1)
-		Sys_SendKeyEvents ();
-
-	return key_waiting;
-}
-

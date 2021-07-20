@@ -288,7 +288,7 @@ void	M_Init(void);
 void	M_Keydown(int);
 void	M_Draw(void);
 void	M_Menu_Main_f(void);
-void	M_ForceMenuOff(void);
+void	M_ForceMenuOff(qboolean);
 void	M_AddToServerList(netadr_t, char *);
 void	CL_ParseInventory(void);
 void	CL_KeyInventory(int);
@@ -296,6 +296,7 @@ void	CL_DrawInventory(void);
 void	CL_PredictMovement(void);
 qboolean	CL_CheckOrDownloadFile(char *);
 void	CL_AddNetgraph(void);
+void	CL_SetGameInput(int);
 
 void	SV_Init(void);
 void	SV_Shutdown(char *, qboolean);
@@ -584,7 +585,7 @@ void	IN_Move(usercmd_t *);
 void	IN_Activate(qboolean);
 void	IN_Grabm(int);
 
-void	Key_Event(int, qboolean, unsigned);
+void	Key_Event(int, qboolean, qboolean, unsigned);
 void	Key_Init(void);
 void	Key_WriteBindings(FILE *);
 void	Key_SetBinding(int, char *);

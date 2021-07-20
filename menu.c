@@ -65,9 +65,7 @@ void M_PushMenu ( void (*draw) (void), char *(*key) (int k) )
 {
 	int		i;
 
-	if (Cvar_VariableValue ("maxclients") == 1 
-		&& Com_ServerState ())
-		Cvar_Set ("paused", "1");
+	CL_SetGameInput(key_menu);
 
 	// if this menu is already present, drop back to that level
 	// to avoid stacking menus by hotkeys
@@ -91,19 +89,16 @@ void M_PushMenu ( void (*draw) (void), char *(*key) (int k) )
 	m_keyfunc = key;
 
 	m_entersound = true;
-
-	cls.key_dest = key_menu;
 }
 
-void M_ForceMenuOff (void)
+void
+M_ForceMenuOff(qboolean set)
 {
 	m_drawfunc = 0;
 	m_keyfunc = 0;
-	cls.key_dest = key_game;
 	m_menudepth = 0;
-	Key_ClearStates ();
-	Cvar_Set ("paused", "0");
-	IN_Grabm (1);
+	Key_ClearStates();
+	CL_SetGameInput(set ? key_game : key_console);
 }
 
 void M_PopMenu (void)
@@ -117,7 +112,7 @@ void M_PopMenu (void)
 	m_keyfunc = m_layers[m_menudepth].key;
 
 	if (!m_menudepth)
-		M_ForceMenuOff ();
+		M_ForceMenuOff(cls.state == ca_active);
 }
 
 
@@ -469,7 +464,6 @@ char *M_Main_Key (int key)
 
 void M_Menu_Main_f (void)
 {
-	IN_Grabm (0);
 	M_PushMenu (M_Main_Draw, M_Main_Key);
 }
 
@@ -1140,8 +1134,7 @@ static void ConsoleFunc( void * )
 	Key_ClearTyping ();
 	Con_ClearNotify ();
 
-	M_ForceMenuOff ();
-	cls.key_dest = key_console;
+	M_ForceMenuOff(false);
 }
 
 void Options_MenuInit( void )
@@ -1824,14 +1817,13 @@ static void StartGame( void )
 {
 	// disable updates and start the cinematic going
 	cl.servercount = -1;
-	M_ForceMenuOff ();
+	M_ForceMenuOff(true);
 	Cvar_SetValue( "deathmatch", 0 );
 	Cvar_SetValue( "coop", 0 );
 
 	Cvar_SetValue( "gamerules", 0 );		//PGM
 
 	Cbuf_AddText ("loading ; killserver ; wait ; newgame\n");
-	cls.key_dest = key_game;
 }
 
 static void EasyGameFunc( void * )
@@ -2003,7 +1995,7 @@ void LoadGameCallback( void *self )
 
 	if ( m_savevalid[ a->generic.localdata[0] ] )
 		Cbuf_AddText (va("load save%i\n",  a->generic.localdata[0] ) );
-	M_ForceMenuOff ();
+	M_ForceMenuOff(true);
 }
 
 void LoadGame_MenuInit( void )
@@ -2074,7 +2066,7 @@ void SaveGameCallback( void *self )
 	menuaction_t *a = ( menuaction_t * ) self;
 
 	Cbuf_AddText (va("save save%i\n", a->generic.localdata[0] ));
-	M_ForceMenuOff ();
+	M_ForceMenuOff(true);
 }
 
 void SaveGame_MenuDraw( void )
@@ -2192,7 +2184,7 @@ void JoinServerFunc( void *self )
 
 	Com_sprintf (buffer, sizeof(buffer), "connect %s\n", NET_AdrToString (local_server_netadr[index]));
 	Cbuf_AddText (buffer);
-	M_ForceMenuOff ();
+	M_ForceMenuOff(true);
 }
 
 void AddressBookFunc( void * )
@@ -2444,8 +2436,7 @@ void StartServerActionFunc( void * )
 	{
 		Cbuf_AddText (va("map %s\n", startmap));
 	}
-
-	M_ForceMenuOff ();
+	M_ForceMenuOff(true);
 }
 
 void StartServer_MenuInit( void )
