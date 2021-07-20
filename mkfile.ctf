@@ -74,7 +74,7 @@ HFILES=\
 	fns.h\
 	rand1k.h\
 
-BIN=$home/bin/$objtype
+BIN=/$objtype/bin/games
 </sys/src/cmd/mkone
 
 CFLAGS=-FTVw -I$GAME
