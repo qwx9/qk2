@@ -1072,6 +1072,7 @@ void R_BeginFrame( float /*camera_separation*/ )
 		sw_state.prev_mode = sw_mode->value;
 		vid_fullscreen->modified = false;
 		sw_mode->modified = false;
+		cl.force_refdef = true;
 	}
 }
 
