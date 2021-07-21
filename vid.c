@@ -197,12 +197,17 @@ setscale(void)
 	char *s, *p;
 	static cvar_t *scale;
 
+	/* the actual minimum if you want to go that far is 100x28,
+	 * the minimum size of a rio window; the engine handles it
+	 * just fine */
 	scale = Cvar_Get("scale", "", 0);
-	if(strlen(scale->string) < 3+1+3)
+	if(strlen(scale->string) < 3+1+3){
+		fprint(2, "setscale: invalid resolution\n");
 		return;
+	}
 	s = scale->string;
 	vid.width = strtol(s, &p, 10);
-	if(p == s || vid.width < 320){
+	if(p == s || vid.width < 320){	/* actual minimum is minimum
 		fprint(2, "setscale: invalid width %d\n", vid.width);
 		return;
 	}
@@ -211,7 +216,7 @@ setscale(void)
 		return;
 	}
 	vid.height = strtol(p, &s, 10);
-	if(p == s || vid.height < 200){
+	if(p == s || vid.height < 240){
 		fprint(2, "setscale: invalid height %d\n", vid.height);
 		return;
 	}
