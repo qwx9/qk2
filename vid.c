@@ -14,12 +14,47 @@ Rectangle grabr;
 typedef ulong PIXEL;
 
 static int rwon;
-static uchar *fb;
+static uchar *fb, *fbs;
 static Image *fbi;
 static s32int fbpal[256];
+static int scaleon, scale = 1;
+static Rectangle fbr;
 
 refexport_t GetRefAPI(refimport_t);
 
+
+static void
+scalefb(void)
+{
+	int dy, *p, c, *s;
+
+	if(scale < 2)
+		return;
+	p = (s32int *)fbs;
+	s = (s32int *)fb;
+	dy = vid.width * vid.height;
+	while(dy-- > 0){
+		c = *s++;
+		switch(scale){
+		case 16: p[15] = c;
+		case 15: p[14] = c;
+		case 14: p[13] = c;
+		case 13: p[12] = c;
+		case 12: p[11] = c;
+		case 11: p[10] = c;
+		case 10: p[9] = c;
+		case 9: p[8] = c;
+		case 8: p[7] = c;
+		case 7: p[6] = c;
+		case 6: p[5] = c;
+		case 5: p[4] = c;
+		case 4: p[3] = c;
+		case 3: p[2] = c;
+		case 2: p[1] = c; p[0] = c;
+		}
+		p += scale;
+	}
+}
 
 static void
 drawfb(void)
@@ -77,24 +112,44 @@ resetfb(void)
 {
 	Point p;
 
-	vid.width = Dx(screen->r);
-	vid.height = Dy(screen->r);
-	free(fb);
-	fb = emalloc(vid.width * vid.height * sizeof *fbpal);
-	freeimage(fbi);
-	if((fbi = allocimage(display, Rect(0, 0, vid.width, vid.height), XRGB32, 0, 0)) == nil)
-		sysfatal("allocimage: %r");
-	vid.buffer = fb;
+	if(scaleon){
+		scale = Dx(screen->r) / vid.width;
+		if(scale <= 0)
+			scale = 1;
+		else if(scale > 16)
+			scale = 16;
+	}else{
+		vid.width = Dx(screen->r);
+		vid.height = Dy(screen->r);
+	}
 	vid.rowbytes = vid.width * sizeof *fbpal;
-	center = addpt(screen->r.min, Pt(vid.width/2, vid.height/2));
+	center = divpt(addpt(screen->r.min, screen->r.max), 2);
+	p = Pt(scale * vid.width/2, scale * vid.height/2);
+	fbr = Rpt(subpt(center, p), addpt(center, p));
 	p = Pt(vid.width/4, vid.height/4);
 	grabr = Rpt(subpt(center, p), addpt(center, p));
+	free(fb);
+	freeimage(fbi);
+	if((fbi = allocimage(display,
+		Rect(0, 0, vid.width * scale, scale > 1 ? 1 : vid.height),
+		XRGB32, scale > 1, 0)) == nil)
+		sysfatal("resetfb: %r");
+	fb = emalloc(vid.rowbytes * vid.height);
+	if(scaleon){
+		free(fbs);
+		fbs = emalloc(vid.rowbytes * scale * vid.height);
+	}
+	vid.buffer = fb;
+	draw(screen, screen->r, display->black, nil, ZP);
 	sw_mode->modified = true;	/* make ref_soft refresh its shit */
 }
 
 void
 flipfb(void)
 {
+	uchar *p;
+	Rectangle r;
+
 	if(resized){
 		resized = 0;
 		if(getwindow(display, Refnone) < 0)
@@ -103,8 +158,20 @@ flipfb(void)
 		return;
 	}
 	drawfb();
-	loadimage(fbi, fbi->r, fb, vid.height * vid.rowbytes);
-	draw(screen, screen->r, fbi, nil, ZP);
+	scalefb();
+	if(scale == 1){
+		loadimage(fbi, Rect(0,0,vid.width,vid.height), fb, vid.height * vid.rowbytes);
+		draw(screen, Rpt(fbr.min, Pt(fbr.max.x, fbr.max.y)), fbi, nil, ZP);
+	}else{
+		p = fbs;
+		r = fbr;
+		while(r.min.y < fbr.max.y){
+			r.max.y = r.min.y + scale;
+			p += loadimage(fbi, fbi->r, p, vid.rowbytes * scale);
+			draw(screen, r, fbi, nil, ZP);
+			r.min.y = r.max.y;
+		}
+	}
 	flushimage(display, 1);
 	if(dumpwin){
 		if(writebit() < 0)
@@ -122,6 +189,33 @@ setpal(uchar *p)
         	p = (uchar *)sw_state.currentpalette;
 	for(fp=fbpal; fp<fbpal+nelem(fbpal); p+=4)
 		*fp++ = p[0] << 16 | p[1] << 8 | p[2];
+}
+
+static void
+setscale(void)
+{
+	char *s, *p;
+	static cvar_t *scale;
+
+	scale = Cvar_Get("scale", "", 0);
+	if(strlen(scale->string) < 3+1+3)
+		return;
+	s = scale->string;
+	vid.width = strtol(s, &p, 10);
+	if(p == s || vid.width < 320){
+		fprint(2, "setscale: invalid width %d\n", vid.width);
+		return;
+	}
+	if(*p++ != 'x'){
+		fprint(2, "setscale: invalid resolution\n");
+		return;
+	}
+	vid.height = strtol(p, &s, 10);
+	if(p == s || vid.height < 200){
+		fprint(2, "setscale: invalid height %d\n", vid.height);
+		return;
+	}
+	scaleon = 1;
 }
 
 void
@@ -175,6 +269,7 @@ initfb(void)
 	ri.Vid_MenuInit = VID_MenuInit;
 
 	re = GetRefAPI(ri);
+	setscale();
 	re.Init();
 	resetfb();
 }
