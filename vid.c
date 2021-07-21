@@ -207,7 +207,7 @@ setscale(void)
 	}
 	s = scale->string;
 	vid.width = strtol(s, &p, 10);
-	if(p == s || vid.width < 320){	/* actual minimum is minimum
+	if(p == s || vid.width < 320){
 		fprint(2, "setscale: invalid width %d\n", vid.width);
 		return;
 	}
