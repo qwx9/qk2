@@ -437,7 +437,7 @@ IN_Init(void)
 	}
 	in_joystick = Cvar_Get("in_joystick", "0", CVAR_ARCHIVE);
 	sensitivity = Cvar_Get("sensitivity", "3", CVAR_ARCHIVE);
-	freelook = Cvar_Get("freelook", "0", CVAR_ARCHIVE);
+	freelook = Cvar_Get("freelook", "1", CVAR_ARCHIVE);
 	lookspring = Cvar_Get("lookspring", "0", CVAR_ARCHIVE);
 	lookstrafe = Cvar_Get("lookstrafe", "0", CVAR_ARCHIVE);
 	m_pitch = Cvar_Get("m_pitch", "0.022", CVAR_ARCHIVE);
@@ -445,7 +445,7 @@ IN_Init(void)
 	m_yaw = Cvar_Get("m_yaw", "0.022", 0);
 	m_forward = Cvar_Get("m_forward", "1", 0);
 	m_side = Cvar_Get("m_side", "0.8", 0);
-	m_windowed = Cvar_Get("m_windowed", "0", CVAR_ARCHIVE);
+	m_windowed = Cvar_Get("m_windowed", "1", CVAR_ARCHIVE);
 	m_filter = Cvar_Get("m_filter", "0", 0);
 
 	Cmd_AddCommand("+mlook", IN_MLookDown);
