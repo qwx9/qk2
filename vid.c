@@ -201,6 +201,8 @@ setscale(void)
 	 * the minimum size of a rio window; the engine handles it
 	 * just fine */
 	scale = Cvar_Get("scale", "", 0);
+	if(strlen(scale->string) == 0)
+		return;
 	if(strlen(scale->string) < 3+1+3){
 		fprint(2, "setscale: invalid resolution\n");
 		return;
