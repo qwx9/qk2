@@ -143,8 +143,8 @@ KBD_Update(void)
 void
 IN_Move(usercmd_t *cmd)
 {
-	static int oldmx, oldmy;
-	int mx, my;
+	static double oldmx, oldmy;
+	double mx, my;
 
 	if(!mouseon)
 		return;
@@ -159,11 +159,9 @@ IN_Move(usercmd_t *cmd)
 	oldmx = dx;
 	oldmy = dy;
 	dx = dy = 0;
-	if(!mx && !my)
-		return;
+
 	mx *= sensitivity->value;
 	my *= sensitivity->value;
-
 	/* add mouse x/y movement to cmd */
 	if(in_strafe.state & 1 || lookstrafe->value && mlooking)
 		cmd->sidemove += m_side->value * mx;
