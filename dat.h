@@ -1142,9 +1142,7 @@ enum{
 	NUMVERTEXNORMALS = 162,
 
 	/* thread groups */
-	THin = 1,
-	THsnd = 2,
-	THnet = 3
+	THnet = 1,
 };
 
 extern FILE *log_stats_file;

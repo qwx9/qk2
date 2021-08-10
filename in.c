@@ -366,8 +366,6 @@ tproc(void *)	/* stupid select() timeout bullshit */
 {
 	int t, ms, n, r;
 
-	threadsetgrp(THin);
-
 	t = ms = 0;
 	for(;;){
 		sleep(1);

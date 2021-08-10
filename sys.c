@@ -381,13 +381,22 @@ emalloc(ulong n)
 	return p;
 }
 
+/* threadnotify does not allow handling sys: notes:
+ * /sys/src/libthread/note.c:93; most important is releasing the
+ * mouse, the rest is essentially killing all children as well
+ * as the parent (in case one of the other procs crashed);
+ * broken procs will remain afterwards, but not if threadexits
+ * et al is called.  for threadkill to work, the proc must be
+ * using a libthread function (at least yield), otherwise it
+ * won't do diddly.  too much could go wrong if going through 
+ * all the shutdown functions. */
 void
 croak(void *, char *note)
 {
 	if(!strncmp(note, "sys:", 4)){
 		IN_Grabm(0);
-		shutsnd();
-		NET_Shutdown();
+		threadkillgrp(THnet);
+		threadkillgrp(0);
 	}
 	noted(NDFLT);
 }

@@ -87,6 +87,9 @@ cproc(void *)
 		}
 		if(write(afd, buf, n) != n)
 			break;
+		/* threadkill requires that a libthread function be used
+		 * somewhere: thread(2), errors notes and resources */
+		yield();
 	}
 }
 

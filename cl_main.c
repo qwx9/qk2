@@ -1767,8 +1767,8 @@ void CL_Shutdown(void)
 
 	CL_WriteConfiguration (); 
 
+	IN_Shutdown ();
 	CDAudio_Shutdown ();
 	shutsnd();
-	IN_Shutdown ();
 	R_Shutdown();
 }
