@@ -198,6 +198,7 @@ extern vec3_t vec3_origin;
 		BoxOnPlaneSide( (emins), (emaxs), (p)))
 
 extern int curtime;	// current time in ms, from Sys_Milliseconds()
+extern qboolean debug;
 
 enum{
 	CVAR_ARCHIVE = 1<<0,	// save to vars.rc

@@ -9,6 +9,7 @@
 void KBD_Update(void);
 
 mainstacksize = 512*1024;
+qboolean debug;
 int curtime;
 uint sys_frame_time;
 Channel *fuckchan, *tchan;
@@ -297,22 +298,23 @@ Sys_FindClose(void)
 void
 Sys_ConsoleOutput(char *s)
 {
-	write(1, s, strlen(s));
+	if(!debug)
+		return;
+	fprint(2, "%s", s);
 }
 
 void
 Sys_Error(char *error, ...)
 { 
-	char buf[1024], *out;
+	char buf[1024];
 	va_list arg;
 
 	CL_Shutdown();
 
 	va_start(arg, error);
-	out = vseprint(buf, buf+sizeof(buf), error, arg);
+	vseprint(buf, buf+sizeof(buf), error, arg);
 	va_end(arg);
-	write(2, buf, out-buf);
-	print("\n");
+	fprint(2, "%s\n", buf);
 	sysfatal("ending.");
 }
 

@@ -1399,6 +1399,9 @@ void Qcommon_Init (int argc, char **argv)
 	// cvar and command buffer management
 	COM_InitArgv (argc, argv);
 
+	if(COM_CheckParm("-debug"))
+		debug = true;
+
 	Swap_Init ();
 	Cbuf_Init ();
 
