@@ -332,13 +332,14 @@ Sys_Milliseconds(void)
 vlong
 flen(int fd)
 {
-	uchar bs[1024];
+	Dir *d;
+	vlong sz;
 
-	if(fstat(fd, bs, sizeof bs) < 0){
-		fprint(2, "flen:fstat: %r\n");
-		return -1;
-	}
-	return *((vlong *)(bs+2+2+4+1+4+8+4+4+4));	/* length[8] */
+	sz = -1;
+	if((d = dirfstat(fd)) != nil)
+		sz = d->length;
+	free(d);
+	return sz;
 }
 
 void
