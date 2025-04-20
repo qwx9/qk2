@@ -1,4 +1,0 @@
-#!/bin/rc
-rfork n
-for(i in mkfile mkfile.*)
-	mk -f $i install && mk -f $i nuke || exit
