@@ -11,13 +11,11 @@ int resized, dumpwin;
 Point center;
 Rectangle grabr;
 
-typedef ulong PIXEL;
-
 static int rwon;
 static uchar *fb, *fbs;
 static Image *fbi;
 static s32int fbpal[256];
-static int scaleon, scale = 1;
+static int scale = 1;
 static Rectangle fbr;
 
 refexport_t GetRefAPI(refimport_t);
@@ -26,13 +24,21 @@ refexport_t GetRefAPI(refimport_t);
 static void
 scalefb(void)
 {
-	int dy, *p, c, *s;
+	int i, dy, *p, c, *s;
 
 	if(scale < 2)
 		return;
 	p = (s32int *)fbs;
 	s = (s32int *)fb;
 	dy = vid.width * vid.height;
+	if(scale > 16){
+		while(dy-- > 0){
+			c = *s++;
+			for(i=0; i<scale; i++)
+				*p++ = c;
+		}
+		return;
+	}
 	while(dy-- > 0){
 		c = *s++;
 		switch(scale){
@@ -110,35 +116,27 @@ writebit(void)
 static void
 setscale(void)
 {
+	int f;
 	char *s, *p;
-	static cvar_t *scale;
 
-	/* the actual minimum if you want to go that far is 100x28,
-	 * the minimum size of a rio window; the engine handles it
-	 * just fine */
-	scale = Cvar_Get("scale", "", 0);
-	if(strlen(scale->string) == 0)
-		return;
-	if(strlen(scale->string) < 3+1+3){
-		fprint(2, "setscale: invalid resolution\n");
+	if(Cmd_Argc() < 2){
+		Com_Printf("scale f: set integer downscaling factor\n");
 		return;
 	}
-	s = scale->string;
-	vid.width = strtol(s, &p, 10);
-	if(p == s || vid.width < 320){
-		fprint(2, "setscale: invalid width %d\n", vid.width);
+	s = Cmd_Argv(1);
+	f = strtol(s, &p, 10);
+	if(p == s || f <= 1 || Dx(screen->r) / f < 1 || Dy(screen->r) / f < 1){
+		Com_Printf("scaling disabled\n");
+		if(scale != 1){
+			resized = 1;
+			scale = 1;
+		}
 		return;
 	}
-	if(*p++ != 'x'){
-		fprint(2, "setscale: invalid resolution\n");
+	if(scale == f)
 		return;
-	}
-	vid.height = strtol(p, &s, 10);
-	if(p == s || vid.height < 240){
-		fprint(2, "setscale: invalid height %d\n", vid.height);
-		return;
-	}
-	scaleon = 1;
+	scale = f;
+	resized = 1;
 }
 
 static void
@@ -146,17 +144,8 @@ resetfb(void)
 {
 	Point p;
 
-	setscale();
-	if(scaleon){
-		scale = Dx(screen->r) / vid.width;
-		if(scale <= 0)
-			scale = 1;
-		else if(scale > 16)
-			scale = 16;
-	}else{
-		vid.width = Dx(screen->r);
-		vid.height = Dy(screen->r);
-	}
+	vid.width = Dx(screen->r) / scale;
+	vid.height = Dy(screen->r) / scale;
 	vid.rowbytes = vid.width * sizeof *fbpal;
 	center = divpt(addpt(screen->r.min, screen->r.max), 2);
 	p = Pt(scale * vid.width/2, scale * vid.height/2);
@@ -170,7 +159,7 @@ resetfb(void)
 		XRGB32, scale > 1, 0)) == nil)
 		sysfatal("resetfb: %r");
 	fb = emalloc(vid.rowbytes * vid.height);
-	if(scaleon){
+	if(scale > 1){
 		free(fbs);
 		fbs = emalloc(vid.rowbytes * scale * vid.height);
 	}
@@ -278,5 +267,6 @@ initfb(void)
 
 	re = GetRefAPI(ri);
 	re.Init();
+	Cmd_AddCommand("v_scale", setscale);
 	resetfb();
 }
