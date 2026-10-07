@@ -108,10 +108,45 @@ writebit(void)
 }
 
 static void
+setscale(void)
+{
+	char *s, *p;
+	static cvar_t *scale;
+
+	/* the actual minimum if you want to go that far is 100x28,
+	 * the minimum size of a rio window; the engine handles it
+	 * just fine */
+	scale = Cvar_Get("scale", "", 0);
+	if(strlen(scale->string) == 0)
+		return;
+	if(strlen(scale->string) < 3+1+3){
+		fprint(2, "setscale: invalid resolution\n");
+		return;
+	}
+	s = scale->string;
+	vid.width = strtol(s, &p, 10);
+	if(p == s || vid.width < 320){
+		fprint(2, "setscale: invalid width %d\n", vid.width);
+		return;
+	}
+	if(*p++ != 'x'){
+		fprint(2, "setscale: invalid resolution\n");
+		return;
+	}
+	vid.height = strtol(p, &s, 10);
+	if(p == s || vid.height < 240){
+		fprint(2, "setscale: invalid height %d\n", vid.height);
+		return;
+	}
+	scaleon = 1;
+}
+
+static void
 resetfb(void)
 {
 	Point p;
 
+	setscale();
 	if(scaleon){
 		scale = Dx(screen->r) / vid.width;
 		if(scale <= 0)
@@ -191,40 +226,6 @@ setpal(uchar *p)
 		*fp++ = p[0] << 16 | p[1] << 8 | p[2];
 }
 
-static void
-setscale(void)
-{
-	char *s, *p;
-	static cvar_t *scale;
-
-	/* the actual minimum if you want to go that far is 100x28,
-	 * the minimum size of a rio window; the engine handles it
-	 * just fine */
-	scale = Cvar_Get("scale", "", 0);
-	if(strlen(scale->string) == 0)
-		return;
-	if(strlen(scale->string) < 3+1+3){
-		fprint(2, "setscale: invalid resolution\n");
-		return;
-	}
-	s = scale->string;
-	vid.width = strtol(s, &p, 10);
-	if(p == s || vid.width < 320){
-		fprint(2, "setscale: invalid width %d\n", vid.width);
-		return;
-	}
-	if(*p++ != 'x'){
-		fprint(2, "setscale: invalid resolution\n");
-		return;
-	}
-	vid.height = strtol(p, &s, 10);
-	if(p == s || vid.height < 240){
-		fprint(2, "setscale: invalid height %d\n", vid.height);
-		return;
-	}
-	scaleon = 1;
-}
-
 void
 VID_Printf(int print_level, char *fmt, ...)
 {
@@ -276,7 +277,6 @@ initfb(void)
 	ri.Vid_MenuInit = VID_MenuInit;
 
 	re = GetRefAPI(ri);
-	setscale();
 	re.Init();
 	resetfb();
 }
