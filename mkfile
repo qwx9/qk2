@@ -6,6 +6,8 @@ GAMES=\
 	crbot\
 
 install safeinstall clean nuke:V:
-	for(i in $GAMES){
-		mk -f mkfile.$i $target
+	for(i in $GAMES) @{
+		rfork n
+		bind -bc $i .
+		mk $target
 	}
