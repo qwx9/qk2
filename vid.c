@@ -22,72 +22,22 @@ refexport_t GetRefAPI(refimport_t);
 
 
 static void
-scalefb(void)
-{
-	int i, dy, *p, c, *s;
-
-	if(scale < 2)
-		return;
-	p = (s32int *)fbs;
-	s = (s32int *)fb;
-	dy = vid.width * vid.height;
-	if(scale > 16){
-		while(dy-- > 0){
-			c = *s++;
-			for(i=0; i<scale; i++)
-				*p++ = c;
-		}
-		return;
-	}
-	while(dy-- > 0){
-		c = *s++;
-		switch(scale){
-		case 16: p[15] = c;
-		case 15: p[14] = c;
-		case 14: p[13] = c;
-		case 13: p[12] = c;
-		case 12: p[11] = c;
-		case 11: p[10] = c;
-		case 10: p[9] = c;
-		case 9: p[8] = c;
-		case 8: p[7] = c;
-		case 7: p[6] = c;
-		case 6: p[5] = c;
-		case 5: p[4] = c;
-		case 4: p[3] = c;
-		case 3: p[2] = c;
-		case 2: p[1] = c; p[0] = c;
-		}
-		p += scale;
-	}
-}
-
-static void
 drawfb(void)
 {
 	uchar *s;
-	int n, we, w8, wr, *d, dy;
+	int c, i, n, w, *d, *e;
 
-	we = vid.width - 1;
-	w8 = vid.width + 7 >> 3;
-	wr = vid.width % 8;
-	dy = vid.height * vid.rowbytes;
-	while((dy -= vid.rowbytes) >= 0){
-		s = fb + dy;
-		d = ((int *)s) + we;
-		s += we;
-		n = w8;
-		switch(wr){
-		case 0:	do{	*d-- = fbpal[*s--];
-		case 7:		*d-- = fbpal[*s--];
-		case 6:		*d-- = fbpal[*s--];
-		case 5:		*d-- = fbpal[*s--];
-		case 4:		*d-- = fbpal[*s--];
-		case 3:		*d-- = fbpal[*s--];
-		case 2:		*d-- = fbpal[*s--];
-		case 1:		*d-- = fbpal[*s--];
-			}while(--n > 0);
+	w = vid.width;
+	s = fb;
+	d = (int *)fbs;
+	e = d + vid.width * scale * vid.height;
+	while(d < e){
+		for(n=0; n<w; n++){
+			c = fbpal[*s++];
+			for(i=0; i<scale; i++)
+				*d++ = c;
 		}
+		s += vid.rowbytes - w;
 	}
 }
 
@@ -182,7 +132,6 @@ flipfb(void)
 		return;
 	}
 	drawfb();
-	scalefb();
 	if(scale == 1){
 		loadimage(fbi, Rect(0,0,vid.width,vid.height), fb, vid.height * vid.rowbytes);
 		draw(screen, Rpt(fbr.min, Pt(fbr.max.x, fbr.max.y)), fbi, nil, ZP);
