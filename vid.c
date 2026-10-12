@@ -30,7 +30,7 @@ drawfb(void)
 	w = vid.width;
 	s = fb;
 	d = (int *)fbs;
-	e = d + vid.width * scale * vid.height;
+	e = d + w * scale * vid.height;
 	while(d < e){
 		for(n=0; n<w; n++){
 			c = fbpal[*s++];
@@ -109,10 +109,8 @@ resetfb(void)
 		XRGB32, scale > 1, 0)) == nil)
 		sysfatal("resetfb: %r");
 	fb = emalloc(vid.rowbytes * vid.height);
-	if(scale > 1){
-		free(fbs);
-		fbs = emalloc(vid.rowbytes * scale * vid.height);
-	}
+	free(fbs);
+	fbs = emalloc(vid.rowbytes * scale * vid.height);
 	vid.buffer = fb;
 	draw(screen, screen->r, display->black, nil, ZP);
 	sw_mode->modified = true;	/* make ref_soft refresh its shit */
@@ -133,7 +131,7 @@ flipfb(void)
 	}
 	drawfb();
 	if(scale == 1){
-		loadimage(fbi, Rect(0,0,vid.width,vid.height), fb, vid.height * vid.rowbytes);
+		loadimage(fbi, Rect(0,0,vid.width,vid.height), fbs, vid.height * vid.rowbytes);
 		draw(screen, Rpt(fbr.min, Pt(fbr.max.x, fbr.max.y)), fbi, nil, ZP);
 	}else{
 		p = fbs;
